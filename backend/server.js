@@ -1,29 +1,47 @@
+// backend/server.js
 const express = require('express')
-const { Pool } = require('pg')
+const cors = require('cors')
+const sequelize = require('./db')
+const userRoutes = require('./routes/userRoutes')
+const jobRoutes = require('./routes/jobRoutes')
+const applicationRoutes = require('./routes/applicationRoutes')
+const employerMemberRoutes = require('./routes/employerMemberRoutes')
 require('dotenv').config()
 
 const app = express()
-const port = process.env.PORT || 3000 // Get port from environment or default to 3000
+const port = process.env.PORT || 3000
 
-const pool = new Pool({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT
-})
+// Middleware
+app.use(cors())
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 
-// Test the database connection (optional)
-pool.query('SELECT NOW()', (err, res) => {
-  if (err) {
-    console.error('Error connecting to database:', err.stack)
-  } else {
-    console.log('Connected to database:', res.rows[0].now)
+// Test the database connection
+const connectToDatabase = async () => {
+  try {
+    await sequelize.authenticate()
+    console.log('Connection has been established successfully.')
+  } catch (error) {
+    console.error('Unable to connect to the database:', error)
+    process.exit(1) // Exit the process with a failure code
   }
+}
+
+connectToDatabase()
+
+// Routes
+app.use('/api/users', userRoutes)
+app.use('/api/jobs', jobRoutes)
+app.use('/api/applications', applicationRoutes)
+app.use('/api/employer_members', employerMemberRoutes)
+
+// Error Handling Middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack)
+  res.status(500).json({ error: 'Something broke!' })
 })
 
-// Define your API routes here...
-
+// Start the server
 app.listen(port, () => {
   console.log(`Server listening at http://localhost:${port}`)
 })

@@ -2,9 +2,15 @@ const express = require('express')
 const router = express.Router()
 const userController = require('../controllers/userController')
 const authMiddleware = require('../middleware/authMiddleware')
-const { body } = require('express-validator') // for input validation
+const { body, validationResult } = require('express-validator')
+const { upload } = require('../utils/fileUpload')
 
-// Validate signup input
+// Function to handle multiple file uploads
+const handleMultipleFileUpload = (fields) => {
+  return upload.fields(fields)
+}
+
+// Signup Validation rules
 const signupValidation = [
   body('email').isEmail().withMessage('Invalid email'),
   body('password')
@@ -15,42 +21,45 @@ const signupValidation = [
 ]
 
 // Login Route
-router.post('/login', userController.login)
+router.post('/login', async (req, res) => {
+  await userController.login(req, res)
+})
 
 // Signup Route (Email/Password)
-router.post('/signup', signupValidation, userController.signupWithEmail)
+router.post('/signup', signupValidation, async (req, res) => {
+  const errors = validationResult(req)
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() })
+  }
+  await userController.signupWithEmail(req, res)
+})
 
 // Google Signup Route
-router.post('/signup/google', userController.signupWithGoogle)
+router.post('/signup/google', async (req, res) => {
+  await userController.signupWithGoogle(req, res)
+})
 
 // Get User Profile (Protected Route)
-router.get(
-  '/profile',
-  authMiddleware.authenticateToken,
-  userController.getUserProfile
-)
+router.get('/profile', authMiddleware.authenticateToken, async (req, res) => {
+  await userController.getUserProfile(req, res)
+})
 
 // Update User Profile (Protected Route)
 router.put(
   '/profile',
   authMiddleware.authenticateToken,
-  userController.updateUserProfile
+  handleMultipleFileUpload([
+    { name: 'profilePicture', maxCount: 1 },
+    { name: 'coverPhoto', maxCount: 1 }
+  ]),
+  async (req, res) => {
+    await userController.updateUserProfile(req, res)
+  }
 )
 
-// Update Profile Picture (Protected Route)
-router.put(
-  '/profile/picture',
-  authMiddleware.authenticateToken,
-  upload.single('image'),
-  userController.updateProfilePicture
-)
-
-// Update Cover Photo (Protected Route)
-router.put(
-  '/profile/cover',
-  authMiddleware.authenticateToken,
-  upload.single('image'),
-  userController.updateCoverPhoto
-)
+// Route to get all users (Admin only)
+router.get('/', authMiddleware.authenticateToken, async (req, res) => {
+  await userController.getAllUsers(req, res)
+})
 
 module.exports = router

@@ -1,29 +1,16 @@
-// backend/middleware/authMiddleware.js
-const admin = require('firebase-admin')
+const jwt = require('jsonwebtoken')
 
-async function authenticateToken(req, res, next) {
-  const idToken = req.headers.authorization
-
-  if (!idToken) {
-    return res.status(401).json({ error: 'Authorization header missing' })
+exports.authenticateToken = (req, res, next) => {
+  const token =
+    req.headers.authorization && req.headers.authorization.split(' ')[1]
+  if (!token) {
+    return res.status(401).send('Access denied. No token provided.')
   }
-
   try {
-    const decodedToken = await admin.auth().verifyIdToken(idToken)
-
-    // Attach user information to the request for later use
-    req.user = {
-      uid: decodedToken.uid,
-      email: decodedToken.email
-      // Add other claims as needed (e.g., role, name, etc.)
-    }
-
-    next() // Proceed to the next middleware or route handler
-  } catch (error) {
-    // Handle invalid or expired token
-    console.error('Error verifying Firebase ID token:', error)
-    res.status(401).json({ error: 'Invalid or expired token' })
+    const decoded = jwt.verify(token, process.env.JWT_SECRET)
+    req.user = decoded
+    next()
+  } catch (ex) {
+    res.status(400).send('Invalid token.')
   }
 }
-
-module.exports = { authenticateToken }
