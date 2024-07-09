@@ -1,53 +1,56 @@
-const { DataTypes } = require('sequelize')
-const sequelize = require('../db')
-const User = require('./user')
-const JobPosting = require('./jobPosting')
-
-const JobApplication = sequelize.define(
-  'job_applications',
-  {
-    id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
-      primaryKey: true
-    },
-    jobseeker_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: User,
-        key: 'id'
+module.exports = (sequelize, DataTypes) => {
+  const JobApplication = sequelize.define(
+    'JobApplication',
+    {
+      id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true
+      },
+      jobseeker_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'users', // Ensure it matches the table name
+          key: 'id'
+        }
+      },
+      job_posting_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'job_postings', // Ensure it matches the table name
+          key: 'id'
+        }
+      },
+      cover_letter: DataTypes.TEXT,
+      status: {
+        type: DataTypes.ENUM(
+          'submitted',
+          'in_review',
+          'interview',
+          'accepted',
+          'rejected'
+        ),
+        defaultValue: 'submitted'
       }
     },
-    job_posting_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: JobPosting,
-        key: 'id'
-      }
-    },
-    cover_letter: DataTypes.TEXT,
-    status: {
-      type: DataTypes.ENUM(
-        'submitted',
-        'in_review',
-        'interview',
-        'accepted',
-        'rejected'
-      ),
-      defaultValue: 'submitted'
+    {
+      tableName: 'job_applications', // Explicitly specify the table name
+      timestamps: true
     }
-  },
-  {
-    timestamps: true
+  )
+
+  JobApplication.associate = (models) => {
+    JobApplication.belongsTo(models.User, {
+      foreignKey: 'jobseeker_id',
+      onDelete: 'CASCADE'
+    })
+    JobApplication.belongsTo(models.JobPosting, {
+      foreignKey: 'job_posting_id',
+      onDelete: 'CASCADE'
+    })
   }
-)
 
-User.hasMany(JobApplication, { foreignKey: 'jobseeker_id' })
-JobApplication.belongsTo(User, { foreignKey: 'jobseeker_id' })
-
-JobPosting.hasMany(JobApplication, { foreignKey: 'job_posting_id' })
-JobApplication.belongsTo(JobPosting, { foreignKey: 'job_posting_id' })
-
-module.exports = JobApplication
+  return JobApplication
+}

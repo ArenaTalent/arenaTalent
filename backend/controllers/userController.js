@@ -1,15 +1,17 @@
-const User = require('../models/User')
+// backend/controllers/userController.js
+const { User } = require('../models')
 const bcrypt = require('bcryptjs')
 
 exports.signupWithEmail = async (req, res) => {
   try {
-    const { email, password, firstName, lastName } = req.body
+    const { email, password, firstName, lastName, role } = req.body
     const hashedPassword = await bcrypt.hash(password, 10)
     const newUser = await User.create({
       email,
       password: hashedPassword,
-      firstName,
-      lastName
+      first_name: firstName,
+      last_name: lastName,
+      role
     })
     res
       .status(201)

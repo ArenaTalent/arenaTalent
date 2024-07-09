@@ -1,14 +1,51 @@
-// backend/models/index.js
-const User = require('./user')
-const JobseekerProfile = require('./jobseekerProfile')
-const EmployerProfile = require('./employerProfile')
-const EmployerMember = require('./employerMember')
+'use strict'
 
-// ... (set up relationships between models here, if needed)
+const fs = require('fs')
+const path = require('path')
+const Sequelize = require('sequelize')
+const basename = path.basename(__filename)
+const env = process.env.NODE_ENV || 'development'
+const config = require(__dirname + '/../config/config.js')[env]
+const db = {}
 
-module.exports = {
-  User,
-  JobseekerProfile,
-  EmployerProfile,
-  EmployerMember
+let sequelize
+if (config.use_env_variable) {
+  sequelize = new Sequelize(process.env[config.use_env_variable], config)
+} else {
+  sequelize = new Sequelize(
+    config.database,
+    config.username,
+    config.password,
+    config
+  )
 }
+
+fs.readdirSync(__dirname)
+  .filter((file) => {
+    return (
+      file.indexOf('.') !== 0 && file !== basename && file.slice(-3) === '.js'
+    )
+  })
+  .forEach((file) => {
+    console.log(`Loading model from file: ${file}`)
+    const model = require(path.join(__dirname, file))(
+      sequelize,
+      Sequelize.DataTypes
+    )
+    db[model.name] = model
+    console.log(`Model loaded: ${model.name}`)
+  })
+
+Object.keys(db).forEach((modelName) => {
+  if (db[modelName].associate) {
+    console.log(`Associating model: ${modelName}`)
+    db[modelName].associate(db)
+  }
+})
+
+db.sequelize = sequelize
+db.Sequelize = Sequelize
+
+console.log('Sequelize initialization complete.')
+
+module.exports = db

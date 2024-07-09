@@ -9,12 +9,20 @@ const employerMemberRoutes = require('./routes/employerMemberRoutes')
 require('dotenv').config()
 
 const app = express()
-const port = process.env.PORT || 3000
+const port = process.env.PORT || 5002
 
 // Middleware
+console.log('Starting server setup...')
 app.use(cors())
+console.log('CORS enabled')
 app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
+console.log('Middleware set up')
+
+// Add a log right before listen
+console.log(`Attempting to listen on port ${port}`)
+app.listen(port, () => {
+  console.log(`Server listening at http://localhost:${port}`)
+})
 
 // Test the database connection
 const connectToDatabase = async () => {
@@ -39,9 +47,4 @@ app.use('/api/employer_members', employerMemberRoutes)
 app.use((err, req, res, next) => {
   console.error(err.stack)
   res.status(500).json({ error: 'Something broke!' })
-})
-
-// Start the server
-app.listen(port, () => {
-  console.log(`Server listening at http://localhost:${port}`)
 })

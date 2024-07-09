@@ -1,41 +1,43 @@
-const { DataTypes } = require('sequelize')
-const sequelize = require('../db')
-const User = require('./user') // Assuming you have a User model
-
-const EmployerMember = sequelize.define(
-  'employer_members',
-  {
-    id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
-      primaryKey: true
-    },
-    employer_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: User,
-        key: 'id'
+// models/User.js
+module.exports = (sequelize, DataTypes) => {
+  const User = sequelize.define(
+    'User',
+    {
+      id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true
+      },
+      email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true
+      },
+      password: {
+        type: DataTypes.STRING,
+        allowNull: false
+      },
+      role: {
+        type: DataTypes.ENUM('jobseeker', 'employer'),
+        allowNull: false
+      },
+      first_name: {
+        type: DataTypes.STRING,
+        allowNull: false
+      },
+      last_name: {
+        type: DataTypes.STRING,
+        allowNull: false
+      },
+      company_name: {
+        type: DataTypes.STRING,
+        allowNull: true
       }
     },
-    member_email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true
-    },
-    role: DataTypes.STRING,
-    status: {
-      type: DataTypes.ENUM('invited', 'active', 'inactive'),
-      defaultValue: 'invited'
+    {
+      timestamps: true // This adds the `createdAt` and `updatedAt` fields
     }
-  },
-  {
-    timestamps: true
-  }
-)
+  )
 
-// Define the relationship (One-to-Many)
-User.hasMany(EmployerMember, { foreignKey: 'employer_id' })
-EmployerMember.belongsTo(User, { foreignKey: 'employer_id' })
-
-module.exports = EmployerMember
+  return User
+}
