@@ -1,4 +1,3 @@
-// src/components/Login.jsx
 import React, { useState } from 'react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebaseConfig'; // Import your Firebase configuration
@@ -10,8 +9,7 @@ function Login() {
     const [error, setError] = useState(null); // Initialize error as null
     const [loading, setLoading] = useState(false); // Added loading state
 
-
-    const navigate = useNavigate();// Assuming you are using React Router for navigation
+    const navigate = useNavigate(); // Assuming you are using React Router for navigation
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -28,15 +26,20 @@ function Login() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': idToken // Include ID token in header
-                }
+                    'Authorization': `Bearer ${idToken}` // Include ID token in header
+                },
+                body: JSON.stringify({ email, password })
             });
 
             if (response.ok) {
-                const userData = await response.json();
-                // ... (store userData and redirect)
+                const { token, redirectPath } = await response.json();
+                // Store the token (you might use localStorage, context, etc.)
+                localStorage.setItem('token', token);
+                // Redirect based on the response
+                navigate(redirectPath);
             } else {
-                setError('Login failed. Please check your credentials.');
+                const { message } = await response.json();
+                setError(message || 'Login failed. Please check your credentials.');
             }
         } catch (error) {
             setError(error.message);
@@ -71,6 +74,11 @@ function Login() {
                 {loading ? 'Logging in...' : 'Login'} {/* Conditional button text */}
             </button>
             {error && <p>{error}</p>}
+            <p>By logging in you accept our <a href="/terms">terms</a> and <a href="/privacy">privacy policy</a>.</p>
+            <button type="button" onClick={() => navigate('/reset-password')}>
+                Forgot Password?
+            </button>
+            <p>New to Arena? <a href="/signup">Signup</a></p>
         </form>
     );
 }

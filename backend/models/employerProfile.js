@@ -1,4 +1,6 @@
-module.exports = (sequelize, DataTypes) => {
+const { DataTypes } = require('sequelize')
+
+module.exports = (sequelize) => {
   const EmployerProfile = sequelize.define(
     'EmployerProfile',
     {
@@ -11,34 +13,51 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-          model: 'Users', // Name of the referenced table
+          model: 'Users', // Use the table name 'users' instead of the model name 'User'
           key: 'id'
         }
       },
+      company_name: {
+        type: DataTypes.STRING,
+        allowNull: false
+      },
+      company_website: {
+        type: DataTypes.STRING,
+        allowNull: false
+      },
+      company_address: {
+        type: DataTypes.STRING,
+        allowNull: false
+      },
+      company_phone: {
+        type: DataTypes.STRING,
+        allowNull: false
+      },
+      company_email: {
+        type: DataTypes.STRING,
+        allowNull: false
+      },
+      intake_completed: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+      },
       company_description: DataTypes.TEXT,
-      website: DataTypes.STRING,
-      location: DataTypes.STRING,
-      work_from_home_policy: DataTypes.STRING,
-      top_ranking: DataTypes.BOOLEAN,
       linkedin: DataTypes.STRING,
       industry: DataTypes.STRING,
       number_of_open_jobs: DataTypes.INTEGER,
-      open_jobs: DataTypes.ARRAY(DataTypes.INTEGER), // Array of job posting IDs
+      open_jobs: DataTypes.ARRAY(DataTypes.INTEGER),
       number_of_hires: DataTypes.INTEGER,
       benefits: DataTypes.ARRAY(DataTypes.TEXT),
       recent_news: DataTypes.TEXT,
-      team: DataTypes.TEXT // Or JSONB for more structure
+      team: DataTypes.TEXT
     },
     {
-      timestamps: true
+      tableName: 'employer_profiles'
     }
   )
 
   EmployerProfile.associate = (models) => {
-    EmployerProfile.belongsTo(models.User, {
-      foreignKey: 'user_id',
-      onDelete: 'CASCADE'
-    })
+    EmployerProfile.belongsTo(models.User, { foreignKey: 'user_id' })
   }
 
   return EmployerProfile

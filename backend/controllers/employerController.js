@@ -1,22 +1,21 @@
-// backend/controllers/employerController.js
 const {
   EmployerProfile,
   JobPosting,
   JobApplication,
-  EmployerMember
+  User
 } = require('../models')
 const { upload, uploadFileToS3 } = require('../utils/fileUpload')
-const { validationResult } = require('express-validator') // Assuming you're using express-validator for validation
-const { Op } = require('sequelize') // for advanced querying
+const { validationResult } = require('express-validator')
+const { Op } = require('sequelize')
 
 // Create Job Posting (Protected - Employer Only)
 exports.createJobPosting = async (req, res) => {
-  const errors = validationResult(req) // Add express-validator validation for input
+  const errors = validationResult(req)
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() })
   }
   try {
-    const employerId = req.user.uid
+    const employerId = req.user.id
     const { title, description, ...otherData } = req.body
 
     const jobPosting = await JobPosting.create({
@@ -41,7 +40,7 @@ exports.updateJobPosting = async (req, res) => {
 exports.deleteJobPosting = async (req, res) => {
   try {
     const jobId = req.params.jobId
-    const employerId = req.user.uid
+    const employerId = req.user.id
 
     const jobPosting = await JobPosting.findOne({
       where: { id: jobId, employer_id: employerId }
@@ -61,7 +60,7 @@ exports.deleteJobPosting = async (req, res) => {
 
 // Get Employer Profile
 exports.getEmployerProfile = async (req, res) => {
-  const employerId = req.user.uid
+  const employerId = req.user.id
 
   try {
     const employer = await User.findByPk(employerId, {
@@ -91,7 +90,7 @@ exports.updateEmployerProfile = async (req, res) => {
       return res.status(400).json({ error: err.message })
     }
 
-    const userId = req.user.uid
+    const userId = req.user.id
     const profilePicture = req.files['profilePicture']
       ? req.files['profilePicture'][0]
       : null
@@ -136,7 +135,7 @@ exports.updateEmployerProfile = async (req, res) => {
 // Get Job Applications (Protected - Employer Only)
 exports.getJobApplications = async (req, res) => {
   try {
-    const employerId = req.user.uid
+    const employerId = req.user.id
     const jobId = req.params.jobId // Assuming the job ID is in the URL parameter
 
     const jobPosting = await JobPosting.findOne({
@@ -170,7 +169,7 @@ exports.getJobApplications = async (req, res) => {
 // Get Job Postings by Employer (Protected - Employer Only)
 exports.getJobPostingsByEmployer = async (req, res) => {
   try {
-    const employerId = req.user.uid // Get the employer's ID from the authenticated user
+    const employerId = req.user.id // Get the employer's ID from the authenticated user
 
     const jobPostings = await JobPosting.findAll({
       where: { employer_id: employerId },
@@ -184,5 +183,33 @@ exports.getJobPostingsByEmployer = async (req, res) => {
   }
 }
 
-// ... (Other employer-related controller functions -
-// search for job seekers, filter candidates, send messages, etc.)
+exports.getAllEmployers = async (req, res) => {
+  try {
+    const employers = await User.findAll({
+      where: { role: 'employer' },
+      include: [{ model: EmployerProfile, as: 'EmployerProfile' }]
+    })
+    res.status(200).json(employers)
+  } catch (error) {
+    console.error('Error fetching employers:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+}
+
+exports.getEmployerById = async (req, res) => {
+  try {
+    const employer = await User.findOne({
+      where: { id: req.params.id, role: 'employer' },
+      include: [{ model: EmployerProfile, as: 'EmployerProfile' }]
+    })
+
+    if (!employer) {
+      return res.status(404).json({ error: 'Employer not found' })
+    }
+
+    res.status(200).json(employer)
+  } catch (error) {
+    console.error('Error fetching employer:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+}

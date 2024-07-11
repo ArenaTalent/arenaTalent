@@ -50,5 +50,12 @@ router.get('/profile', authMiddleware.authenticateToken, async (req, res) => {
 router.put('/profile', authMiddleware.authenticateToken, async (req, res) => {
   await employerController.updateEmployerProfile(req, res)
 })
+router.get('/', authMiddleware.authenticateToken, async (req, res) => {
+  await employerController.getAllEmployers(req, res)
+})
+
+router.get('/:id', authMiddleware.authenticateToken, async (req, res) => {
+  await employerController.getEmployerById(req, res)
+})
 
 module.exports = router

@@ -58,4 +58,14 @@ router.get('/', authMiddleware.authenticateToken, async (req, res) => {
   await userController.getAllUsers(req, res)
 })
 
+router.post('/reset-password', async (req, res) => {
+  try {
+    const { email } = req.body
+    await userController.sendPasswordResetEmail(email)
+    res.status(200).json({ message: 'Password reset email sent.' })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
 module.exports = router

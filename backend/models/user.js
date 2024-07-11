@@ -1,4 +1,6 @@
-module.exports = (sequelize, DataTypes) => {
+const { DataTypes } = require('sequelize')
+
+module.exports = (sequelize) => {
   const User = sequelize.define(
     'User',
     {
@@ -17,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false
       },
       role: {
-        type: DataTypes.ENUM('jobseeker', 'employer'),
+        type: DataTypes.STRING,
         allowNull: false
       },
       first_name: {
@@ -28,29 +30,22 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false
       },
-      company_name: {
-        type: DataTypes.STRING,
-        allowNull: true
-      }
+      company_name: DataTypes.STRING
     },
     {
-      tableName: 'users', // Explicitly specify the table name
+      tableName: 'users',
       timestamps: true
     }
   )
 
   User.associate = (models) => {
+    User.hasOne(models.EmployerProfile, {
+      foreignKey: 'user_id',
+      as: 'EmployerProfile'
+    })
     User.hasOne(models.JobseekerProfile, {
       foreignKey: 'user_id',
-      onDelete: 'CASCADE'
-    })
-    User.hasMany(models.JobPosting, {
-      foreignKey: 'employer_id',
-      onDelete: 'CASCADE'
-    })
-    User.hasMany(models.JobApplication, {
-      foreignKey: 'jobseeker_id',
-      onDelete: 'CASCADE'
+      as: 'JobseekerProfile'
     })
   }
 

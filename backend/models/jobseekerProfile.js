@@ -1,4 +1,7 @@
-module.exports = (sequelize, DataTypes) => {
+// backend/models/jobseekerProfile.js
+const { DataTypes } = require('sequelize')
+
+module.exports = (sequelize) => {
   const JobseekerProfile = sequelize.define(
     'JobseekerProfile',
     {
@@ -11,11 +14,15 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-          model: 'users', // Ensure it matches the table name
+          model: 'users',
           key: 'id'
         }
       },
-      resume: DataTypes.TEXT, // File path or BYTEA/BLOB
+      intake_completed: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+      },
+      resume: DataTypes.TEXT,
       skills: DataTypes.ARRAY(DataTypes.TEXT),
       experience: DataTypes.TEXT,
       gender: DataTypes.STRING,
@@ -34,11 +41,11 @@ module.exports = (sequelize, DataTypes) => {
       languages: DataTypes.ARRAY(DataTypes.TEXT),
       open_to_opportunities: DataTypes.BOOLEAN,
       location: DataTypes.STRING,
-      jobs_applied: DataTypes.ARRAY(DataTypes.INTEGER), // Array of job posting IDs
-      templates: DataTypes.TEXT // Could be JSONB for more structure
+      jobs_applied: DataTypes.ARRAY(DataTypes.INTEGER),
+      templates: DataTypes.TEXT
     },
     {
-      tableName: 'jobseeker_profiles', // Explicitly specify the table name
+      tableName: 'jobseeker_profiles',
       timestamps: true
     }
   )
@@ -46,7 +53,7 @@ module.exports = (sequelize, DataTypes) => {
   JobseekerProfile.associate = (models) => {
     JobseekerProfile.belongsTo(models.User, {
       foreignKey: 'user_id',
-      onDelete: 'CASCADE'
+      as: 'User'
     })
   }
 

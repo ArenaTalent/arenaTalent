@@ -6,6 +6,8 @@ const userRoutes = require('./routes/userRoutes')
 const jobRoutes = require('./routes/jobRoutes')
 const applicationRoutes = require('./routes/applicationRoutes')
 const employerMemberRoutes = require('./routes/employerMemberRoutes')
+const jobSeekerRoutes = require('./routes/jobSeekerRoutes')
+const employerRoutes = require('./routes/employerRoutes')
 require('dotenv').config()
 
 const app = express()
@@ -42,6 +44,8 @@ app.use('/api/users', userRoutes)
 app.use('/api/jobs', jobRoutes)
 app.use('/api/applications', applicationRoutes)
 app.use('/api/employer_members', employerMemberRoutes)
+app.use('/api/job_seekers', jobSeekerRoutes)
+app.use('/api/employers', employerRoutes)
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {

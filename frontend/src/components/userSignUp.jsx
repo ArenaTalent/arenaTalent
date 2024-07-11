@@ -10,10 +10,15 @@ function Signup() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [companyName, setCompanyName] = useState('');
-  const [role, setRole] = useState('jobseeker');
+  const [companyEmail, setCompanyEmail] = useState('');
+  const [companyWebsite, setCompanyWebsite] = useState('');
+  const [companyPhone, setCompanyPhone] = useState('');
+  const [companyAddress, setCompanyAddress] = useState('');
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [isEmployer, setIsEmployer] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const navigate = useNavigate();
 
   // Password validation logic
@@ -24,6 +29,10 @@ function Signup() {
     e.preventDefault();
     if (!isPasswordValid || !isConfirmPasswordValid) {
       setError('Please fix the errors before submitting.');
+      return;
+    }
+    if (!acceptedTerms) {
+      setError('You must accept the terms and privacy policy.');
       return;
     }
     setLoading(true);
@@ -37,9 +46,20 @@ function Signup() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${idToken}`,
+          'Authorization': `Bearer ${idToken}`
         },
-        body: JSON.stringify({ email, password, firstName, lastName, companyName, role }),
+        body: JSON.stringify({
+          email,
+          password,
+          firstName,
+          lastName,
+          companyName: isEmployer ? companyName : undefined,
+          companyEmail: isEmployer ? companyEmail : undefined,
+          companyWebsite: isEmployer ? companyWebsite : undefined,
+          companyPhone: isEmployer ? companyPhone : undefined,
+          companyAddress: isEmployer ? companyAddress : undefined,
+          role: isEmployer ? 'employer' : 'jobseeker'
+        })
       });
 
       if (response.ok) {
@@ -49,7 +69,11 @@ function Signup() {
         setError(data.error || 'Signup failed. Please try again.');
       }
     } catch (error) {
-      setError(error.message);
+      if (error.code === 'auth/email-already-in-use') {
+        setError('Email already exists. <a href="/login">Login</a> or <a href="/reset-password">Reset Password</a>');
+      } else {
+        setError(error.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -67,15 +91,14 @@ function Signup() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${idToken}`,
+          'Authorization': `Bearer ${idToken}`
         },
         body: JSON.stringify({
           email: user.email,
           firstName: user.displayName?.split(' ')[0],
           lastName: user.displayName?.split(' ')[1],
-          companyName,
-          role,
-        }),
+          role: 'jobseeker' // Update as needed
+        })
       });
 
       if (response.ok) {
@@ -93,38 +116,28 @@ function Signup() {
     setShowPassword(!showPassword);
   };
 
-  const toggleRole = () => {
-    setRole(role === 'jobseeker' ? 'employer' : 'jobseeker');
-    setCompanyName('');
-  };
-
   return (
     <div>
-      <button onClick={toggleRole}>
-        {role === 'jobseeker' ? 'Employer' : 'Job Seeker'}
-      </button>
+      <div>
+        <button onClick={() => setIsEmployer(false)}>Job Seeker</button>
+        <button onClick={() => setIsEmployer(true)}>Employer</button>
+      </div>
       <form onSubmit={handleEmailPasswordSignup}>
         <div>
           <label htmlFor="firstName">First Name:</label>
-          <input type="text" id="firstName" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
+          <input type="text" id="firstName" value={firstName} onChange={(e) => setFirstName(e.target.value)} required placeholder="First Name" />
         </div>
         <div>
           <label htmlFor="lastName">Last Name:</label>
-          <input type="text" id="lastName" value={lastName} onChange={(e) => setLastName(e.target.value)} required />
+          <input type="text" id="lastName" value={lastName} onChange={(e) => setLastName(e.target.value)} required placeholder="Last Name" />
         </div>
-        {role === 'employer' && (
-          <div>
-            <label htmlFor="companyName">Company Name:</label>
-            <input type="text" id="companyName" value={companyName} onChange={(e) => setCompanyName(e.target.value)} required />
-          </div>
-        )}
         <div>
-          <label htmlFor="email">Email:</label>
-          <input type="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          <label htmlFor="email">Personal Email:</label>
+          <input type="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="Personal Email" />
         </div>
         <div>
           <label htmlFor="password">Password:</label>
-          <input type={showPassword ? 'text' : 'password'} id="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+          <input type={showPassword ? 'text' : 'password'} id="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="Password" />
           <button type="button" onClick={togglePasswordVisibility}>
             {showPassword ? 'Hide' : 'Show'}
           </button>
@@ -133,18 +146,55 @@ function Signup() {
         </div>
         <div>
           <label htmlFor="confirmPassword">Confirm Password:</label>
-          <input type={showPassword ? 'text' : 'password'} id="confirmPassword" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
+          <input type={showPassword ? 'text' : 'password'} id="confirmPassword" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required placeholder="Confirm Password" />
           {password && confirmPassword && !isConfirmPasswordValid && <span style={{ color: 'red' }}>✗ Passwords must match</span>}
           {password && confirmPassword && isConfirmPasswordValid && <span style={{ color: 'green' }}>✓ Passwords match</span>}
         </div>
-        <button type="submit" disabled={loading || !isPasswordValid || !isConfirmPasswordValid}>
+        {isEmployer && (
+          <>
+            <div>
+              <label htmlFor="companyName">Company Name:</label>
+              <input type="text" id="companyName" value={companyName} onChange={(e) => setCompanyName(e.target.value)} required placeholder="Company Name" />
+            </div>
+            <div>
+              <label htmlFor="companyEmail">Company Email:</label>
+              <input type="email" id="companyEmail" value={companyEmail} onChange={(e) => setCompanyEmail(e.target.value)} required placeholder="Company Email" />
+            </div>
+            <div>
+              <label htmlFor="companyWebsite">Company Website:</label>
+              <input type="text" id="companyWebsite" value={companyWebsite} onChange={(e) => setCompanyWebsite(e.target.value)} required placeholder="Company Website" />
+            </div>
+            <div>
+              <label htmlFor="companyPhone">Company Phone:</label>
+              <input type="text" id="companyPhone" value={companyPhone} onChange={(e) => setCompanyPhone(e.target.value)} required placeholder="Company Phone" />
+            </div>
+            <div>
+              <label htmlFor="companyAddress">Company Address:</label>
+              <input type="text" id="companyAddress" value={companyAddress} onChange={(e) => setCompanyAddress(e.target.value)} required placeholder="Company Address" />
+            </div>
+          </>
+        )}
+        <div>
+          <input
+            type="checkbox"
+            id="terms"
+            checked={acceptedTerms}
+            onChange={() => setAcceptedTerms(!acceptedTerms)}
+          />
+          <label htmlFor="terms">
+            I accept the <a href="/terms">terms and conditions</a> and <a href="/privacy-policy">privacy policy</a>
+          </label>
+        </div>
+        <button type="submit" disabled={loading || !isPasswordValid || !isConfirmPasswordValid || !acceptedTerms}>
           {loading ? 'Signing up...' : 'Sign Up with Email'}
         </button>
-        {error && <span style={{ color: 'red' }}>{error}</span>}
+        {error && <span style={{ color: 'red' }} dangerouslySetInnerHTML={{ __html: error }}></span>}
       </form>
-      <button onClick={handleGoogleSignup} disabled={loading}>
-        {loading ? 'Signing up with Google...' : 'Sign Up with Google'}
-      </button>
+      {!isEmployer && (
+        <button onClick={handleGoogleSignup} disabled={loading}>
+          {loading ? 'Signing up with Google...' : 'Sign Up with Google'}
+        </button>
+      )}
     </div>
   );
 }
