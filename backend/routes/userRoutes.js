@@ -15,57 +15,34 @@ const signupValidation = [
   body('lastName').notEmpty().withMessage('Last name is required')
 ]
 
+/// Signup Route
+router.post('/signup', signupValidation, userController.signupWithEmail)
+
 // Login Route
-router.post('/login', async (req, res) => {
-  await userController.login(req, res)
-})
+router.post('/login', userController.login)
 
-// Signup Route (Email/Password)
-router.post('/signup', signupValidation, async (req, res) => {
-  console.log('Signup endpoint hit')
-  const errors = validationResult(req)
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() })
-  }
-  await userController.signupWithEmail(req, res)
-})
-
-// Google Signup Route
-router.post('/signup/google', async (req, res) => {
-  await userController.signupWithGoogle(req, res)
-})
+// Check Intake Status Route (Protected)
+router.get(
+  '/check-intake',
+  authMiddleware.authenticateToken,
+  userController.checkIntakeStatus
+)
 
 // Get User Profile (Protected Route)
-router.get('/profile', authMiddleware.authenticateToken, async (req, res) => {
-  await userController.getUserProfile(req, res)
-})
+router.get(
+  '/profile',
+  authMiddleware.authenticateToken,
+  userController.getUserProfile
+)
 
 // Update User Profile (Protected Route)
 router.put(
   '/profile',
   authMiddleware.authenticateToken,
-  upload.fields([
-    { name: 'profilePicture', maxCount: 1 },
-    { name: 'coverPhoto', maxCount: 1 }
-  ]),
-  async (req, res) => {
-    await userController.updateUserProfile(req, res)
-  }
+  userController.updateUserProfile
 )
 
-// Route to get all users (Admin only)
-router.get('/', authMiddleware.authenticateToken, async (req, res) => {
-  await userController.getAllUsers(req, res)
-})
-
-router.post('/reset-password', async (req, res) => {
-  try {
-    const { email } = req.body
-    await userController.sendPasswordResetEmail(email)
-    res.status(200).json({ message: 'Password reset email sent.' })
-  } catch (error) {
-    res.status(500).json({ error: error.message })
-  }
-})
+// Get All Users (Admin Only, if needed)
+router.get('/', authMiddleware.authenticateToken, userController.getAllUsers)
 
 module.exports = router

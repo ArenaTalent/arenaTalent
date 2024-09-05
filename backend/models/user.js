@@ -14,6 +14,11 @@ module.exports = (sequelize) => {
         allowNull: false,
         unique: true
       },
+      firebase_uid: {
+        type: DataTypes.STRING,
+        unique: true,
+        allowNull: false
+      },
       password: {
         type: DataTypes.STRING,
         allowNull: false
