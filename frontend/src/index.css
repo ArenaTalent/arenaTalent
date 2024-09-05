@@ -1,13 +1,241 @@
-body {
+body, html {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  font-family: 'Open Sans', sans-serif;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+.container {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+}
+
+.left {
+  flex: 1;
+  background-color: #f4f4f9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.left .logo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.login-form {
+  width: 100%;
+  max-width: 450px;
+  background-color: light grey;
+  padding: 40px;
+  border-radius: 4px;
+}
+
+.tabs {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.tab {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  margin-right: 1rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  color: #C471ED;
+  margin-top: 50px;
+}
+
+.tab.active {
+  background-color: #C471ED;
+  color: white;
+  border-radius: 4px;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  color: white;
+  text-align: left;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.name-inputs {
+  display: flex;
+  gap: 1rem;
+}
+
+.name-inputs .form-group {
+  flex: 1;
+}
+
+.btn {
+  background-color: #C471ED;
+  border: none;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  display: block;
+  margin: 1rem 0;
+  width: 100%;
+}
+
+.btn:disabled {
+  background-color: #ccc;
+}
+
+.password-input-container {
+  position: relative;
+  display: flex;
+  width: 100%;
+  align-items: center;
+}
+
+.show-password-button {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  color: #C471ED;
+  cursor: pointer;
+  font-size: 10px;
+}
+
+.white-logo-signup {
+  height: 60px;
+  margin-bottom: 20px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.terms, .login {
+  font-size: 10px;
+  color: #515B6F;
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.terms a, .login a {
+  color: #C471ED;
+  text-decoration: none;
+}
+
+.google-btn {
+  background-color: #4285F4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.google-logo {
+  height: 18px;
+  margin-right: 10px;
+}
+
+
+.welcome-message {
+  color: white;
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 24px;
+}
+
+.forgot-password-container {
+  text-align: right;
+  margin-top: 5px;
+}
+
+.forgot-password-button {
+  background: none;
+  border: none;
+  color: #C471ED;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.forgot-password-button:hover {
+  text-decoration: none;
+}
+
+.error-message {
+  color: white;
+  background-color: rgba(255, 0, 0, 0.1);
+  border: 1px solid rgba(255, 0, 0, 0.3);
+  border-radius: 4px;
+  padding: 10px;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.error-message a {
+  color: #C471ED;
+  text-decoration: none;
+}
+
+.error-message a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .left, .right {
+    flex: none;
+    width: 100%;
+  }
+
+  .left {
+    height: 30vh;
+  }
+
+  .right {
+    height: 70vh;
+    padding: 1rem;
+  }
+
+  .login-form {
+    padding: 20px;
+  }
+
+  .name-inputs {
+    flex-direction: column;
+    gap: 0;
+  }
 }

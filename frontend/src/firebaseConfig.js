@@ -2,11 +2,11 @@
 import { initializeApp } from 'firebase/app'
 import { getAuth, GoogleAuthProvider } from 'firebase/auth'
 
-console.log('API Key:', process.env.REACT_APP_FIREBASE_API_KEY)
-console.log('All env:', process.env)
-console.log('API Key:', process.env.REACT_APP_FIREBASE_API_KEY)
-console.log('Auth Domain:', process.env.REACT_APP_FIREBASE_AUTH_DOMAIN)
-console.log('NODE_ENV:', process.env.NODE_ENV)
+// console.log('API Key:', process.env.REACT_APP_FIREBASE_API_KEY)
+// console.log('All env:', process.env)
+// console.log('API Key:', process.env.REACT_APP_FIREBASE_API_KEY)
+// console.log('Auth Domain:', process.env.REACT_APP_FIREBASE_AUTH_DOMAIN)
+// console.log('NODE_ENV:', process.env.NODE_ENV)
 
 // ... and so on
 

@@ -18,7 +18,6 @@ function Signup() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isEmployer, setIsEmployer] = useState(false);
-  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const navigate = useNavigate();
 
   // Password validation logic
@@ -29,10 +28,6 @@ function Signup() {
     e.preventDefault();
     if (!isPasswordValid || !isConfirmPasswordValid) {
       setError('Please fix the errors before submitting.');
-      return;
-    }
-    if (!acceptedTerms) {
-      setError('You must accept the terms and privacy policy.');
       return;
     }
     setLoading(true);
@@ -58,7 +53,8 @@ function Signup() {
           companyWebsite: isEmployer ? companyWebsite : undefined,
           companyPhone: isEmployer ? companyPhone : undefined,
           companyAddress: isEmployer ? companyAddress : undefined,
-          role: isEmployer ? 'employer' : 'jobseeker'
+          role: isEmployer ? 'employer' : 'jobseeker',
+          firebase_uid: userCredential.user.uid // Add this line
         })
       });
 
@@ -78,7 +74,6 @@ function Signup() {
       setLoading(false);
     }
   };
-
   const handleGoogleSignup = async () => {
     const provider = new GoogleAuthProvider();
     try {
@@ -117,84 +112,189 @@ function Signup() {
   };
 
   return (
-    <div>
-      <div>
-        <button onClick={() => setIsEmployer(false)}>Job Seeker</button>
-        <button onClick={() => setIsEmployer(true)}>Employer</button>
+    <div className="container">
+      <div className="left">
+        <img src="/images/login.png" alt="Arena Logo" className="logo" />
       </div>
-      <form onSubmit={handleEmailPasswordSignup}>
-        <div>
-          <label htmlFor="firstName">First Name:</label>
-          <input type="text" id="firstName" value={firstName} onChange={(e) => setFirstName(e.target.value)} required placeholder="First Name" />
-        </div>
-        <div>
-          <label htmlFor="lastName">Last Name:</label>
-          <input type="text" id="lastName" value={lastName} onChange={(e) => setLastName(e.target.value)} required placeholder="Last Name" />
-        </div>
-        <div>
-          <label htmlFor="email">Personal Email:</label>
-          <input type="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="Personal Email" />
-        </div>
-        <div>
-          <label htmlFor="password">Password:</label>
-          <input type={showPassword ? 'text' : 'password'} id="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="Password" />
-          <button type="button" onClick={togglePasswordVisibility}>
-            {showPassword ? 'Hide' : 'Show'}
+      <div className="right">
+        <div className="tabs">
+          <button
+            onClick={() => setIsEmployer(false)}
+            className={`tab ${!isEmployer ? 'active' : ''}`}
+          >
+            Job Seeker
           </button>
-          {!isPasswordValid && <span style={{ color: 'red' }}>✗ Password must be at least 8 characters and include a number</span>}
-          {isPasswordValid && <span style={{ color: 'green' }}>✓ Valid password</span>}
+          <button
+            onClick={() => setIsEmployer(true)}
+            className={`tab ${isEmployer ? 'active' : ''}`}
+          >
+            Employer
+          </button>
         </div>
-        <div>
-          <label htmlFor="confirmPassword">Confirm Password:</label>
-          <input type={showPassword ? 'text' : 'password'} id="confirmPassword" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required placeholder="Confirm Password" />
-          {password && confirmPassword && !isConfirmPasswordValid && <span style={{ color: 'red' }}>✗ Passwords must match</span>}
-          {password && confirmPassword && isConfirmPasswordValid && <span style={{ color: 'green' }}>✓ Passwords match</span>}
-        </div>
-        {isEmployer && (
+
+        <form className="login-form" onSubmit={handleEmailPasswordSignup}>
+          <img src="/images/white-logo.png" alt="Signup" className="white-logo-signup" />
+          <div className="name-inputs">
+            <div className="form-group">
+              <label htmlFor="firstName">First Name</label>
+              <input
+                type="text"
+                id="firstName"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                required
+                placeholder="Name"
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="lastName">Last Name</label>
+              <input
+                type="text"
+                id="lastName"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                required
+                placeholder="Name"
+              />
+            </div>
+          </div>
+          <div className="form-group">
+            <label htmlFor="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              placeholder="Email"
+            />
+          </div>
+          {isEmployer && (
+            <>
+              <div className="employer-inputs">
+                <div className="form-group">
+                  <label htmlFor="companyName">Company Name</label>
+                  <input
+                    type="text"
+                    id="companyName"
+                    value={companyName}
+                    onChange={(e) => setCompanyName(e.target.value)}
+                    required
+                    placeholder="Enter your Company name"
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="companyWebsite">Company Website</label>
+                  <input
+                    type="text"
+                    id="companyWebsite"
+                    value={companyWebsite}
+                    onChange={(e) => setCompanyWebsite(e.target.value)}
+                    placeholder="Website"
+                  />
+                </div>
+              </div>
+              <div className="employer-inputs">
+                <div className="form-group tooltip-container">
+                  <label htmlFor="companyEmail">
+                    Your Business Email
+                    <img src="/images/info-icon.png" alt="Info" className="tooltip-icon" />
+                    <span className="tooltip-text">Business email must match website domain</span>
+                  </label>
+                  <input
+                    type="email"
+                    id="companyEmail"
+                    value={companyEmail}
+                    onChange={(e) => setCompanyEmail(e.target.value)}
+                    required
+                    placeholder="Email"
+                  />
+                </div>
+                <div className="form-group tooltip-container">
+                  <label htmlFor="companyPhone">
+                    Company Phone
+                    <img src="/images/info-icon.png" alt="Info" className="tooltip-icon" />
+                    <span className="tooltip-text">Please provide business phone</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="companyPhone"
+                    value={companyPhone}
+                    onChange={(e) => setCompanyPhone(e.target.value)}
+                    placeholder="Phone"
+                  />
+                </div>
+              </div>
+              <div className="form-group tooltip-container">
+                <label htmlFor="companyAddress">
+                  Company Address
+                  <img src="/images/info-icon.png" alt="Info" className="tooltip-icon" />
+                  <span className="tooltip-text">Please provide company's address</span>
+                </label>
+                <input
+                  type="text"
+                  id="companyAddress"
+                  value={companyAddress}
+                  onChange={(e) => setCompanyAddress(e.target.value)}
+                  placeholder="Address"
+                />
+              </div>
+            </>
+          )}
+          <div className="form-group">
+            <label htmlFor="password">Password</label>
+            <div className="password-input-container">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                placeholder="Enter password"
+              />
+              <button type="button" className="show-password-button" onClick={togglePasswordVisibility}>
+                {showPassword ? 'Hide' : 'Show'}
+              </button>
+            </div>
+            {password && !isPasswordValid && <span className="alert" style={{ color: 'red' }}>✗ Password must be at least 8 characters and include a number</span>}
+            {password && isPasswordValid && <span className="alert" style={{ color: 'green' }}>✓ Valid password</span>}
+          </div>
+          <div className="form-group">
+            <label htmlFor="confirmPassword">Confirm Password</label>
+            <div className="password-input-container">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                id="confirmPassword"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                placeholder="Confirm password"
+              />
+            </div>
+            {password && confirmPassword && !isConfirmPasswordValid && <span className="alert" style={{ color: 'red' }}>✗ Passwords must match</span>}
+            {password && confirmPassword && isConfirmPasswordValid && <span className="alert" style={{ color: 'green' }}>✓ Passwords match</span>}
+          </div>
+          <button type="submit" className="btn" disabled={loading || !isPasswordValid || !isConfirmPasswordValid}>
+          {loading ? 'Signing up...' : 'Continue'}
+        </button>
+        {!isEmployer && (
           <>
-            <div>
-              <label htmlFor="companyName">Company Name:</label>
-              <input type="text" id="companyName" value={companyName} onChange={(e) => setCompanyName(e.target.value)} required placeholder="Company Name" />
-            </div>
-            <div>
-              <label htmlFor="companyEmail">Company Email:</label>
-              <input type="email" id="companyEmail" value={companyEmail} onChange={(e) => setCompanyEmail(e.target.value)} required placeholder="Company Email" />
-            </div>
-            <div>
-              <label htmlFor="companyWebsite">Company Website:</label>
-              <input type="text" id="companyWebsite" value={companyWebsite} onChange={(e) => setCompanyWebsite(e.target.value)} required placeholder="Company Website" />
-            </div>
-            <div>
-              <label htmlFor="companyPhone">Company Phone:</label>
-              <input type="text" id="companyPhone" value={companyPhone} onChange={(e) => setCompanyPhone(e.target.value)} required placeholder="Company Phone" />
-            </div>
-            <div>
-              <label htmlFor="companyAddress">Company Address:</label>
-              <input type="text" id="companyAddress" value={companyAddress} onChange={(e) => setCompanyAddress(e.target.value)} required placeholder="Company Address" />
-            </div>
+            <button type="button" onClick={handleGoogleSignup} className="btn google-btn" style={{backgroundColor:'white', color:'black'}} disabled={loading}>
+              <img src="/images/google-logo.png" alt="Google Logo" className="google-logo" />
+              {loading ? 'Signing up with Google...' : 'Sign Up with Google'}
+            </button>
+            <hr className="divider" />
           </>
         )}
-        <div>
-          <input
-            type="checkbox"
-            id="terms"
-            checked={acceptedTerms}
-            onChange={() => setAcceptedTerms(!acceptedTerms)}
-          />
-          <label htmlFor="terms">
-            I accept the <a href="/terms">terms and conditions</a> and <a href="/privacy-policy">privacy policy</a>
-          </label>
-        </div>
-        <button type="submit" disabled={loading || !isPasswordValid || !isConfirmPasswordValid || !acceptedTerms}>
-          {loading ? 'Signing up...' : 'Sign Up with Email'}
-        </button>
-        {error && <span style={{ color: 'red' }} dangerouslySetInnerHTML={{ __html: error }}></span>}
+        {error && <div className="error-message" dangerouslySetInnerHTML={{ __html: error }}></div>}
       </form>
-      {!isEmployer && (
-        <button onClick={handleGoogleSignup} disabled={loading}>
-          {loading ? 'Signing up with Google...' : 'Sign Up with Google'}
-        </button>
-      )}
+        <p className="login">
+          Already have an account? <a href="/login">Login</a>
+        </p>
+        <p className="terms">
+          By clicking 'Continue', you acknowledge that you have read and accept the <a href="/terms">Terms of Service</a> and <a href="/privacy-policy">Privacy Policy</a>.
+        </p>
+      </div>
     </div>
   );
 }

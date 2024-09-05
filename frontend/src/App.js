@@ -1,57 +1,37 @@
 import './App.css'
-import { Route, Routes } from 'react-router-dom'
+import { Route, Routes, Navigate } from 'react-router-dom'
 import { BrowserRouter as Router } from 'react-router-dom'
+import { AuthProvider } from './contexts/AuthContext'
 import Login from './components/Login'
 import Signup from './components/userSignUp'
 import PasswordReset from './components/PasswordReset'
-
-// ... (import other components as needed)
+import JobSeekerIntakeForm from './components/JobSeekerIntake'
+import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
+  console.log('App component rendered')
   return (
-    <Router>
-      <div className="App">
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/reset-password" element={<PasswordReset />} />
-          {/* ... (add more routes for other components) */}
-        </Routes>
-      </div>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <div className="App">
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/reset-password" element={<PasswordReset />} />
+            <Route
+              path="/jobseeker-intake"
+              element={
+                <ProtectedRoute>
+                  <JobSeekerIntakeForm />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="*" element={<Navigate to="/login" replace />} />
+          </Routes>
+        </div>
+      </Router>
+    </AuthProvider>
   )
 }
 
 export default App
-
-// // src/App.js
-// import React from 'react';
-// import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-// import GlobalStyles from './GlobalStyles';
-// import HomePage from './pages/HomePage';
-// import JobSeekerProfile from './components/JobSeekerProfile';
-// import EmployerProfile from './components/EmployerProfile';
-// import JobDetails from './components/JobDetails';
-// import Search from './components/Search';
-// import Messaging from './components/Messaging';
-// import { AuthProvider } from './AuthContext';
-
-// function App() {
-//   return (
-//     <AuthProvider>
-//       <Router>
-//         <GlobalStyles />
-//         <Switch>
-//           <Route path="/" exact component={HomePage} />
-//           <Route path="/job-seeker-profile" component={JobSeekerProfile} />
-//           <Route path="/employer-profile" component={EmployerProfile} />
-//           <Route path="/job-details/:id" component={JobDetails} />
-//           <Route path="/search" component={Search} />
-//           <Route path="/messaging" component={Messaging} />
-//         </Switch>
-//       </Router>
-//     </AuthProvider>
-//   );
-// }
-
-// export default App;
