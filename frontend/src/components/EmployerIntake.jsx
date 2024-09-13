@@ -411,7 +411,7 @@ const Modal = ({ isOpen, onClose, title, children }) => {
   );
 };
 
-const JobSeekerIntakeForm = () => {
+const EmployerIntake = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [formData, setFormData] = useState({
@@ -1422,4 +1422,4 @@ const JobSeekerIntakeForm = () => {
   );
 };
 
-export default JobSeekerIntakeForm;
+export default EmployerIntake;

@@ -1,8 +1,16 @@
-const { DataTypes } = require('sequelize')
+const { Model, DataTypes } = require('sequelize')
 
 module.exports = (sequelize) => {
-  const JobseekerProfile = sequelize.define(
-    'JobseekerProfile',
+  class JobseekerProfile extends Model {
+    static associate(models) {
+      JobseekerProfile.belongsTo(models.User, {
+        foreignKey: 'user_id',
+        as: 'User'
+      })
+    }
+  }
+
+  JobseekerProfile.init(
     {
       id: {
         type: DataTypes.INTEGER,
@@ -23,49 +31,79 @@ module.exports = (sequelize) => {
       },
       date_of_birth: {
         type: DataTypes.DATE,
-        allowNull: false
+        allowNull: true
       },
-      current_location: {
+      pronouns: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: true
+      },
+      street_address: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      city: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      state: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      zip_code: {
+        type: DataTypes.STRING,
+        allowNull: true
       },
       phone: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: true
       },
       current_employer: {
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      work_start_date: {
+        type: DataTypes.DATE,
+        allowNull: true
+      },
+      work_end_date: {
+        type: DataTypes.DATE,
+        allowNull: true
+      },
+      starting_salary: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: true
+      },
+      ending_salary: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: true
+      },
+      company_ratings: {
+        type: DataTypes.JSONB,
+        allowNull: true
       },
       block_current_employer: {
         type: DataTypes.BOOLEAN,
         defaultValue: false
       },
-      blocked_companies: {
-        type: DataTypes.ARRAY(DataTypes.STRING),
-        defaultValue: []
-      },
       current_title: {
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
+        allowNull: true
       },
       years_experience: {
-        type: DataTypes.ENUM('0', '1-2', '2-5', '5-7', '7-10', '10+'),
-        allowNull: false
+        type: DataTypes.STRING,
+        allowNull: true
       },
       job_level: {
-        type: DataTypes.ENUM(
-          'student',
-          'intern',
-          'fellow',
-          'entry level',
-          'mid level',
-          'senior level',
-          'executive'
-        ),
-        allowNull: false
+        type: DataTypes.STRING,
+        allowNull: true
       },
       startup_experience: {
         type: DataTypes.BOOLEAN,
-        allowNull: false
+        allowNull: true
+      },
+      highest_education: {
+        type: DataTypes.STRING,
+        allowNull: true
       },
       education: {
         type: DataTypes.JSONB,
@@ -73,89 +111,96 @@ module.exports = (sequelize) => {
       },
       languages: {
         type: DataTypes.ARRAY(DataTypes.STRING),
-        allowNull: false
+        allowNull: true
       },
       open_to_work: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false
+        type: DataTypes.STRING,
+        allowNull: true
       },
       athlete_status: {
-        type: DataTypes.ENUM(
-          'Current NCAA Athlete',
-          'Graduated NCAA Athlete',
-          'Pro Athlete',
-          'Former Pro Athlete',
-          'Not an Athlete'
-        ),
-        allowNull: false
+        type: DataTypes.STRING,
+        allowNull: true
       },
       preferred_telework_policy: {
-        type: DataTypes.ENUM(
-          'In-Office',
-          'Fully Remote',
-          'Hybrid (1 day a week from home)',
-          'Hybrid (2 days a week from home)',
-          'Hybrid (3 days a week from home)',
-          'Hybrid (4 days a week from home)'
-        ),
-        allowNull: false
+        type: DataTypes.STRING,
+        allowNull: true
       },
-      applying_to_jobs: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false
+      job_search_motivation: {
+        type: DataTypes.TEXT,
+        allowNull: true
       },
-      tech_stack: {
-        type: DataTypes.ARRAY(DataTypes.STRING)
+      top_strengths: {
+        type: DataTypes.ARRAY(DataTypes.STRING),
+        allowNull: true
+      },
+      job_search_challenge: {
+        type: DataTypes.STRING,
+        allowNull: true
       },
       company_culture_preferences: {
         type: DataTypes.ARRAY(DataTypes.STRING),
-        allowNull: false
+        allowNull: true
       },
-      opportunity_interests: {
-        type: DataTypes.ARRAY(DataTypes.STRING),
-        allowNull: false
+      linkedin: {
+        type: DataTypes.STRING,
+        allowNull: true
       },
-      linkedin: DataTypes.STRING,
-      portfolio: DataTypes.STRING,
-      instagram: DataTypes.STRING,
-      github: DataTypes.STRING,
-      personal_website: DataTypes.STRING,
+      portfolio: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      instagram: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      github: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      personal_website: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
       gender: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: true
       },
       race: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: true
       },
       sexual_orientation: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: true
       },
       veteran_status: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: true
       },
       disability_status: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: true
       },
       accommodation_needed: {
-        type: DataTypes.TEXT
+        type: DataTypes.TEXT,
+        allowNull: true
+      },
+      resume: {
+        type: DataTypes.TEXT,
+        allowNull: true
+      },
+      jobs_applied: {
+        type: DataTypes.ARRAY(DataTypes.INTEGER),
+        defaultValue: []
       }
     },
     {
+      sequelize,
+      modelName: 'JobseekerProfile',
       tableName: 'jobseeker_profiles',
       timestamps: true
     }
   )
-
-  JobseekerProfile.associate = (models) => {
-    JobseekerProfile.belongsTo(models.User, {
-      foreignKey: 'user_id',
-      as: 'User'
-    })
-  }
 
   return JobseekerProfile
 }
