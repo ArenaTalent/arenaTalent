@@ -344,7 +344,7 @@ const Stars = styled.div`
 const Star = styled.span`
   cursor: pointer;
   font-size: 1.5rem;
-  color: ${props => props.filled ? '#FFD700' : '#C0C0C0'};
+  color: ${props => props.$filled ? '#FFD700' : '#4a4a4a'};
 `;
 
 const RatingHeader = styled.div`
@@ -496,7 +496,7 @@ const EmployerIntake = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('authToken');
-    navigate('/login');
+    navigate('/logout');
   };
 
   const handleInputChange = (e) => {
@@ -857,12 +857,12 @@ const EmployerIntake = () => {
                       <Stars>
                         {[1, 2, 3, 4, 5].map(star => (
                           <Star
-                            key={star}
-                            filled={star <= companyRatings[key]}
-                            onClick={() => handleRatingChange(key, star)}
-                          >
-                            ★
-                          </Star>
+                          key={star}
+                          $filled={star <= companyRatings[key]}
+                          onClick={() => handleRatingChange(key, star)}
+                        >
+                          ★
+                        </Star>
                         ))}
                       </Stars>
                     </StarRow>

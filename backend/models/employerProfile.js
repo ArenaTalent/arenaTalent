@@ -49,8 +49,21 @@ module.exports = (sequelize) => {
       number_of_hires: DataTypes.INTEGER,
       benefits: DataTypes.ARRAY(DataTypes.TEXT),
       recent_news: DataTypes.TEXT,
-      team: DataTypes.TEXT
+      team: DataTypes.TEXT,
+      logo: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      photos: {
+        type: DataTypes.ARRAY(DataTypes.STRING),
+        defaultValue: []
+      },
+      video: {
+        type: DataTypes.STRING,
+        allowNull: true
+      }
     },
+
     {
       tableName: 'employer_profiles'
     }

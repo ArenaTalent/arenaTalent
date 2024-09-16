@@ -13,4 +13,8 @@ router.get('/:id', authMiddleware.authenticateToken, async (req, res) => {
   await jobseekerController.getJobseekerById(req, res)
 })
 
+router.post('/intake', authMiddleware.authenticateToken, async (req, res) => {
+  await jobSeekerController.updateJobSeekerProfile(req, res)
+})
+
 module.exports = router

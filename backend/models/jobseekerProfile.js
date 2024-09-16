@@ -192,6 +192,22 @@ module.exports = (sequelize) => {
       jobs_applied: {
         type: DataTypes.ARRAY(DataTypes.INTEGER),
         defaultValue: []
+      },
+      profile_picture: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      cover_photo: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      resume_url: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      videos: {
+        type: DataTypes.ARRAY(DataTypes.STRING),
+        defaultValue: []
       }
     },
     {

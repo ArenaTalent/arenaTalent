@@ -4,29 +4,29 @@ import styled from 'styled-components';
 const DropdownContainer = styled.div`
   position: relative;
   width: 100%;
-  z-index: 100;
+  z-index: 1000;
 `;
 
 const DropdownButton = styled.button`
   width: 100%;
   padding: 0.75rem;
-  background-color: #f5f5f5;
-  border: 1px solid #ccc;
+  background-color: #3a3a3a;
+  border: 1px solid #4a4a4a;
   border-radius: 4px;
   text-align: left;
   cursor: pointer;
-  color: #333;
+  color: #e0e0e0;
   font-size: 1rem;
   transition: all 0.3s ease;
 
   &:hover {
-    background-color: #e0e0e0;
+    background-color: #4a4a4a;
   }
 
   &:focus {
     outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+    border-color: #6a6a6a;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
   }
 `;
 
@@ -37,29 +37,29 @@ const DropdownList = styled.ul`
   right: 0;
   max-height: 200px;
   overflow-y: auto;
-  background-color: #f0f0f0;
-  border: 2px solid #ccc;
+  background-color: white;
+  border: 2px solid #4a4a4a;
   border-top: none;
   border-radius: 0 0 4px 4px;
   list-style-type: none;
   padding: 0;
   margin: 0;
-  z-index: 1000;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  z-index: 1001;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.4);
 `;
 
 const DropdownItem = styled.li`
-  padding: 0.5rem;
+  padding: 0.75rem;
   cursor: pointer;
   transition: background-color 0.2s;
-  color: #333;
+  color: #e0e0e0;
 
   &:hover {
-    background-color: #d0d0d0;
+    background-color: #3a3a3a;
   }
 
   ${props => props.selected && `
-    background-color: #c0c0c0;
+    background-color: #4a4a4a;
     font-weight: bold;
   `}
 `;
@@ -72,8 +72,8 @@ const SelectedItems = styled.div`
 `;
 
 const SelectedItem = styled.span`
-  background-color: #007bff;
-  color: white;
+  background-color: #4a4a4a;
+  color: #e0e0e0;
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   display: flex;
@@ -84,7 +84,7 @@ const SelectedItem = styled.span`
 const RemoveButton = styled.button`
   background: none;
   border: none;
-  color: white;
+  color: #e0e0e0;
   cursor: pointer;
   margin-left: 0.5rem;
   font-size: 1rem;

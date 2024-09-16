@@ -29,56 +29,26 @@ exports.getJobSeekerProfile = async (req, res) => {
 
 // Update Job Seeker Profile
 exports.updateJobSeekerProfile = async (req, res) => {
-  const errors = validationResult(req)
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() })
-  }
-
-  upload(req, res, async (err) => {
-    if (err) {
-      return res.status(400).json({ error: err.message })
-    }
-
+  try {
     const userId = req.user.id
-    const profilePicture = req.files['profilePicture']
-      ? req.files['profilePicture'][0]
-      : null
-    const coverPhoto = req.files['coverPhoto']
-      ? req.files['coverPhoto'][0]
-      : null
+    const profileData = { ...req.body, intake_completed: true }
 
-    try {
-      const profilePictureUrl = profilePicture
-        ? await uploadFileToS3(profilePicture)
-        : null
-      const coverPhotoUrl = coverPhoto ? await uploadFileToS3(coverPhoto) : null
+    let profile = await JobseekerProfile.findOne({ where: { user_id: userId } })
 
-      const user = await User.findByPk(userId)
-      if (!user) {
-        return res.status(404).json({ error: 'User not found' })
-      }
-
-      const profile = await JobseekerProfile.findOne({
-        where: { user_id: userId }
+    if (!profile) {
+      profile = await JobseekerProfile.create({
+        user_id: userId,
+        ...profileData
       })
-      if (profile) {
-        await profile.update({
-          ...req.body, // Update other profile fields
-          profile_picture_url: profilePictureUrl || profile.profile_picture_url, // Keep old URL if no new one
-          cover_photo_url: coverPhotoUrl || profile.cover_photo_url // Keep old URL if no new one
-        })
-      } else {
-        return res.status(404).json({ error: 'Profile not found' })
-      }
-
-      return res
-        .status(200)
-        .json({ message: 'Job seeker profile updated', profile })
-    } catch (error) {
-      console.error(error)
-      res.status(500).json({ error: 'Internal server error' })
+    } else {
+      await profile.update(profileData)
     }
-  })
+
+    res.status(200).json({ message: 'Job seeker profile updated', profile })
+  } catch (error) {
+    console.error('Error updating job seeker profile:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
 }
 
 // Apply for a Job (Protected - Job Seeker Only)
