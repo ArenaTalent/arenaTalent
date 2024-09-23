@@ -1,7 +1,7 @@
 import React, {useState} from 'react'
 import styled from 'styled-components'
 import { Mail, Linkedin, Twitter, Facebook, Instagram, Heart, Monitor, Coffee, Train, Users, Briefcase, ArrowLeft } from 'lucide-react'
-import JobSeekerNav from './JobSeekerNav'
+import JobSeekerNav from '../JobSeeker/JobSeekerNav'
 import { Link, useNavigate } from 'react-router-dom';
 
 const Container = styled.div`
@@ -288,7 +288,7 @@ const ToggleButton = styled.button`
 `
 
 
-export default function ArenaProfile() {
+export default function EmployerProfile() {
   const [showApplied, setShowApplied] = useState(false);
   const navigate = useNavigate();
 

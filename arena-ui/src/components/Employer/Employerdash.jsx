@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Calendar } from 'lucide-react';
-import JobSeekerNav from './JobSeekerNav';
 import EmployerNav from './EmployerNav';
 
 // Styled components

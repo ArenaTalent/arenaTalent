@@ -7,22 +7,21 @@ import Signup from './components/userSignUp'
 import PasswordReset from './components/PasswordReset'
 import JobSeekerIntakeForm from './components/JobSeekerIntake/JobSeekerIntake'
 import ProtectedRoute from './components/ProtectedRoute'
-import JobSeekerDash from './components/JobSeekerDash'
-import OliviaProfile from './components/OliviaProfile'
-import CompanySearch from './components/CompanySearch'
-import ArenaCompanyProfile from './components/ArenaProfile'
-import JobPosting from './components/JobPostingOne'
-import JobSearch from './components/JobSearch'
-import EmployerDash from './components/Employerdash'
-import ApplicationTracking from './components/ApplicationTracking'
-import MessagingApp from './components/Messaging'
+import JobSeekerDash from './components/JobSeeker/JobSeekerDash'
+import JobSeekerProfile from './components/JobSeeker/JobSeekerProfile'
+import CompanySearch from './components/JobSeeker/CompanySearch'
+import JobPosting from './components/JobSeeker/JobPostingOne'
+import JobSearch from './components/JobSeeker/JobSearch'
+import EmployerDash from './components/Employer/Employerdash'
+import ApplicationTracking from './components/JobSeeker/ApplicationTracking'
 import DemoJobSeekerIntakeForm from './components/demoSeekerIntake/demoJobSeekerIntake'
-import EmployerIntakeForm from './components/EmployerIntake'
-import EmployerProfile from './components/EmployerProfile'
-import CandidateSourcing from './components/CandidateSourcing'
-import ATSCandidate from './components/ATSCandidate'
-import JobTracking from './components/JobTracking'
-import EmployerSchedule from './components/EmployerSchedule'
+import EmployerIntakeForm from './components/Employer/EmployerIntake'
+import CandidateSourcing from './components/Employer/CandidateSourcing'
+import ATSCandidate from './components/Employer/ATSCandidate'
+import JobTracking from './components/Employer/JobTracking'
+import EmployerSchedule from './components/Employer/EmployerSchedule'
+import MSBCEmployerDash from './components/Employer/MSBCEmployerDash'
+import EmployerProfile from './components/Employer/EmployerProfile'
 
 function App() {
   console.log('App component rendered')
@@ -34,10 +33,10 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/reset-password" element={<PasswordReset />} />
+            <Route path="/employer-profile" element={<EmployerProfile />} />
             <Route path="/jobseeker-dashboard" element={<JobSeekerDash />} />
-            <Route path="/jobseeker-profile" element={<OliviaProfile />} />
+            <Route path="/jobseeker-profile" element={<JobSeekerProfile />} />
             <Route path="/search-companies" element={<CompanySearch />} />
-            <Route path="/company-profile" element={<ArenaCompanyProfile />} />
             <Route path="/job-posting1" element={<JobPosting />} />
             <Route path="/search-jobs" element={<JobSearch />} />
             <Route path="/employer-dashboard" element={<EmployerDash />} />
@@ -45,6 +44,10 @@ function App() {
             <Route path="/ats-profile" element={<ATSCandidate />} />
             <Route path="/job-tracking" element={<JobTracking />} />
             <Route path="/employer-schedule" element={<EmployerSchedule />} />
+            <Route
+              path="/msbc-employer-dashboard"
+              element={<MSBCEmployerDash />}
+            />
             <Route
               path="/demo-jobseeker-intake"
               element={<DemoJobSeekerIntakeForm />}

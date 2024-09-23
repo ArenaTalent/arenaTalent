@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { Search, Save, ChevronDown, ChevronUp, ArrowUpDown, X, User } from 'lucide-react'
 import {  useNavigate } from 'react-router-dom'
 import EmployerNav from './EmployerNav'
-import { profiles } from '../data/profiles'
+import { profiles } from '../../data/profiles'
 
 const PageWrapper = styled.div`
   display: flex;

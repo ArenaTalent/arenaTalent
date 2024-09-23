@@ -454,7 +454,7 @@ const FileInputLabel = styled.label`
     margin-right: 0.5rem;
   }
 `
-export default function OliviaProfile() {
+export default function JobSeekerProfile() {
   const [editingSections, setEditingSections] = useState({})
   const [profile, setProfile] = useState({
     name: 'Olivia Schwartz',

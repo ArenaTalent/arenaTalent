@@ -10,6 +10,7 @@
     "axios": "^1.7.3",
     "chart.js": "^4.4.4",
     "dotenv": "^16.4.5",
+    "eslint": "^8.57.1",
     "firebase": "^10.12.3",
     "lodash": "^4.17.21",
     "lucide-react": "^0.438.0",
