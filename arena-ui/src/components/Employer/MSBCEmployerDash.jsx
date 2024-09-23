@@ -183,6 +183,8 @@ const MSBCEmployerDash = () => {
 
       <MainContent>
         <WelcomeHeader>Welcome, Minnesota Vikings!</WelcomeHeader>
+        <h2>Welcome to Arena for MSBC!</h2> 
+        <p> Your one-stop-shop to top talent in sports, media and entertainment is here. As the official Recruiting Sponsor for the Michigan Sports Business Conference, we're excited to help you connect with promising candidates.</p>      
 
         <Grid columns={3}>
           <Card>
