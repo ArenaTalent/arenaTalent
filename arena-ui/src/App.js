@@ -23,6 +23,7 @@ import EmployerSchedule from './components/Employer/EmployerSchedule'
 import MSBCEmployerDash from './components/Employer/MSBCEmployerDash'
 import EmployerProfile from './components/Employer/EmployerProfile'
 import JobSeekerAccount from './components/JobSeeker/JobSeekerAccount'
+import EmployerAccount from './components/Employer/EmployerAccount'
 
 function App() {
   console.log('App component rendered')
@@ -46,6 +47,7 @@ function App() {
             <Route path="/job-tracking" element={<JobTracking />} />
             <Route path="/employer-schedule" element={<EmployerSchedule />} />
             <Route path="/jobseeker-account" element={<JobSeekerAccount />} />
+            <Route path="/employer-account" element={<EmployerAccount />} />
             <Route
               path="/msbc-employer-dashboard"
               element={<MSBCEmployerDash />}

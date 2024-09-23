@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import JobSeekerNav from './JobSeekerNav';
+import EmployerNav from './EmployerNav';
 import styled from 'styled-components';
 
 
@@ -93,7 +93,7 @@ const TabButton = ({ active, onClick, children }) => (
     </div>
   );
 
-  export default function JobSeekerSettings() {
+  export default function EmployerAccount() {
     const [activeTab, setActiveTab] = useState('login');
     const [email, setEmail] = useState('john@email.com');
     const [newEmail, setNewEmail] = useState('');
@@ -116,13 +116,13 @@ const TabButton = ({ active, onClick, children }) => (
   return (
     <PageWrapper>
     <NavbarWrapper>
-      <JobSeekerNav />
+      <EmployerNav />
     </NavbarWrapper>
     <PageContainer>
       <ContentContainer>
     <div style={{ maxWidth: '600px', margin: '0 auto', padding: '20px', fontFamily: 'Arial, sans-serif' }}>
       <h1 style={{ fontSize: '24px', marginBottom: '10px' }}>Account Settings</h1>
-      <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '20px' }}>Manage your job seeker account preferences</p>
+      <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '20px' }}>Manage your employer account preferences</p>
 
       <div style={{ display: 'flex', borderBottom: '1px solid #e5e7eb', marginBottom: '20px' }}>
         <TabButton active={activeTab === 'login'} onClick={() => setActiveTab('login')}>Login Settings</TabButton>
@@ -161,11 +161,9 @@ const TabButton = ({ active, onClick, children }) => (
           <h2 style={{ fontSize: '18px', marginBottom: '15px' }}>Notification Preferences</h2>
           <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '20px' }}>Customize your preferred notification settings.</p>
 
-          <Checkbox label="Applications" />
-          <p style={{ fontSize: '12px', color: '#6b7280', marginLeft: '25px', marginBottom: '15px' }}>These are notifications for jobs that you have applied to</p>
+          <Checkbox label="Matches" />
+          <p style={{ fontSize: '12px', color: '#6b7280', marginLeft: '25px', marginBottom: '15px' }}>These are notifications for personalized recommendations of job seekers that fit your preferences</p>
 
-          <Checkbox label="Job Matches" />
-          <p style={{ fontSize: '12px', color: '#6b7280', marginLeft: '25px', marginBottom: '15px' }}>These are notifications for job openings that the AI has matched you with </p>
 
           <Checkbox label="Recommendations" />
           <p style={{ fontSize: '12px', color: '#6b7280', marginLeft: '25px', marginBottom: '15px' }}>These are notifications for personalized recommendations from Arena</p>
