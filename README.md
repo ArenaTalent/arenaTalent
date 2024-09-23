@@ -39,4 +39,4 @@ npm start
   - npm = 9.6.7
 - If you are having issues with npm dependencies, try `npm install --legacy-peer-deps`
 - If port 5000 is being blocked despite restart and you are using mac, it could be your AIRPLAY RECEIVER. Apple has decided to use Node's most common port for it.
-- Reach out to Olivia if none of the above work
+- Reach out to Olivia on slack if none of the above work
