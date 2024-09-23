@@ -1,106 +1,189 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Calendar } from 'lucide-react';
+import { Calendar, Mail, UserPlus, Briefcase, Users, PlusCircle, ChevronDown, BarChart2, Clock, Award } from 'lucide-react';
 import EmployerNav from './EmployerNav';
 
-// Styled components
+const softColors = {
+  background: '#f0f4f8',
+  card: '#ffffff',
+  primary: '#4a90e2',
+  secondary: '#f6e05e',
+  text: '#2d3748',
+  textLight: '#718096',
+  border: '#e2e8f0',
+  success: '#68d391',
+  warning: '#f6ad55',
+  danger: '#fc8181',
+  info: '#63b3ed',
+};
+
 const Container = styled.div`
   display: flex;
-  height: 100vh;
-  background-color: #f3f4f6;
+  min-height: 100vh;
+  background-color: ${softColors.background};
+  color: ${softColors.text};
+  font-family: 'Inter', sans-serif;
 `;
 
 const MainContent = styled.main`
   flex: 1;
-  overflow: auto;
-  padding: 1.5rem;
+  padding: 2rem;
+  overflow-y: auto;
 `;
 
 const WelcomeHeader = styled.h1`
-  font-size: 1.875rem;
-  font-weight: bold;
-  margin-bottom: 1.5rem;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  color: ${softColors.text};
 `;
 
 const Grid = styled.div`
   display: grid;
   gap: 1.5rem;
-  margin-bottom: 1.5rem;
-
-  @media (min-width: 768px) {
-    grid-template-columns: ${props => `repeat(${props.columns}, minmax(0, 1fr))`};
-  }
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
 `;
 
 const Card = styled.div`
-  background-color: #ffffff;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  background-color: ${softColors.card};
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   padding: 1.5rem;
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+  }
 `;
 
 const CardTitle = styled.h3`
   font-size: 1.125rem;
   font-weight: 600;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
+  color: ${softColors.text};
+`;
+
+const Link = styled.a`
+  color: ${softColors.primary};
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s;
+
+  &:hover {
+    color: ${softColors.info};
+    text-decoration: underline;
+  }
+`;
+
+const StatCard = styled(Card)`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 `;
 
 const StatNumber = styled.p`
   font-size: 2.25rem;
-  font-weight: bold;
-  color: ${props => props.color || 'inherit'};
+  font-weight: 700;
+  color: ${props => props.color || softColors.primary};
+  margin-bottom: 0.5rem;
 `;
 
-const InterviewInfo = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-`;
-
-const InterviewDate = styled.p`
-  font-weight: 600;
-`;
-
-const InterviewStatus = styled.p`
+const StatLabel = styled.p`
   font-size: 0.875rem;
-  color: #6b7280;
+  color: ${softColors.textLight};
+`;
+
+const Select = styled.select`
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid ${softColors.border};
+  background-color: ${softColors.card};
+  font-size: 0.875rem;
+  color: ${softColors.text};
+  margin-top: 0.5rem;
 `;
 
 const ProgressBarContainer = styled.div`
   width: 100%;
-  background-color: #e5e7eb;
+  background-color: ${softColors.border};
   border-radius: 9999px;
-  height: 0.625rem;
-  margin-right: 0.5rem;
+  height: 0.5rem;
+  margin-bottom: 0.5rem;
 `;
 
 const ProgressBar = styled.div`
-  height: 0.625rem;
+  height: 0.5rem;
   border-radius: 9999px;
   width: ${props => props.width};
+  background-color: ${props => props.color || softColors.primary};
 `;
 
 const StageLabel = styled.span`
   font-size: 0.875rem;
   font-weight: 500;
-  color: #4b5563;
-  width: 6rem;
+  color: ${softColors.text};
 `;
 
 const StageCount = styled.span`
   font-size: 0.875rem;
   font-weight: 600;
+  color: ${softColors.primary};
 `;
 
-const TotalCount = styled.p`
-  text-align: right;
+const Table = styled.table`
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 0.5rem;
+`;
+
+const TableHeader = styled.th`
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: ${softColors.textLight};
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+`;
+
+const TableRow = styled.tr`
+  background-color: ${softColors.card};
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.1);
+   background-color: ${softColors.background};
+  }
+`;
+
+const TableCell = styled.td`
+  padding: 1rem;
+  white-space: nowrap;
+  color: ${softColors.text};
+
+  &:first-child {
+    border-top-left-radius: 0.5rem;
+    border-bottom-left-radius: 0.5rem;
+  }
+
+  &:last-child {
+    border-top-right-radius: 0.5rem;
+    border-bottom-right-radius: 0.5rem;
+  }
+`;
+
+
+const MatchRating = styled.div`
   font-size: 0.875rem;
   font-weight: 600;
-  margin-top: 0.5rem;
+  color: ${softColors.success};
 `;
 
 const EventLink = styled.a`
-  color: #2563eb;
+  color: ${softColors.primary};
   font-weight: 500;
   text-decoration: none;
 
@@ -109,73 +192,213 @@ const EventLink = styled.a`
   }
 `;
 
-const Table = styled.table`
-  width: 100%;
-  border-collapse: collapse;
+const IconWrapper = styled.div`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background-color: ${props => props.bgColor || softColors.primary};
+  color: white;
+  margin-bottom: 0.5rem;
 `;
 
-const TableHeader = styled.th`
-  padding: 0.75rem 1.5rem;
-  text-align: left;
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: #6b7280;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  background-color: #f9fafb;
+const OnboardingSection = styled(Card)`
+  margin-bottom: 1.5rem;
 `;
 
-const TableCell = styled.td`
-  padding: 1rem 1.5rem;
-  white-space: nowrap;
+const SectionTitle = styled.h2`
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  color: ${softColors.text};
 `;
 
-const ApplicantName = styled.div`
-  font-weight: 500;
-  color: #111827;
+const SectionProgressBar = styled(ProgressBarContainer)`
+  margin-bottom: 1rem;
 `;
 
-const JobRole = styled.div`
+const SectionProgress = styled(ProgressBar)`
+  background-color: ${softColors.success};
+`;
+
+const SectionDescription = styled.p`
   font-size: 0.875rem;
-  color: #111827;
+  color: ${softColors.textLight};
+  margin-bottom: 1rem;
+  line-height: 1.5;
 `;
 
-const JobDetails = styled.div`
-  font-size: 0.875rem;
-  color: #6b7280;
+
+const ApplicantInfo = styled.div`
+  flex: 1;
+  cursor: pointer;
 `;
 
-const MatchRating = styled.div`
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #111827;
-`;
+const ApplicantCard = styled.div`
+  background-color: ${softColors.card};
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
 
-const StatusBadge = styled.span`
-  background-color: #fef3c7;
-  color: #92400e;
-  padding: 0.25rem 0.5rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
+  &:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+    background-color: ${softColors.background};
+  }
+`;
+const ApplicantName = styled.h4`
+  font-size: 1rem;
   font-weight: 600;
+  text-decoration: none;
+  color: ${softColors.text};
+  margin: 0 0 0.25rem 0;
+`;
+
+const JobRole = styled.p`
+  font-size: 0.875rem;
+  color: ${softColors.textLight};
+  margin: 0;
+`;
+
+const MatchScore = styled.div`
+  background-color: ${softColors.success};
+  color: ${softColors.card};
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 1rem;
+  font-size: 1rem;
+`;
+
+const FilterDropdown = styled(Select)`
+  margin-bottom: 1rem;
+`;
+
+
+
+
+const PieChartContainer = styled.div`
+  position: relative;
+  width: 150px;
+  height: 150px;
+  margin: 0 auto;
+`;
+
+const PieChartLegend = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 1rem;
+`;
+
+const LegendItem = styled.div`
+  display: flex;
+  align-items: center;
+  margin-right: 1rem;
+  margin-bottom: 0.5rem;
+`;
+
+const LegendColor = styled.div`
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 0.5rem;
+`;
+
+const LegendLabel = styled.span`
+  font-size: 0.75rem;
+  color: ${softColors.textLight};
+`;
+
+const PieChart = styled.div`
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  position: relative;
+  overflow: hidden;
+`;
+
+const PieChartSegment = styled.div`
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  transform: rotate(${props => props.offset}deg);
+  clip-path: polygon(50% 50%, 50% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%, 50% 0%);
+  background-color: ${props => props.color};
 `;
 
 const EmployerDash = () => {
+  const [showIndustryData, setShowIndustryData] = useState(false);
+  const [selectedRole, setSelectedRole] = useState('All Roles');
+
   const applicants = [
-    { id: 19, name: 'Brady Hertl', role: 'Premium Experience Coordinator', applyDate: '2024-07-01', match: 95, status: 'In-Review' },
-    { id: 18, name: 'Luciano Tommasini', role: 'Premium Experience Coordinator', applyDate: '2024-09-10', match: 91, status: 'In-Review' },
-    { id: 8, name: 'Ed Urena', role: 'Premium Experience Coordinator', applyDate: '2024-09-10', match: 92, status: 'In-Review' },
-    { id: 14, name: 'Jonathan Wittig', role: 'Premium Experience Coordinator', applyDate: '2024-09-10', match: 87, status: 'In-Review' },
-    { id: 1, name: 'Atinuke Akindebe', role: 'Premium Experience Coordinator', applyDate: '2024-09-10', match: 83, status: 'In-Review' },
+    { id: 19, name: 'Brady Hertl', role: 'Premium Experience Coordinator', applyDate: '9/23/24', match: 95 },
+    { id: 18, name: 'Luciano Tommasini', role: 'Premium Experience Coordinator', applyDate: '9/22/24', match: 91 },
+    { id: 8, name: 'Ed Urena', role: 'Customer Service Representative', applyDate: '9/21/24', match: 92 },
+    { id: 14, name: 'Jonathan Wittig', role: 'Marketing Specialist', applyDate: '9/20/24', match: 87 },
+    { id: 1, name: 'Atinuke Akindebe', role: 'Data Analyst', applyDate: '9/19/24', match: 83 },
   ];
 
   const applicantStages = [
-    { stage: 'Shortlisted', count: 15, color: '#10B981' },
-    { stage: 'Interview', count: 10, color: '#3B82F6' },
-    { stage: 'Rejected', count: 7, color: '#EF4444' },
-    { stage: 'Unreviewed', count: 10, color: '#F59E0B' },
+    { stage: 'Reviewed', count: 15, color: softColors.success },
+    { stage: 'Interview', count: 10, color: softColors.primary },
+    { stage: 'Rejected', count: 7, color: softColors.danger },
+    { stage: 'Unreviewed', count: 10, color: softColors.warning },
   ];
 
+  const demographicData = [
+    {
+      title: 'Gender',
+      data: [
+        { label: 'Male', value: 60, color: softColors.primary },
+        { label: 'Female', value: 35, color: softColors.success },
+        { label: 'Non-binary', value: 5, color: softColors.warning }
+      ]
+    },
+    {
+      title: 'Race/Ethnicity',
+      data: [
+        { label: 'White', value: 50, color: softColors.primary },
+        { label: 'Black', value: 20, color: softColors.success },
+        { label: 'Hispanic', value: 15, color: softColors.warning },
+        { label: 'Asian', value: 10, color: softColors.danger },
+        { label: 'Other', value: 5, color: softColors.info }
+      ]
+    },
+    {
+      title: 'LGBTQIA+',
+      data: [
+        { label: 'LGBTQIA+', value: 15, color: softColors.primary },
+        { label: 'Non-LGBTQIA+', value: 85, color: softColors.success }
+      ]
+    },
+    {
+      title: 'Disability',
+      data: [
+        { label: 'With Disability', value: 10, color: softColors.primary },
+        { label: 'Without Disability', value: 90, color: softColors.success }
+      ]
+    },
+    {
+      title: 'Veteran Status',
+      data: [
+        { label: 'Veteran', value: 8, color: softColors.primary },
+        { label: 'Non-Veteran', value: 92, color: softColors.success }
+      ]
+    },
+  ];
+
+  const roles = ['All Roles', 'Premium Experience Coordinator', 'Customer Service Representative', 'Marketing Specialist', 'Data Analyst'];
+
+  const filteredApplicants = selectedRole === 'All Roles'
+    ? applicants
+    : applicants.filter(applicant => applicant.role === selectedRole);
   return (
     <Container>
       <EmployerNav />
@@ -183,83 +406,225 @@ const EmployerDash = () => {
       <MainContent>
         <WelcomeHeader>Welcome, Minnesota Vikings!</WelcomeHeader>
 
-        <Grid columns={3}>
-          <Card>
-            <CardTitle>Open Positions</CardTitle>
-            <StatNumber color="#2563EB">1</StatNumber>
-          </Card>
-          <Card>
-            <CardTitle>Total Applicants</CardTitle>
-            <StatNumber color="#10B981">22</StatNumber>
-          </Card>
-          <Card>
-            <CardTitle>Upcoming Interviews</CardTitle>
-            <InterviewInfo>
-              <Calendar size={24} color="#9CA3AF" />
-              <div>
-                <InterviewDate>Tuesday, September 10, 2024</InterviewDate>
-                <InterviewStatus>No interviews scheduled for today</InterviewStatus>
-              </div>
-            </InterviewInfo>
-          </Card>
+        <Link href="/add-team-members" style={{ position: 'absolute', top: '2rem', right: '2rem' }}>
+          Add Team Members
+        </Link>
+
+        <OnboardingSection>
+          <SectionTitle>🔥 Complete your profile to unlock access to your candidate matches</SectionTitle>
+          <SectionProgressBar><SectionProgress width="30%" /></SectionProgressBar>
+          <SectionDescription>
+            This information helps our AI personalize its talent matches to meet your top hiring goals.
+            Note: You will not see your talent matches until you complete your profile.
+          </SectionDescription>
+          <Link href="/edit-profile">Edit Profile</Link>
+        </OnboardingSection>
+
+        <OnboardingSection>
+          <SectionTitle>📝 Post a job</SectionTitle>
+          <SectionProgressBar><SectionProgress width="0%" /></SectionProgressBar>
+          <SectionDescription>
+            Post your first job to our curated talent community and receive top candidate matches instantly!
+          </SectionDescription>
+          <Link href="/post-job">Post a Job</Link>
+        </OnboardingSection>
+
+        <OnboardingSection>
+          <SectionTitle>🔑 Get access to more talent</SectionTitle>
+          <SectionProgressBar><SectionProgress width="0%" /></SectionProgressBar>
+          <SectionDescription>
+            Complete this quick survey to increase your standing in our algorithm and get access to even more talent.
+            These responses are anonymous and are used to help us gather industry data on hiring trends and best practices.
+            It will be shared in reports, in responses to questions asked in our AI chatbot, and to benchmark your hiring goals and success metrics.
+            Your personal information will NEVER be shared publicly and will only be shared anonymously and in aggregate form.
+          </SectionDescription>
+          <Link href="/complete-survey">Complete Survey</Link>
+        </OnboardingSection>
+
+        <Grid>
+          <StatCard>
+            <IconWrapper bgColor={softColors.primary}>
+              <Briefcase size={20} />
+            </IconWrapper>
+            <div>
+              <StatNumber color={softColors.primary}>5</StatNumber>
+              <StatLabel>Open Positions</StatLabel>
+            </div>
+            <Link href="/post-job" style={{ marginTop: '1rem', fontSize: '0.875rem' }}>Post a Job</Link>
+          </StatCard>
+
+          <StatCard>
+            <IconWrapper bgColor={softColors.success}>
+              <Users size={20} />
+            </IconWrapper>
+            <div>
+              <StatNumber color={softColors.success}>67</StatNumber>
+              <StatLabel>Total Applicants</StatLabel>
+            </div>
+            <Select>
+              <option>All Jobs</option>
+              <option>Job 1</option>
+              <option>Job 2</option>
+            </Select>
+          </StatCard>
+
+          <StatCard>
+            <IconWrapper bgColor={softColors.info}>
+              <Calendar size={20} />
+            </IconWrapper>
+            <div>
+              <StatNumber color={softColors.info}>15</StatNumber>
+              <StatLabel>Total Interviews</StatLabel>
+            </div>
+            <Select>
+              <option>All Jobs</option>
+              <option>Job 1</option>
+              <option>Job 2</option>
+            </Select>
+          </StatCard>
+
+          <StatCard>
+            <IconWrapper bgColor={softColors.secondary}>
+              <Award size={20} />
+            </IconWrapper>
+            <div>
+              <StatNumber color={softColors.secondary}>8</StatNumber>
+              <StatLabel>Total Hires</StatLabel>
+            </div>
+          </StatCard>
         </Grid>
 
-        <Grid columns={2}>
+        <Grid style={{ marginTop: '2rem' }}>
+          <Card>
+            <CardTitle>Applicant Matches</CardTitle>
+            <div>
+              {['80% or more', '60-79%', '40-59%'].map((label, index) => (
+                <div key={label} style={{ marginBottom: '1rem' }}>
+                  <ProgressBarContainer>
+                    <ProgressBar width={`${80 - index * 20}%`} color={softColors.primary} />
+                  </ProgressBarContainer>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <StageLabel>{label}</StageLabel>
+                    <StageCount>{15 - index * 5}</StageCount>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <Link href="/matches" style={{ marginTop: '1rem' }}>Review Matches</Link>
+          </Card>
+
           <Card>
             <CardTitle>Applicant Stages</CardTitle>
             <div>
               {applicantStages.map((stage) => (
-                <div key={stage.stage} style={{ display: 'flex', alignItems: 'center', marginBottom: '1rem' }}>
+                <div key={stage.stage} style={{ marginBottom: '1rem' }}>
                   <ProgressBarContainer>
-                    <ProgressBar width={`${(stage.count / 42) * 100}%`} style={{ backgroundColor: stage.color }} />
+                    <ProgressBar width={`${(stage.count / 42) * 100}%`} color={stage.color} />
                   </ProgressBarContainer>
-                  <StageLabel>{stage.stage}</StageLabel>
-                  <StageCount>{stage.count}</StageCount>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <StageLabel>{stage.stage}</StageLabel>
+                    <StageCount>{stage.count}</StageCount>
+                  </div>
                 </div>
               ))}
-              <TotalCount>Total: 22</TotalCount>
+              <p style={{ fontSize: '0.875rem', color: softColors.textLight, marginTop: '1rem' }}>
+                You have 10 unreviewed top matches (60% or above)
+              </p>
+              <Link href="/matches" style={{ marginTop: '1rem' }}>Review Now</Link>
             </div>
+          </Card>
+        </Grid>
+
+        <SectionTitle style={{ marginTop: '2rem', marginBottom: '1rem' }}>Demographics</SectionTitle>
+        <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h3 style={{ fontSize: '1.25rem', fontWeight: 600, color: softColors.text }}> </h3>
+          <label style={{ display: 'flex', alignItems: 'center', fontSize: '0.875rem', color: softColors.textLight }}>
+            <input
+              type="checkbox"
+              checked={showIndustryData}
+              onChange={() => setShowIndustryData(!showIndustryData)}
+              style={{ marginRight: '0.5rem' }}
+            />
+            Show Industry Standards
+          </label>
+        </div>
+        <Grid>
+          {demographicData.map((data, index) => (
+            <Card key={index}>
+              <CardTitle>{data.title}</CardTitle>
+              <PieChartContainer>
+                <PieChart>
+                  {data.data.map((item, i) => (
+                    <PieChartSegment
+                      key={i}
+                      percentage={item.value}
+                      color={item.color}
+                      offset={data.data.slice(0, i).reduce((sum, d) => sum + d.value, 0)}
+                    />
+                  ))}
+                </PieChart>
+              </PieChartContainer>
+              <PieChartLegend>
+                {data.data.map((item, i) => (
+                  <LegendItem key={i}>
+                    <LegendColor style={{ backgroundColor: item.color }} />
+                    <LegendLabel>{item.label}: {item.value}%</LegendLabel>
+                  </LegendItem>
+                ))}
+              </PieChartLegend>
+            </Card>
+          ))}
+        </Grid>
+
+        <Card style={{ marginTop: '2rem' }}>
+          <CardTitle>New Top Applicants</CardTitle>
+          <FilterDropdown value={selectedRole} onChange={(e) => setSelectedRole(e.target.value)}>
+            {roles.map((role) => (
+              <option key={role} value={role}>{role}</option>
+            ))}
+          </FilterDropdown>
+          {filteredApplicants.map((applicant) => (
+            <ApplicantCard key={applicant.id}>
+              <ApplicantInfo>
+                <ApplicantName>{applicant.name}</ApplicantName>
+                <JobRole>{applicant.role}</JobRole>
+                <p style={{ fontSize: '0.75rem', color: softColors.textLight, margin: '0.25rem 0 0 0' }}>
+                  Applied: {applicant.applyDate}
+                </p>
+              </ApplicantInfo>
+              <MatchScore>{applicant.match}% Match</MatchScore>
+            </ApplicantCard>
+          ))}
+          <Link href="/applicants" style={{ display: 'inline-block', marginTop: '1.5rem' }}>View All Applicants</Link>
+        </Card>
+
+
+        <Grid style={{ marginTop: '2rem' }}>
+          <Card>
+            <CardTitle>Upcoming Interviews</CardTitle>
+            <p style={{ fontSize: '0.875rem', color: softColors.textLight }}>You have 3 interviews scheduled this week</p>
           </Card>
           <Card>
             <CardTitle>Upcoming Events</CardTitle>
             <EventLink href="#">MSBC Career Fair - Register Now</EventLink>
           </Card>
+          <Card>
+            <CardTitle>News from Arena</CardTitle>
+            <p style={{ fontSize: '0.875rem', color: softColors.textLight }}>New feature: AI-powered job description writer</p>
+          </Card>
         </Grid>
 
-        <Card>
-          <CardTitle>Top Applicants</CardTitle>
-          <Table>
-            <thead>
-              <tr>
-                <TableHeader>Name</TableHeader>
-                <TableHeader>Job Details</TableHeader>
-                <TableHeader>Match Rating</TableHeader>
-                <TableHeader>Status</TableHeader>
-              </tr>
-            </thead>
-            <tbody>
-              {applicants.map((applicant) => (
-                <tr key={applicant.id}>
-                  <TableCell>
-                    <ApplicantName>{applicant.name}</ApplicantName>
-                  </TableCell>
-                  <TableCell>
-                    <JobRole>{applicant.role}</JobRole>
-                    <JobDetails>Minnesota Vikings • Eagan, MN • Coordinator, Premium Experience & Operations • Full-time</JobDetails>
-                  </TableCell>
-                  <TableCell>
-                    <MatchRating>{applicant.match}%</MatchRating>
-                    <ProgressBarContainer style={{ height: '0.5rem' }}>
-                      <ProgressBar width={`${applicant.match}%`} style={{ backgroundColor: '#10B981' }} />
-                    </ProgressBarContainer>
-                  </TableCell>
-                  <TableCell>
-                    <StatusBadge>{applicant.status}</StatusBadge>
-                  </TableCell>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
+
+
+        <Card style={{ marginTop: '1rem' }}>
+          <CardTitle>How Our AI Works</CardTitle>
+          <p style={{
+            fontSize: '0.875rem',
+            color: softColors.textLight,
+            lineHeight: '1.5'
+          }}>
+            Our AI-powered matching system uses advanced algorithms to analyze candidate profiles and job requirements. It considers factors such as skills, experience, education, and cultural fit to provide accurate match percentages. The system continuously learns and improves based on hiring outcomes and feedback.
+          </p>
         </Card>
       </MainContent>
     </Container>
