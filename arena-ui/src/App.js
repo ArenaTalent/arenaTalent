@@ -22,6 +22,7 @@ import JobTracking from './components/Employer/JobTracking'
 import EmployerSchedule from './components/Employer/EmployerSchedule'
 import MSBCEmployerDash from './components/Employer/MSBCEmployerDash'
 import EmployerProfile from './components/Employer/EmployerProfile'
+import JobSeekerAccount from './components/JobSeeker/JobSeekerAccount'
 
 function App() {
   console.log('App component rendered')
@@ -44,6 +45,7 @@ function App() {
             <Route path="/ats-profile" element={<ATSCandidate />} />
             <Route path="/job-tracking" element={<JobTracking />} />
             <Route path="/employer-schedule" element={<EmployerSchedule />} />
+            <Route path="/jobseeker-account" element={<JobSeekerAccount />} />
             <Route
               path="/msbc-employer-dashboard"
               element={<MSBCEmployerDash />}

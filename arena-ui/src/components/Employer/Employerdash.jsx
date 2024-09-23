@@ -283,17 +283,32 @@ const FilterDropdown = styled(Select)`
 
 
 
+
 const PieChartContainer = styled.div`
   position: relative;
   width: 150px;
   height: 150px;
-  margin: 0 auto;
+  margin: 0 auto 1rem;
+  cursor: pointer;
+`;
+
+const PieChart = styled.svg`
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+  border-radius: 50%;
+  overflow: hidden;
+`;
+
+const PieChartSegment = styled.circle`
+  fill: transparent;
+  stroke-width: 32;
 `;
 
 const PieChartLegend = styled.div`
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start;
   margin-top: 1rem;
 `;
 
@@ -305,38 +320,22 @@ const LegendItem = styled.div`
 `;
 
 const LegendColor = styled.div`
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   margin-right: 0.5rem;
 `;
 
 const LegendLabel = styled.span`
   font-size: 0.75rem;
-  color: ${softColors.textLight};
+  color: ${props => props.theme.text};
 `;
 
-const PieChart = styled.div`
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  position: relative;
-  overflow: hidden;
-`;
-
-const PieChartSegment = styled.div`
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  transform: rotate(${props => props.offset}deg);
-  clip-path: polygon(50% 50%, 50% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%, 50% 0%);
-  background-color: ${props => props.color};
-`;
 
 const EmployerDash = () => {
   const [showIndustryData, setShowIndustryData] = useState(false);
   const [selectedRole, setSelectedRole] = useState('All Roles');
-
+  const [hoveredSegment, setHoveredSegment] = useState(null);
   const applicants = [
     { id: 19, name: 'Brady Hertl', role: 'Premium Experience Coordinator', applyDate: '9/23/24', match: 95 },
     { id: 18, name: 'Luciano Tommasini', role: 'Premium Experience Coordinator', applyDate: '9/22/24', match: 91 },
@@ -356,40 +355,53 @@ const EmployerDash = () => {
     {
       title: 'Gender',
       data: [
-        { label: 'Male', value: 60, color: softColors.primary },
-        { label: 'Female', value: 35, color: softColors.success },
-        { label: 'Non-binary', value: 5, color: softColors.warning }
+        { label: 'Male', value: 60, color: '#4a90e2' },
+        { label: 'Female', value: 35, color: '#68d391' },
+        { label: 'Non-binary', value: 5, color: '#f6ad55' },
+        {label: 'Transgender Male', value: 0, color: '#fc8181' },
+        {label: 'Transgender Female', value: 0, color: '#63b3ed' },
+        {label: 'Prefer not to say', value: 0, color: '#f6e05e' }
       ]
     },
     {
       title: 'Race/Ethnicity',
       data: [
-        { label: 'White', value: 50, color: softColors.primary },
-        { label: 'Black', value: 20, color: softColors.success },
-        { label: 'Hispanic', value: 15, color: softColors.warning },
-        { label: 'Asian', value: 10, color: softColors.danger },
-        { label: 'Other', value: 5, color: softColors.info }
+        { label: 'White', value: 50, color: '#4a90e2' },
+        { label: 'Black or African American', value: 20, color: '#68d391' },
+        { label: 'Hispanic or Latino', value: 15, color: '#f6ad55' },
+        { label: 'Asian', value: 10, color: '#fc8181' },
+        {label: 'Indigenous', value: 5, color: '#63b3ed' },
+        {label: 'Middle Eastern/Arab', value: 5, color: '#f6e05e' },
+        {label: 'Pacific Islander', value: 5, color: '#f6e05e' },
+        { label: 'Other', value: 5, color: '#63b3ed' }
       ]
     },
     {
       title: 'LGBTQIA+',
       data: [
-        { label: 'LGBTQIA+', value: 15, color: softColors.primary },
-        { label: 'Non-LGBTQIA+', value: 85, color: softColors.success }
+        { label: 'Straight/Heterosexual', value: 85, color: '#4a90e2' },
+        {label: 'Gay', value: 10, color: '#f6ad55' },
+        {label: 'Lesbian', value: 5, color: '#fc8181' },
+        {label: 'Bisexual', value: 5, color: '#63b3ed' },
+        {label: 'Queer', value: 5, color: '#f6e05e' },
+        {label: 'Prefer not to say', value: 0, color: '#f6e05e' }
+
       ]
     },
     {
       title: 'Disability',
       data: [
-        { label: 'With Disability', value: 10, color: softColors.primary },
-        { label: 'Without Disability', value: 90, color: softColors.success }
+        { label: 'With Disability', value: 10, color: '#4a90e2' },
+        { label: 'Without Disability', value: 90, color: '#68d391' },
+        {label: 'Prefer Not to Say', value: 0, color: '#f6ad55' }
       ]
     },
     {
       title: 'Veteran Status',
       data: [
-        { label: 'Veteran', value: 8, color: softColors.primary },
-        { label: 'Non-Veteran', value: 92, color: softColors.success }
+        { label: 'Veteran', value: 8, color: '#4a90e2' },
+        { label: 'Non-Veteran', value: 92, color: '#68d391' },
+        {label: 'Prefer Not to Say', value: 0, color: '#f6ad55' }
       ]
     },
   ];
@@ -399,6 +411,36 @@ const EmployerDash = () => {
   const filteredApplicants = selectedRole === 'All Roles'
     ? applicants
     : applicants.filter(applicant => applicant.role === selectedRole);
+
+  const renderPieChart = (data) => {
+    let total = data.reduce((sum, item) => sum + item.value, 0);
+    let accumulatedPercentage = 0;
+
+    return (
+      <PieChartContainer>
+        <PieChart viewBox="0 0 32 32">
+          {data.map((item, index) => {
+            const percentage = (item.value / total) * 100;
+            const strokeDasharray = `${percentage} ${100 - percentage}`;
+            const strokeDashoffset = -accumulatedPercentage;
+            accumulatedPercentage += percentage;
+
+            return (
+              <PieChartSegment
+                key={index}
+                cx="16"
+                cy="16"
+                r="15.9155"
+                stroke={item.color}
+                strokeDasharray={strokeDasharray}
+                strokeDashoffset={strokeDashoffset}
+              />
+            );
+          })}
+        </PieChart>
+      </PieChartContainer>
+    );
+  };
   return (
     <Container>
       <EmployerNav />
@@ -552,18 +594,7 @@ const EmployerDash = () => {
           {demographicData.map((data, index) => (
             <Card key={index}>
               <CardTitle>{data.title}</CardTitle>
-              <PieChartContainer>
-                <PieChart>
-                  {data.data.map((item, i) => (
-                    <PieChartSegment
-                      key={i}
-                      percentage={item.value}
-                      color={item.color}
-                      offset={data.data.slice(0, i).reduce((sum, d) => sum + d.value, 0)}
-                    />
-                  ))}
-                </PieChart>
-              </PieChartContainer>
+              {renderPieChart(data.data)}
               <PieChartLegend>
                 {data.data.map((item, i) => (
                   <LegendItem key={i}>

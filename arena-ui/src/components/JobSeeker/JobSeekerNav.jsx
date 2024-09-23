@@ -99,10 +99,10 @@ const JobSeekerNav = () => {
 
       </Nav>
       <BottomSection>
-        {/* <NavButton href="/account">
+        <NavButton href="/jobseeker-account">
           <IconWrapper><Settings size={20} /></IconWrapper>
           <ButtonText>Account</ButtonText>
-        </NavButton> */}
+        </NavButton>
         <LogoutButton href="/logout">
           <IconWrapper><LogOut size={20} /></IconWrapper>
           <ButtonText>Logout</ButtonText>
