@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+
 body, html {
   margin: 0;
   padding: 0;
@@ -61,6 +63,7 @@ body, html {
   padding: 0.5rem 1rem;
   cursor: pointer;
   color: #C471ED;
+  font-family: 'Open Sans';
 }
 
 .tab.active {
@@ -71,11 +74,13 @@ body, html {
 
 .form-group {
   margin-bottom: 1rem;
+  text-align: center;
 }
 
 .form-group label {
   display: block;
-  color: white;
+  color: black;
+  font-family: 'Open Sans';
   text-align: left;
   margin-bottom: 0.5rem;
   font-weight: 600;
@@ -85,6 +90,7 @@ body, html {
 .form-group input {
   width: 100%;
   padding: 0.5rem;
+margin-bottom: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
   box-sizing: border-box;
@@ -142,10 +148,11 @@ body, html {
 }
 
 .terms, .login {
-  font-size: 10px;
+  font-size: 14px;
   color: #515B6F;
   text-align: center;
-  margin-top: 1rem;
+  width: 70%;
+  margin-top: -5px;
 }
 
 .terms a, .login a {

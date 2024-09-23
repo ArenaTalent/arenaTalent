@@ -1,9 +1,7 @@
-import React , { useState, useEffect }from 'react'
+import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
-import { Search, Save } from 'lucide-react'
+import { Search, Save, ChevronDown, ChevronUp } from 'lucide-react'
 import JobSeekerNav from './JobSeekerNav'
-import { useNavigate } from 'react-router-dom'
-
 
 const PageWrapper = styled.div`
   display: flex;
@@ -92,7 +90,12 @@ const SearchButton = styled(Button)`
     background-color: #3182ce;
   }
 `
-
+const NavWrapper = styled.div`
+  flex: 0 0 auto;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+`
 const PopularSearches = styled.p`
   font-size: 0.875rem;
   color: #718096;
@@ -121,6 +124,10 @@ const FilterTitle = styled.h3`
   font-size: 1rem;
   margin-bottom: 1rem;
   color: #2d3748;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
 `
 
 const CheckboxLabel = styled.label`
@@ -226,15 +233,13 @@ const Tag = styled.span`
   border-radius: 9999px;
 `
 
-
-
 const FilterButton = styled(Button)`
   margin-top: 1rem;
 `
 
 const SaveFilterButton = styled(Button)`
   margin-top: 1rem;
-  width: 25%%;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -244,6 +249,7 @@ const SaveFilterButton = styled(Button)`
     background-color: black;
   }
 `
+
 const Modal = styled.div`
   position: fixed;
   top: 0;
@@ -282,17 +288,21 @@ const SavedFiltersDropdown = styled(Select)`
   margin-top: 1rem;
   width: 100%;
 `
-const NavWrapper = styled.div`
-  flex: 0 0 auto;
-  height: 100vh;
-  position: sticky;
-  top: 0;
+
+const ScrollableList = styled.div`
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.375rem;
+  padding: 0.5rem;
+  margin-top: 0.5rem;
 `
 
+const SubcategorySearch = styled(SearchInput)`
+  margin-bottom: 0.5rem;
+`
 
-
-export default function ModernCompanySearch() {
-  const navigate = useNavigate()
+export default function Component() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedIndustries, setSelectedIndustries] = useState([])
   const [selectedLocation, setSelectedLocation] = useState('')
@@ -306,41 +316,67 @@ export default function ModernCompanySearch() {
   const [filterName, setFilterName] = useState('')
   const [savedFilters, setSavedFilters] = useState({})
   const [selectedSavedFilter, setSelectedSavedFilter] = useState('')
+  const [companySize, setCompanySize] = useState('')
+  const [jobPostings, setJobPostings] = useState('')
+  const [hiresFromArena, setHiresFromArena] = useState('')
+  const [openFilters, setOpenFilters] = useState({})
+  const [subcategorySearch, setSubcategorySearch] = useState('')
 
   const industries = [
-    "Advertising", "Technology", "Sports", "Media", "Entertainment", "Professional Sports", "Gaming", "Music"
+    "Sports", "Media", "Entertainment", "Fashion"
   ]
 
+
+
+  const allSubcategories = [
+    // Sports
+    "Professional Sports", "College Sports", "E-Sports", "Sports Technology",
+    "Sports Marketing", "Sports Management", "Sports Medicine", "Fitness",
+    "Outdoor Sports", "Recreational Sports", "Sports Analytics", "Youth Sports",
+    "Athlete Representation", "Stadium Operations", "Event Management",
+    "Sports Sponsorships", "Sports Broadcasting", "Fan Engagement", "Team Operations",
+
+    // Media
+    "Broadcast Media", "Digital Media", "Publishing", "Advertising",
+    "Journalism", "Social Media", "Streaming Services", "Podcasting",
+    "Film Journalism", "Investigative Reporting", "Public Relations", "Content Creation",
+    "Media Buying", "Media Planning", "News Production", "Multimedia Journalism",
+    "Interactive Media", "Community Management", "Influencer Marketing",
+
+    // Entertainment
+    "Film Production", "Music", "Gaming", "Live Events",
+    "Theater", "Animation", "Virtual Reality", "Theme Parks",
+    "Television Production", "Documentary Filmmaking", "Concert Promotion", "Talent Management",
+    "Celebrity Management", "Film Distribution", "Cinematography", "Sound Design",
+    "Set Design", "Voice Acting", "Content Distribution", "Entertainment Law",
+    "Reality TV", "Music Production", "Film Scoring", "Comedy",
+
+    // Fashion
+    "Luxury Fashion", "Streetwear", "Sportswear", "Fashion Technology",
+    "Sustainable Fashion", "Accessories", "Cosmetics", "Fashion Media",
+    "Apparel Design", "Textile Design", "Retail Fashion", "Fashion Merchandising",
+    "Fashion Photography", "Fashion Blogging", "Runway Shows", "Fashion Buying",
+    "E-commerce Fashion", "Fashion Consulting", "Pattern Making", "Fashion Illustration",
+    "Costume Design", "Footwear Design", "Fashion PR", "Jewelry Design"
+  ]
   const workPreferences = ["Remote", "Hybrid", "In Office"]
 
   const topRankings = ["Work Life Balance", "Application process", "Salary", "Work Place Diversity"]
 
+  const companySizes = ["1-50", "51-200", "201-500", "501-1000", "1000+"]
+
+  const jobPostingsRanges = ["1-5", "6-20", "21-50", "51-100", "100+"]
+
+  const hiresFromArenaRanges = ["1-5", "6-20", "21-50", "51-100", "100+"]
 
   const companies = [
     {
-      name: "The Minnesota Vikings",
-      logo: "/images/unknown.png",
-      jobCount: 1,
-      location: "Eagan, MN",
-      description: "The Minnesota Vikings are a professional football team based in Minneapolis, Minnesota, competing in the NFC North division of the NFL. Founded in 1960, the team is known for its passionate fan base and distinctive purple and gold colors.",
-      tags: ["Professional Sports"],
-      isHiring: true,
-      isArenaPartner: true,
-      workPreference: "In Office",
-      topRankings: {
-        "Work Life Balance": 80,
-        "Application process": 75,
-        "Salary": 90,
-        "Work Place Diversity": 85
-      }
-    },
-    {
       name: "Arena Talent",
       logo: "/images/black-logo.png",
-      jobCount: 1,
+      jobCount: 5,
       location: "Remote",
       description: "Arena connects employers with top talent in sports, media, and entertainment using AI to power transparency and equity in the hiring process",
-      tags: ["Technology", "Sports","Entertainment","Media"],
+      tags: ["Technology", "Sports", "Entertainment", "Media"],
       isHiring: true,
       isArenaPartner: false,
       workPreference: "Remote",
@@ -349,14 +385,18 @@ export default function ModernCompanySearch() {
         "Application process": 90,
         "Salary": 85,
         "Work Place Diversity": 95
-      }
+      },
+      size: "1-50",
+      jobPostings: 5,
+      hiresFromArena: 10
     },
+    // Add more company data here...
   ]
 
   useEffect(() => {
     filterCompanies()
     loadSavedFilters()
-  }, [searchTerm, selectedIndustries, selectedLocation, selectedWorkPreferences, selectedTopRankings, showOnlyHiring, showOnlyArenaPartners, sortOption])
+  }, [searchTerm, selectedIndustries, selectedLocation, selectedWorkPreferences, selectedTopRankings, showOnlyHiring, showOnlyArenaPartners, sortOption, companySize, jobPostings, hiresFromArena])
 
   const filterCompanies = () => {
     let filtered = companies.filter(company => {
@@ -368,30 +408,25 @@ export default function ModernCompanySearch() {
       const matchesHiring = !showOnlyHiring || company.isHiring
       const matchesArenaPartner = !showOnlyArenaPartners || company.isArenaPartner
       const matchesTopRankings = selectedTopRankings.length === 0 || selectedTopRankings.every(ranking => company.topRankings[ranking] >= 80)
+      const matchesCompanySize = !companySize || company.size === companySize
+      const matchesJobPostings = !jobPostings || (company.jobPostings >= parseInt(jobPostings.split('-')[0]) && company.jobPostings <= parseInt(jobPostings.split('-')[1] || Infinity))
+      const matchesHiresFromArena = !hiresFromArena || (company.hiresFromArena >= parseInt(hiresFromArena.split('-')[0]) && company.hiresFromArena <= parseInt(hiresFromArena.split('-')[1] || Infinity))
 
-      return matchesSearch && matchesIndustries && matchesLocation && matchesWorkPreference && matchesHiring && matchesArenaPartner && matchesTopRankings
+      return matchesSearch && matchesIndustries && matchesLocation && matchesWorkPreference && matchesHiring && matchesArenaPartner && matchesTopRankings && matchesCompanySize && matchesJobPostings && matchesHiresFromArena
     })
 
-    // Sort companies
     filtered.sort((a, b) => {
       if (sortOption === 'recent') {
-        return b.jobCount - a.jobCount // Assuming more job count means more recent
+        return b.jobCount - a.jobCount
       } else if (sortOption === 'alphabetical') {
         return a.name.localeCompare(b.name)
       }
-      return 0 // 'relevant' sorting would typically involve more complex logic
+      return 0
     })
 
     setFilteredCompanies(filtered)
   }
 
-  const handleTopRankingClick = (company) => {
-    if (company.name === "The Minnesota Vikings") {
-      navigate('/profile-vikings')
-    } else if (company.name === "Arena Talent") {
-      navigate('/profile-arena')
-    }
-  }
   const loadSavedFilters = () => {
     const filters = JSON.parse(localStorage.getItem('savedFilters') || '{}')
     setSavedFilters(filters)
@@ -410,39 +445,28 @@ export default function ModernCompanySearch() {
         selectedTopRankings,
         showOnlyHiring,
         showOnlyArenaPartners,
+        companySize,
+        jobPostings,
+        hiresFromArena
       }
       const updatedFilters = { ...savedFilters, [filterName]: filterCriteria }
       localStorage.setItem('savedFilters', JSON.stringify(updatedFilters))
       setSavedFilters(updatedFilters)
       setIsModalOpen(false)
       setFilterName('')
-      alert('Great! These filters have been saved.')
     }
   }
-  const handleLoadSavedFilters = () => {
-    const savedFilters = localStorage.getItem('savedFilters')
-    if (savedFilters) {
-      const parsedFilters = JSON.parse(savedFilters)
-      setSelectedIndustries(parsedFilters.selectedIndustries || [])
-      setSelectedLocation(parsedFilters.selectedLocation || '')
-      setSelectedWorkPreferences(parsedFilters.selectedWorkPreferences || [])
-      setSelectedTopRankings(parsedFilters.selectedTopRankings || [])
-      setShowOnlyHiring(parsedFilters.showOnlyHiring || false)
-      setShowOnlyArenaPartners(parsedFilters.showOnlyArenaPartners || false)
-      filterCompanies()
-    }
+
+  const toggleFilter = (filterName) => {
+    setOpenFilters(prev => ({ ...prev, [filterName]: !prev[filterName] }))
   }
-  const handleCompanyClick = (company) => {
-    if (company.name === "The Minnesota Vikings") {
-      navigate('/company-profile/vikings')
-    } else if (company.name === "Arena Talent") {
-      navigate('/company-profile')
-    }
-  }
+  const filteredSubcategories = allSubcategories.filter(subcat =>
+    subcat.toLowerCase().includes(subcategorySearch.toLowerCase())
+  )
   return (
     <PageWrapper>
-      <NavWrapper>
-      <JobSeekerNav />
+       <NavWrapper>
+        <JobSeekerNav />
       </NavWrapper>
       <MainContent>
         <Header>
@@ -457,8 +481,7 @@ export default function ModernCompanySearch() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
           <Select value={sortOption} onChange={(e) => setSortOption(e.target.value)}>
-            <option value="relevant">Most relevant</option>
-            <option value="recent">Most recent</option>
+            <option value="recent">Most Recent Job Postings</option>
             <option value="alphabetical">Alphabetical</option>
           </Select>
           <SearchButton onClick={filterCompanies}>
@@ -473,9 +496,12 @@ export default function ModernCompanySearch() {
 
         <ContentWrapper>
           <Sidebar>
-          <FilterSection>
-              <FilterTitle>Industry</FilterTitle>
-              {industries.map((industry) => (
+            <FilterSection>
+              <FilterTitle onClick={() => toggleFilter('industry')}>
+                Industry
+                {openFilters['industry'] ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+              </FilterTitle>
+              {openFilters['industry'] && industries.map((industry) => (
                 <CheckboxLabel key={industry}>
                   <input
                     type="checkbox"
@@ -493,17 +519,59 @@ export default function ModernCompanySearch() {
               ))}
             </FilterSection>
             <FilterSection>
-              <FilterTitle>Location</FilterTitle>
-              <SearchInput
-                type="text"
-                placeholder="Enter location"
-                value={selectedLocation}
-                onChange={(e) => setSelectedLocation(e.target.value)}
-              />
+              <FilterTitle onClick={() => toggleFilter('subcategories')}>
+                Subcategories
+                {openFilters['subcategories'] ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+              </FilterTitle>
+              {openFilters['subcategories'] && (
+                <>
+                  <SubcategorySearch
+                    type="text"
+                    placeholder="Search subcategories"
+                    value={subcategorySearch}
+                    onChange={(e) => setSubcategorySearch(e.target.value)}
+                  />
+                  <ScrollableList>
+                    {filteredSubcategories.map((subcat) => (
+                      <CheckboxLabel key={subcat}>
+                        <input
+                          type="checkbox"
+                          checked={selectedIndustries.includes(subcat)}
+                          onChange={() => {
+                            setSelectedIndustries(prev =>
+                              prev.includes(subcat)
+                                ? prev.filter(i => i !== subcat)
+                                : [...prev, subcat]
+                            )
+                          }}
+                        />
+                        {subcat}
+                      </CheckboxLabel>
+                    ))}
+                  </ScrollableList>
+                </>
+              )}
             </FilterSection>
             <FilterSection>
-              <FilterTitle>Work Preference</FilterTitle>
-              {workPreferences.map((pref) => (
+              <FilterTitle onClick={() => toggleFilter('location')}>
+                Location
+                {openFilters['location'] ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+              </FilterTitle>
+              {openFilters['location'] && (
+                <SearchInput
+                  type="text"
+                  placeholder="Enter location"
+                  value={selectedLocation}
+                  onChange={(e) => setSelectedLocation(e.target.value)}
+                />
+              )}
+            </FilterSection>
+            <FilterSection>
+              <FilterTitle onClick={() => toggleFilter('workPreference')}>
+                Work Preference
+                {openFilters['workPreference'] ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+              </FilterTitle>
+              {openFilters['workPreference'] && workPreferences.map((pref) => (
                 <CheckboxLabel key={pref}>
                   <input
                     type="checkbox"
@@ -521,8 +589,11 @@ export default function ModernCompanySearch() {
               ))}
             </FilterSection>
             <FilterSection>
-              <FilterTitle>Top Ranking</FilterTitle>
-              {topRankings.map((ranking) => (
+              <FilterTitle onClick={() => toggleFilter('topRanking')}>
+                Top Ranking
+                {openFilters['topRanking'] ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+              </FilterTitle>
+              {openFilters['topRanking'] && topRankings.map((ranking) => (
                 <CheckboxLabel key={ranking}>
                   <input
                     type="checkbox"
@@ -540,42 +611,69 @@ export default function ModernCompanySearch() {
               ))}
             </FilterSection>
             <FilterSection>
-              <FilterTitle>Currently Hiring</FilterTitle>
-              <CheckboxLabel>
-                <input
-                  type="checkbox"
-                  checked={showOnlyHiring}
-                  onChange={() => setShowOnlyHiring(!showOnlyHiring)}
-                />
-                Show only hiring companies
-              </CheckboxLabel>
+              <FilterTitle onClick={() => toggleFilter('companySize')}>
+                Company Size
+                {openFilters['companySize'] ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+              </FilterTitle>
+              {openFilters['companySize'] && (
+                <Select value={companySize} onChange={(e) => setCompanySize(e.target.value)}>
+                  <option value="">Any size</option>
+                  {companySizes.map((size) => (
+                    <option key={size} value={size}>{size}</option>
+                  ))}
+                </Select>
+              )}
             </FilterSection>
             <FilterSection>
-              <FilterTitle>Arena Partner</FilterTitle>
-              <CheckboxLabel>
-                <input
-                  type="checkbox"
-                  checked={showOnlyArenaPartners}
-                  onChange={() => setShowOnlyArenaPartners(!showOnlyArenaPartners)}
-                />
-                Show only Arena partners
-              </CheckboxLabel>
+              <FilterTitle onClick={() => toggleFilter('jobPostings')}>
+                Number of Job Postings
+                {openFilters['jobPostings'] ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+              </FilterTitle>
+              {openFilters['jobPostings'] && (
+                <Select value={jobPostings} onChange={(e) => setJobPostings(e.target.value)}>
+                  <option value="">Any number</option>
+                  {jobPostingsRanges.map((range) => (
+                    <option key={range} value={range}>{range}</option>
+                  ))}
+                </Select>
+              )}
             </FilterSection>
-            {/* <FilterButton onClick={filterCompanies}>Apply Filters</FilterButton> */}
+            <FilterSection>
+              <FilterTitle onClick={() => toggleFilter('hiresFromArena')}>
+                Hires from Arena
+                {openFilters['hiresFromArena'] ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+              </FilterTitle>
+              {openFilters['hiresFromArena'] && (
+                <Select value={hiresFromArena} onChange={(e) => setHiresFromArena(e.target.value)}>
+                  <option value="">Any number</option>
+                  {hiresFromArenaRanges.map((range) => (
+                    <option key={range} value={range}>{range}</option>
+                  ))}
+                </Select>
+              )}
+            </FilterSection>
+            <FilterSection>
+              <FilterTitle onClick={() => toggleFilter('hiring')}>
+                Currently Hiring
+                {openFilters['hiring'] ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+              </FilterTitle>
+              {openFilters['hiring'] && (
+                <CheckboxLabel>
+                  <input
+                    type="checkbox"
+                    checked={showOnlyHiring}
+                    onChange={() => setShowOnlyHiring(!showOnlyHiring)}
+                  />
+                  Show only hiring companies
+                </CheckboxLabel>
+              )}
+            </FilterSection>
+
+
             <SaveFilterButton onClick={handleSaveFilters}>
               <Save size={18} />
               Save Filter
             </SaveFilterButton>
-            {/* <SavedFiltersDropdown
-              value={selectedSavedFilter}
-              onChange={(e) => setSelectedSavedFilter(e.target.value)}
-            >
-              <option value="">Select saved filter</option>
-              {Object.keys(savedFilters).map((filterName) => (
-                <option key={filterName} value={filterName}>{filterName}</option>
-              ))}
-            </SavedFiltersDropdown>
-            <FilterButton onClick={handleLoadSavedFilters}>Load Selected Filter</FilterButton> */}
           </Sidebar>
 
           <CompanyList>
@@ -583,10 +681,10 @@ export default function ModernCompanySearch() {
               <h2>All Companies ({filteredCompanies.length})</h2>
             </CompanyListHeader>
             {filteredCompanies.map((company) => (
-              <CompanyCard key={company.name} onClick={() => handleCompanyClick(company)}>
+              <CompanyCard key={company.name}>
                 {company.isArenaPartner && (
-                <PartnerBadge>Arena Partner</PartnerBadge>
-              )}
+                  <PartnerBadge>Arena Partner</PartnerBadge>
+                )}
                 <CompanyInfo>
                   <CompanyLogo src={company.logo} alt={company.name} />
                   <CompanyDetails>
@@ -595,7 +693,7 @@ export default function ModernCompanySearch() {
                     <CompanyDescription>{company.description}</CompanyDescription>
                     <TagList>
                       {company.tags.map((tag) => (
-                        <Tag key={tag} onClick={() => handleTopRankingClick(company)}>{tag}</Tag>
+                        <Tag key={tag}>{tag}</Tag>
                       ))}
                     </TagList>
                   </CompanyDetails>

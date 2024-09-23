@@ -8,6 +8,7 @@ const s3Client = new S3Client({
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
   }
 })
+console.log('S3 client initialized')
 
 const fileTypes = {
   jobSeekerProfilePic: {
@@ -48,13 +49,21 @@ const fileTypes = {
 }
 
 async function uploadFile(fileBuffer, fileName, id, fileType) {
+  console.log(
+    `Attempting to upload file: ${fileName}, Type: ${fileType}, ID: ${id}`
+  )
+
   if (!fileTypes[fileType]) {
+    console.error(`Invalid file type: ${fileType}`)
     throw new Error('Invalid file type')
   }
 
   const { folder, contentType, maxSize } = fileTypes[fileType]
 
   if (fileBuffer.length > maxSize) {
+    console.error(
+      `File size (${fileBuffer.length}) exceeds the maximum limit of ${maxSize}`
+    )
     throw new Error(
       `File size exceeds the maximum limit of ${maxSize / (1024 * 1024)}MB`
     )
@@ -73,6 +82,8 @@ async function uploadFile(fileBuffer, fileName, id, fileType) {
     mimeType = contentType
   }
 
+  console.log(`Uploading file to S3: ${key}, MimeType: ${mimeType}`)
+
   const command = new PutObjectCommand({
     Bucket: process.env.S3_BUCKET_NAME,
     Key: key,
@@ -81,11 +92,15 @@ async function uploadFile(fileBuffer, fileName, id, fileType) {
   })
 
   try {
+    console.log('Sending PutObject command to S3...')
     await s3Client.send(command)
-    return `https://${process.env.S3_BUCKET_NAME}.s3.amazonaws.com/${key}`
+    const fileUrl = `https://${process.env.S3_BUCKET_NAME}.s3.amazonaws.com/${key}`
+    console.log(`File uploaded successfully. URL: ${fileUrl}`)
+    return fileUrl
   } catch (err) {
     console.error('Error uploading file to S3:', err)
-    throw new Error('Failed to upload file to S3')
+    console.error('Error stack:', err.stack)
+    throw new Error('Failed to upload file to S3: ' + err.message)
   }
 }
 

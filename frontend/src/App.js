@@ -16,6 +16,13 @@ import JobSearch from './components/JobSearch'
 import EmployerDash from './components/Employerdash'
 import ApplicationTracking from './components/ApplicationTracking'
 import MessagingApp from './components/Messaging'
+import DemoJobSeekerIntakeForm from './components/demoSeekerIntake/demoJobSeekerIntake'
+import EmployerIntakeForm from './components/EmployerIntake'
+import EmployerProfile from './components/EmployerProfile'
+import CandidateSourcing from './components/CandidateSourcing'
+import ATSCandidate from './components/ATSCandidate'
+import JobTracking from './components/JobTracking'
+import EmployerSchedule from './components/EmployerSchedule'
 
 function App() {
   console.log('App component rendered')
@@ -34,6 +41,18 @@ function App() {
             <Route path="/job-posting1" element={<JobPosting />} />
             <Route path="/search-jobs" element={<JobSearch />} />
             <Route path="/employer-dashboard" element={<EmployerDash />} />
+            <Route path="/sourcing" element={<CandidateSourcing />} />
+            <Route path="/ats-profile" element={<ATSCandidate />} />
+            <Route path="/job-tracking" element={<JobTracking />} />
+            <Route path="/employer-schedule" element={<EmployerSchedule />} />
+            <Route
+              path="/demo-jobseeker-intake"
+              element={<DemoJobSeekerIntakeForm />}
+            />
+            <Route
+              path="/demo-employer-intake"
+              element={<EmployerIntakeForm />}
+            />
             {/* <Route path="/messaging" element={<MessagingApp />} /> */}
             <Route
               path="/application-tracking"

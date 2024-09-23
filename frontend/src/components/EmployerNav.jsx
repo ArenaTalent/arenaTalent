@@ -80,7 +80,7 @@ const EmployerNav = () => {
           <IconWrapper><User size={20} /></IconWrapper>
           <ButtonText>Profile</ButtonText>
         </NavButton>
-        <NavButton href="/search-candidates">
+        <NavButton href="/sourcing">
           <IconWrapper><Search size={20} /></IconWrapper>
           <ButtonText>Search Candidates</ButtonText>
         </NavButton>
@@ -88,9 +88,9 @@ const EmployerNav = () => {
           <IconWrapper><Building size={20} /></IconWrapper>
           <ButtonText>ATS</ButtonText>
         </NavButton>
-        <NavButton href="/application-tracking">
+        <NavButton href="/pipelines">
           <IconWrapper><FileCheck size={20} /></IconWrapper>
-          <ButtonText>Applicant Tracking</ButtonText>
+          <ButtonText>Pipelines</ButtonText>
         </NavButton>
         <NavButton href="/messaging">
           <IconWrapper><MessageSquare size={20} /></IconWrapper>
@@ -99,10 +99,10 @@ const EmployerNav = () => {
 
       </Nav>
       <BottomSection>
-        <NavButton href="/account">
+        {/* <NavButton href="/account">
           <IconWrapper><Settings size={20} /></IconWrapper>
           <ButtonText>Account</ButtonText>
-        </NavButton>
+        </NavButton> */}
         <LogoutButton href="/logout">
           <IconWrapper><LogOut size={20} /></IconWrapper>
           <ButtonText>Logout</ButtonText>

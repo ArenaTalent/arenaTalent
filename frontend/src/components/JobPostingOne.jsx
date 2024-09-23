@@ -1,6 +1,6 @@
-import React from 'react'
+import React, {useState} from 'react'
 import styled from 'styled-components'
-import { Share2, Linkedin, Briefcase, Users, Monitor, Coffee, Train, CheckCircle, Info, ArrowLeft } from 'lucide-react'
+import {X, Share2, Linkedin, Briefcase, Users, Monitor, Coffee, Train, CheckCircle, Info, ArrowLeft } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import JobSeekerNav from './JobSeekerNav'
 
@@ -283,6 +283,67 @@ const TooltipContent = styled.div`
   }
 `
 
+const ShareModal = styled.div`
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 2rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  width: 90%;
+  max-width: 400px;
+`
+
+const Backdrop = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+`
+
+const ModalHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+`
+
+const ModalTitle = styled.h3`
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1a202c;
+`
+
+const CloseButton = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #718096;
+  &:hover {
+    color: #4a5568;
+  }
+`
+
+const TinyUrl = styled.input`
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.25rem;
+`
+const CompanyLogoLink = styled(Link)`
+  display: block;
+  width: 4rem;
+  height: 4rem;
+  cursor: pointer;
+`
+
 const Tooltip = ({ children, content }) => (
   <TooltipContainer>
     {children}
@@ -292,9 +353,22 @@ const Tooltip = ({ children, content }) => (
 
 export default function JobPosting() {
   const navigate = useNavigate();
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [tinyUrl, setTinyUrl] = useState('');
+  const [copied, setCopied] = useState(false);
 
   const handleGoBack = () => {
     navigate(-1);
+  };
+
+  const handleShare = () => {
+    setTinyUrl(window.location.href);
+    setShowShareModal(true);
+  };
+
+  const handleCopyTinyUrl = () => {
+    navigator.clipboard.writeText(tinyUrl);
+    // Optionally, show a "Copied!" message to the user
   };
 
   return (
@@ -309,18 +383,20 @@ export default function JobPosting() {
         </BackButton>
         <JobHeader>
           <CompanyInfo>
-            <CompanyLogo src="/images/black-logo.png" alt="ARENA Talent Logo" />
+            <CompanyLogoLink to="/company-profile">
+              <CompanyLogo src="/images/black-logo.png" alt="ARENA Talent Logo" />
+            </CompanyLogoLink>
             <div>
               <JobTitle>Chief Technology Officer (CTO)</JobTitle>
               <CompanyName>ARENA Talent</CompanyName> • <JobLocation>Remote</JobLocation>
             </div>
           </CompanyInfo>
           <ButtonGroup>
-            <Button>
+            <Button onClick={handleShare}>
               <Share2 size={18} />
               Share
             </Button>
-            <Button primary>Apply</Button>
+            <Button primary>Applied</Button>
           </ButtonGroup>
         </JobHeader>
 
@@ -332,18 +408,22 @@ export default function JobPosting() {
               <AboutRoleValue>August 31, 2024</AboutRoleValue>
             </AboutRoleItem>
             <AboutRoleItem>
-              <AboutRoleLabel>Job Posted On</AboutRoleLabel>
-              <AboutRoleValue>July 1, 2024</AboutRoleValue>
+              <AboutRoleLabel>Job Level</AboutRoleLabel>
+              <AboutRoleValue>Executive</AboutRoleValue>
             </AboutRoleItem>
             <AboutRoleItem>
               <AboutRoleLabel>Job Type</AboutRoleLabel>
               <AboutRoleValue>Full-Time</AboutRoleValue>
             </AboutRoleItem>
             <AboutRoleItem>
+              <AboutRoleLabel>WFH Policy</AboutRoleLabel>
+              <AboutRoleValue>Remote</AboutRoleValue>
+            </AboutRoleItem>
+            <AboutRoleItem>
               <AboutRoleLabel>Salary Range</AboutRoleLabel>
               <AboutRoleValue>
                 $180k-$250k USD
-                <Tooltip content="This salary is within the normal range for this industry and position.">
+                <Tooltip content="This salary is within the normal range for this industry and position and was selected by the Employer.">
                   <CheckCircle size={18} color="#10B981" />
                 </Tooltip>
               </AboutRoleValue>
@@ -363,7 +443,7 @@ export default function JobPosting() {
         </Section>
 
         <Section>
-          <SectionTitle>Description</SectionTitle>
+          <SectionTitle>Overview</SectionTitle>
           <p>
             ARENA Talent is seeking a visionary Chief Technology Officer (CTO) to lead our technical strategy and drive innovation. As CTO, you will play a crucial role in shaping the future of our platform, which creates equitable career opportunities for professionals in sports, media, and entertainment. You will be responsible for overseeing all technical aspects of the company, making executive decisions on behalf of the company's technological requirements, and leading our talented engineering team.
           </p>
@@ -479,7 +559,7 @@ export default function JobPosting() {
         </Section>
 
         <Section>
-          <SectionTitle>Recruiter</SectionTitle>
+          <SectionTitle>Hiring Manager </SectionTitle>
           <RecruiterSection>
             <RecruiterImage src="/images/parul.png" alt="Parul Khosla" />
             <RecruiterInfo>
@@ -491,6 +571,31 @@ export default function JobPosting() {
             </Link>
           </RecruiterSection>
         </Section>
+
+        {showShareModal && (
+          <>
+            <Backdrop onClick={() => setShowShareModal(false)} />
+            <ShareModal>
+              <ModalHeader>
+                <ModalTitle>Share this job</ModalTitle>
+                <CloseButton onClick={() => setShowShareModal(false)}>
+                  <X size={18} />
+                </CloseButton>
+              </ModalHeader>
+              <TinyUrl value={tinyUrl} readOnly />
+              <Button onClick={handleCopyTinyUrl}>
+                {copied ? (
+                  <>
+                    <CheckCircle size={18} />
+                    Copied
+                  </>
+                ) : (
+                  'Copy Link'
+                )}
+              </Button>
+            </ShareModal>
+          </>
+        )}
       </ContentWrapper>
     </PageWrapper>
   )

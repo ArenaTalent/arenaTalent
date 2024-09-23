@@ -1,23 +1,43 @@
 const express = require('express')
+const multer = require('multer')
 const { uploadFile } = require('../services/awsService')
-const JobSeeker = require('../models/jobSeeker')
-const Company = require('../models/company')
-const Job = require('../models/job')
+const JobSeekerProfile = require('../models/jobseekerProfile')
+const Company = require('../models/employerProfile')
+const Job = require('../models/jobPosting')
+const authMiddleware = require('../middleware/authMiddleware')
 const { Sequelize } = require('sequelize')
+const { JobseekerProfile } = require('../models')
+
 const router = express.Router()
 
-// Middleware to check file count limits
-const checkFileCountLimit = (model, field, limit) => async (req, res, next) => {
+// Configure multer
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
+})
+const checkFileCountLimit = (field, limit) => async (req, res, next) => {
+  console.log('Checking file count limit...')
+  console.log('Received file:', req.file)
+  console.log('req.user:', req.user)
   try {
-    const count = await model.count({
-      where: {
-        id: req.user.id,
-        [field]: { [Sequelize.Op.ne]: null }
-      }
+    if (!req.user || !req.user.id) {
+      console.log('User not found in request')
+      return res.status(401).json({ error: 'Unauthorized' })
+    }
+    const jobSeekerProfile = await JobseekerProfile.findOne({
+      where: { user_id: req.user.id }
     })
-    if (count >= limit) {
+    if (!jobSeekerProfile) {
+      console.log('JobSeeker profile not found')
+      return res.status(404).json({ error: 'JobSeeker profile not found' })
+    }
+    console.log(`Current ${field}:`, jobSeekerProfile[field])
+    if (jobSeekerProfile[field]) {
       return res.status(400).json({
-        error: `You have reached the maximum limit of ${limit} file(s) for this type.`
+        error: `You have already uploaded a ${field.replace(
+          '_',
+          ' '
+        )}. Please delete the existing one before uploading a new one.`
       })
     }
     next()
@@ -26,31 +46,64 @@ const checkFileCountLimit = (model, field, limit) => async (req, res, next) => {
     res.status(500).json({ error: 'Internal server error' })
   }
 }
-
 // Job Seeker Routes
 
 // Profile Picture Upload (1 limit/user)
 router.post(
   '/job-seeker/profile-picture',
-  checkFileCountLimit(JobSeeker, 'profilePicture', 1),
+  authMiddleware.authenticateToken,
+  upload.single('file'),
+  checkFileCountLimit('profile_picture', 1),
+  upload.single('file'),
   async (req, res) => {
     try {
-      if (!req.file) return res.status(400).json({ error: 'No file uploaded' })
+      console.log('Received profile picture upload request')
+      console.log('User:', req.user)
+      console.log('File:', req.file)
+
+      if (!req.file) {
+        console.log('No file received')
+        return res.status(400).json({ error: 'No file uploaded' })
+      }
+
       const userId = req.user.id
+      console.log('Uploading file to S3...')
       const fileUrl = await uploadFile(
         req.file.buffer,
         req.file.originalname,
         userId,
         'jobSeekerProfilePic'
       )
-      await JobSeeker.update(
-        { profilePicture: fileUrl },
-        { where: { id: userId } }
-      )
+      console.log('File uploaded to S3:', fileUrl)
+
+      console.log('Updating JobseekerProfile...')
+      const jobSeekerProfile = await JobseekerProfile.findOne({
+        where: { user_id: userId }
+      })
+      if (!jobSeekerProfile) {
+        console.log('JobSeeker profile not found')
+        return res.status(404).json({ error: 'JobSeeker profile not found' })
+      }
+      await jobSeekerProfile.update({ profile_picture: fileUrl })
+      console.log('JobSeeker profile updated with new profile picture')
+
       res.json({ url: fileUrl })
     } catch (error) {
       console.error('Upload error:', error)
-      res.status(500).json({ error: error.message })
+      console.error('Error stack:', error.stack)
+      if (error.message.includes('Failed to upload file to S3')) {
+        return res
+          .status(500)
+          .json({ error: 'S3 upload failed', details: error.message })
+      }
+      if (error.name === 'SequelizeValidationError') {
+        return res
+          .status(400)
+          .json({ error: 'Invalid data provided', details: error.errors })
+      }
+      res
+        .status(500)
+        .json({ error: 'Internal server error', details: error.message })
     }
   }
 )
@@ -58,7 +111,7 @@ router.post(
 // Resume Upload (1 limit/user)
 router.post(
   '/job-seeker/resume',
-  checkFileCountLimit(JobSeeker, 'resumeUrl', 1),
+  checkFileCountLimit(JobSeekerProfile, 'resumeUrl', 1),
   async (req, res) => {
     try {
       if (!req.file) return res.status(400).json({ error: 'No file uploaded' })
@@ -69,7 +122,10 @@ router.post(
         userId,
         'resume'
       )
-      await JobSeeker.update({ resumeUrl: fileUrl }, { where: { id: userId } })
+      await JobSeekerProfile.update(
+        { resumeUrl: fileUrl },
+        { where: { id: userId } }
+      )
       res.json({ url: fileUrl })
     } catch (error) {
       console.error('Upload error:', error)
@@ -81,7 +137,7 @@ router.post(
 // Cover Photo Upload (1 limit/user)
 router.post(
   '/job-seeker/cover-photo',
-  checkFileCountLimit(JobSeeker, 'coverPhoto', 1),
+  checkFileCountLimit(JobSeekerProfile, 'coverPhoto', 1),
   async (req, res) => {
     try {
       if (!req.file) return res.status(400).json({ error: 'No file uploaded' })
@@ -92,7 +148,10 @@ router.post(
         userId,
         'jobSeekerCoverPhoto'
       )
-      await JobSeeker.update({ coverPhoto: fileUrl }, { where: { id: userId } })
+      await JobSeekerProfile.update(
+        { coverPhoto: fileUrl },
+        { where: { id: userId } }
+      )
       res.json({ url: fileUrl })
     } catch (error) {
       console.error('Upload error:', error)
@@ -104,7 +163,7 @@ router.post(
 // Video Upload (3 limit/user)
 router.post(
   '/job-seeker/video',
-  checkFileCountLimit(JobSeeker, 'videos', 3),
+  checkFileCountLimit(JobSeekerProfile, 'videos', 3),
   async (req, res) => {
     try {
       if (!req.file) return res.status(400).json({ error: 'No file uploaded' })
@@ -115,7 +174,7 @@ router.post(
         userId,
         'jobSeekerVideo'
       )
-      await JobSeeker.update(
+      await JobSeekerProfile.update(
         {
           videos: Sequelize.fn('array_append', Sequelize.col('videos'), fileUrl)
         },

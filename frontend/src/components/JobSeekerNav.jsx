@@ -92,10 +92,6 @@ const JobSeekerNav = () => {
           <IconWrapper><FileCheck size={20} /></IconWrapper>
           <ButtonText>Application Tracking</ButtonText>
         </NavButton>
-        <NavButton href="/templates">
-          <IconWrapper><FileText size={20} /></IconWrapper>
-          <ButtonText>Templates</ButtonText>
-        </NavButton>
         <NavButton href="/messaging">
           <IconWrapper><MessageSquare size={20} /></IconWrapper>
           <ButtonText>Messaging</ButtonText>
@@ -103,10 +99,10 @@ const JobSeekerNav = () => {
 
       </Nav>
       <BottomSection>
-        <NavButton href="/account">
+        {/* <NavButton href="/account">
           <IconWrapper><Settings size={20} /></IconWrapper>
           <ButtonText>Account</ButtonText>
-        </NavButton>
+        </NavButton> */}
         <LogoutButton href="/logout">
           <IconWrapper><LogOut size={20} /></IconWrapper>
           <ButtonText>Logout</ButtonText>

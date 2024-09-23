@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useRef} from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import styled, { keyframes, createGlobalStyle } from 'styled-components';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import LanguageSelector from './LanguageSelector';
@@ -60,8 +59,20 @@ const StepGrid = styled.div`
   gap: 1rem;
 `;
 
-const FormGroup = styled.div`
+const FadeInText = styled.p`
+  opacity: 0;
+  animation: ${fadeIn} 1s ease-out forwards;
+  animation-delay: 0.5s;
   margin-bottom: 1rem;
+  font-size: 1.5rem;
+  color: #e0e0e0;
+`;
+
+const FadeInFormGroup = styled.div`
+  opacity: 0;
+  animation: ${fadeIn} 1s ease-out forwards;
+  animation-delay: 1s;
+  margin-bottom: 2rem;
 `;
 
 const Label = styled.label`
@@ -91,6 +102,12 @@ const Input = styled.input`
 
   &::placeholder {
     color: #8a8a8a;
+  }
+`;
+
+const DateInput = styled(Input)`
+  &::-webkit-calendar-picker-indicator {
+    filter: invert(1);
   }
 `;
 
@@ -137,22 +154,6 @@ const Button = styled.button`
   }
 `;
 
-const FadeInText = styled.p`
-  opacity: 0;
-  animation: ${fadeIn} 1s ease-out forwards;
-  animation-delay: 0.5s;
-  margin-bottom: 1rem;
-  font-size: 1.5rem;
-  color: #e0e0e0;
-`;
-
-const FadeInFormGroup = styled(FormGroup)`
-  opacity: 0;
-  animation: ${fadeIn} 1s ease-out forwards;
-  animation-delay: 1s;
-  margin-bottom: 2rem;
-`;
-
 const StepIndicator = styled.div`
   display: flex;
   justify-content: center;
@@ -171,7 +172,6 @@ const StepDot = styled.div`
     transform: scale(1.2);
   `}
 `;
-
 
 const SlideContainer = styled.div`
   position: relative;
@@ -195,104 +195,39 @@ const SlideContent = styled.div`
   }
 `;
 
-const FileUploadContainer = styled.div`
+const NavigationButtons = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+`;
+
+const RightAlignedButton = styled(Button)`
+  float: right;
+`;
+
+const HorizontalGroup = styled.div`
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+`;
+
+const SalaryInputGroup = styled.div`
+  flex: 1;
+`;
+
+const SalaryInput = styled(Input)`
+  width: 70%;
+`;
+
+const RatingHeader = styled.div`
+  display: flex;
+  align-items: center;
   margin-bottom: 1rem;
 `;
-
-const FileInput = styled.input`
-  display: none;
-`;
-
-const FileLabel = styled.label`
-  display: inline-block;
-  padding: 0.5rem 1rem;
-  background-color: #4a4a4a;
-  color: #e0e0e0;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-
-  &:hover {
-    background-color: #5a5a5a;
-  }
-`;
-
-const FileName = styled.span`
-  margin-left: 0.5rem;
-  font-size: 0.9rem;
-`;
-
-const ErrorPopup = styled.div`
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: #2a2a2a;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
-`;
-
-const ErrorTitle = styled.h2`
-  margin-bottom: 1rem;
-  color: #e0e0e0;
-`;
-
-const ErrorMessage = styled.p`
-  margin-bottom: 1.5rem;
-  color: #e0e0e0;
-`;
-
-const ErrorList = styled.ul`
-  list-style-type: none;
-  padding: 0;
-  margin-bottom: 1.5rem;
-`;
-
-const ErrorItem = styled.li`
-  color: #ff6b6b;
-  margin-bottom: 0.5rem;
-`;
-
-
-const Tooltip = styled.span`
-  visibility: hidden;
-  width: 200px;
-  background-color: #555;
-  color: #fff;
-  text-align: center;
-  border-radius: 6px;
-  padding: 5px;
-  position: absolute;
-  z-index: 1;
-  bottom: 125%;
-  left: 50%;
-  margin-left: -100px;
-  opacity: 0;
-  transition: opacity 0.3s;
-
-  &::after {
-    content: "";
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    margin-left: -5px;
-    border-width: 5px;
-    border-style: solid;
-    border-color: #555 transparent transparent transparent;
-  }
-`;
-
 
 const TooltipContainer = styled.div`
   position: relative;
   display: inline-block;
-
-  &:hover ${Tooltip} {
-    visibility: visible;
-    opacity: 1;
-  }
 `;
 
 const InfoIcon = styled.span`
@@ -314,10 +249,37 @@ const InfoIcon = styled.span`
   }
 `;
 
-const RatingHeader = styled.div`
-  display: flex;
-  align-items: center;
-  margin-bottom: 1rem;
+const Tooltip = styled.span`
+  visibility: hidden;
+  width: 200px;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -100px;
+  opacity: 0;
+  transition: opacity 0.3s;
+
+  ${TooltipContainer}:hover & {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #555 transparent transparent transparent;
+  }
 `;
 
 const StarRating = styled.div`
@@ -346,68 +308,6 @@ const Star = styled.span`
   color: ${props => props.$filled ? '#FFD700' : '#4a4a4a'};
 `;
 
-const EducationEntry = styled.div`
-  display: flex;
-  align-items: center;
-  margin-bottom: 0.5rem;
-  background-color: #3a3a3a;
-  padding: 0.5rem;
-  border-radius: 4px;
-`;
-
-const EducationInfo = styled.p`
-  margin: 0;
-  flex-grow: 1;
-`;
-
-const RemoveButton = styled.button`
-  background: none;
-  border: none;
-  color: #ff6b6b;
-  font-size: 1.2rem;
-  cursor: pointer;
-  padding: 0 0.5rem;
-  margin-left: 0.5rem;
-
-  &:hover {
-    color: #ff4757;
-  }
-`;
-
-const RightAlignedButton = styled(Button)`
-  float: right;
-`;
-
-
-const ModalText = styled.p`
-  margin-bottom: 1.5rem;
-  color: #e0e0e0;
-`;
-
-const ModalButton = styled(Button)`
-  margin-top: 1rem;
-`;
-
-const HorizontalGroup = styled.div`
-  display: flex;
-  gap: 1rem;
-  width: 100%;
-`;
-
-const SalaryInputGroup = styled.div`
-  flex: 1;
-`;
-
-const SalaryInput = styled(Input)`
-  width: 70%;
-`;
-
-const DateInput = styled(Input)`
-  &::-webkit-calendar-picker-indicator {
-    filter: invert(1);
-  }
-`;
-
 const EducationEntryForm = styled.div`
   margin-bottom: 1rem;
   padding: 1rem;
@@ -415,54 +315,7 @@ const EducationEntryForm = styled.div`
   border-radius: 4px;
 `;
 
-const NavigationButtons = styled.div`
-  display: flex;
-  justify-content: space-between;
-  margin-top: 20px;
-`;
-
-
-
-const Modal = ({ isOpen, onClose, title, children }) => {
-  if (!isOpen) return null;
-
-  return (
-    <ModalOverlay>
-      <ModalContent>
-        <ModalTitle>{title}</ModalTitle>
-        {children}
-        <ModalButton onClick={onClose}>Close</ModalButton>
-      </ModalContent>
-    </ModalOverlay>
-  );
-};
-
-const ModalOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-`;
-
-const ModalContent = styled.div`
-  background-color: #2a2a2a;
-  padding: 2rem;
-  border-radius: 8px;
-  max-width: 400px;
-`;
-
-const ModalTitle = styled.h2`
-  margin-bottom: 1rem;
-  color: #e0e0e0;
-`;
-
-export default function JobSeekerIntakeForm() {
+export default function DemoJobSeekerIntakeForm() {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [formData, setFormData] = useState({
@@ -470,7 +323,6 @@ export default function JobSeekerIntakeForm() {
     date_of_birth: '',
     phone: '',
     current_employer: '',
-    block_current_employer: false,
     current_title: '',
     years_experience: '',
     job_level: '',
@@ -481,10 +333,6 @@ export default function JobSeekerIntakeForm() {
     athlete_status: '',
     preferred_telework_policy: '',
     highest_education: '',
-    college: '',
-    major: '',
-    degree: '',
-    graduation_year: '',
     company_culture_preferences: [],
     job_types: [],
     dream_companies: [],
@@ -515,11 +363,7 @@ export default function JobSeekerIntakeForm() {
     cover_photo: null,
     resume: null,
   });
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [showAgeRestrictionModal, setShowAgeRestrictionModal] = useState(false);
-  const [errors, setErrors] = useState({});
-  const [selectedCollege, setSelectedCollege] = useState(null);
+  const nodeRef = useRef(null);
   const [companyRatings, setCompanyRatings] = useState({
     applicationProcess: 0,
     interviewProcess: 0,
@@ -528,19 +372,41 @@ export default function JobSeekerIntakeForm() {
     workLifeBalance: 0,
     diversity: 0
   });
-  const [showErrorModal, setShowErrorModal] = useState(false);
-  const nodeRef = useRef(null);
 
-
-
-
-  const isValidState = (state) => {
-    const stateAbbreviations = ['AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'];
-    return stateAbbreviations.includes(state.toUpperCase());
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData(prevState => ({
+      ...prevState,
+      [name]: type === 'checkbox' ? checked : value
+    }));
   };
 
-  const isValidZipCode = (zipCode) => {
-    return /^\d{5}(-\d{4})?$/.test(zipCode);
+  const handleFileChange = (e) => {
+    const { name, files } = e.target;
+    setFormData(prevState => ({
+      ...prevState,
+      [name]: files.length > 0 ? files[0] : null
+    }));
+  };
+
+  const handleEducationChange = (index, field, value) => {
+    setFormData(prevState => {
+      const newEducation = [...prevState.education];
+      newEducation[index] = { ...newEducation[index], [field]: value };
+      return { ...prevState, education: newEducation };
+    });
+  };
+
+  const addEducation = () => {
+    if (formData.education.length < 3) {
+      setFormData(prevState => ({
+        ...prevState,
+        education: [
+          ...prevState.education,
+          { college: '', major: '', degree: '', graduation_year: '' }
+        ]
+      }));
+    }
   };
 
   const handleRatingChange = (category, rating) => {
@@ -550,106 +416,6 @@ export default function JobSeekerIntakeForm() {
     }));
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('authToken');
-    navigate('/logout');
-  };
-
-
-  const handleFileChange = (e) => {
-    const { name, files } = e.target;
-    console.log('Selected file:', files[0]); // Log to check if file is present
-    setFormData(prevState => ({
-      ...prevState,
-      [name]: files.length > 0 ? files[0] : null
-    }));
-  };
-
-  const handleInputChange = (e) => {
-    if (e && e.target) {
-      const { name, value, type, checked } = e.target;
-
-      // Prevent default for all input changes
-      e.preventDefault();
-
-      setFormData(prevState => ({
-        ...prevState,
-        [name]: type === 'checkbox' ? checked : value
-      }));
-
-      if (name === 'state' && value.length === 2) {
-        const isValid = isValidState(value);
-        setErrors(prevErrors => ({
-          ...prevErrors,
-          state: isValid ? '' : 'Please enter a valid US state abbreviation'
-        }));
-      } else if (name === 'zip_code' && value.length === 5) {
-        const isValid = isValidZipCode(value);
-        setErrors(prevErrors => ({
-          ...prevErrors,
-          zip_code: isValid ? '' : 'Please enter a valid ZIP code'
-        }));
-      } else {
-        setErrors(prevErrors => ({
-          ...prevErrors,
-          [name]: ''
-        }));
-      }
-    }
-  };
-  useEffect(() => {
-    const fetchUserData = async () => {
-      setIsLoading(true);
-      try {
-        const token = localStorage.getItem('authToken');
-        if (!token) {
-          throw new Error('No authentication token found');
-        }
-
-        const response = await axios.get('/api/users/profile', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-
-        const userData = response.data;
-        if (userData && userData.firstName) {
-          setFormData(prevState => ({
-            ...prevState,
-            name: userData.firstName,
-          }));
-        } else {
-          setError('Unable to retrieve user name');
-        }
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-        setError(`Error fetching user data: ${error.message}`);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchUserData();
-  }, []);
-
-  const handleEducationChange = (index, field, value) => {
-    setFormData(prevState => {
-      const newEducation = [...prevState.education];
-      newEducation[index] = { ...newEducation[index], [field]: value };
-      return { ...prevState, education: newEducation };
-    });
-  };
-  const addEducation = () => {
-    if (formData.education.length >= 3) {
-      alert("You can add a maximum of 3 education entries.");
-      return;
-    }
-
-    setFormData(prevState => ({
-      ...prevState,
-      education: [
-        ...prevState.education,
-        { college: '', major: '', degree: '', graduation_year: '' }
-      ]
-    }));
-  };
 
   const removeEducation = (index) => {
     if (formData.education.length > 1) {
@@ -658,136 +424,20 @@ export default function JobSeekerIntakeForm() {
         education: prevState.education.filter((_, i) => i !== index)
       }));
     } else {
-      // If it's the last entry, just clear the fields instead of removing
       setFormData(prevState => ({
         ...prevState,
         education: [{ college: '', major: '', degree: '', graduation_year: '' }]
       }));
     }
   };
-  const uploadFileToS3 = async (file, fileType) => {
-    if (!file) {
-      console.error('No file provided for upload');
-      return null;
-    }
 
-    const formData = new FormData();
-    formData.append('file', file);
-
-    try {
-      let endpoint;
-      switch(fileType) {
-        case 'profile_picture':
-          endpoint = '/api/job-seeker/profile-picture';
-          break;
-        case 'cover_photo':
-          endpoint = '/api/job-seeker/cover-photo';
-          break;
-        case 'resume':
-          endpoint = '/api/job-seeker/resume';
-          break;
-        default:
-          throw new Error('Invalid file type');
-      }
-
-      console.log(`Uploading ${fileType} to endpoint: ${endpoint}`);
-      console.log('File details:', {
-        name: file.name,
-        type: file.type,
-        size: file.size
-      });
-
-      const token = localStorage.getItem('authToken');
-      if (!token) {
-        throw new Error('No authentication token found');
-      }
-
-      const response = await axios.post(endpoint, formData, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      console.log(`${fileType} upload successful:`, response.data);
-      return response.data.url;
-    } catch (error) {
-      console.error(`Error uploading ${fileType}:`, error);
-      if (error.response) {
-        console.error('Error response:', error.response.data);
-        console.error('Error status:', error.response.status);
-      } else if (error.request) {
-        console.error('No response received:', error.request);
-      } else {
-        console.error('Error setting up request:', error.message);
-      }
-      throw error;
-    }
-  };
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-
-    // Check if required files are present
-    const requiredFiles = ['profile_picture', 'resume'];
-    for (const fileField of requiredFiles) {
-      if (!formData[fileField]) {
-        alert(`Please upload a ${fileField.replace('_', ' ')}.`);
-        return;
-      }
-    }
-
-    if (step !== 9) {
+    if (step === 9) {
+      navigate('/jobseeker-dashboard');
+    } else {
       nextStep();
-      return;
     }
-
-    try {
-      const profilePicUrl = await uploadFileToS3(formData.profile_picture, 'profile_picture');
-      const coverPhotoUrl = formData.cover_photo ? await uploadFileToS3(formData.cover_photo, 'cover_photo') : null;
-      const resumeUrl = await uploadFileToS3(formData.resume, 'resume');
-
-      const updatedFormData = {
-        ...formData,
-        profilePicture: profilePicUrl,
-        coverPhoto: coverPhotoUrl,
-        resumeUrl: resumeUrl,
-      };
-
-      const response = await axios.post('/api/jobseeker/intake',
-        {
-          ...updatedFormData,
-          intake_completed: true
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('authToken')}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-
-      if (response.status === 200 || response.status === 201) {
-        navigate('/jobseeker-dashboard');
-      } else {
-        throw new Error('Failed to submit form');
-      }
-    } catch (error) {
-      console.error('Error submitting form:', error);
-      alert('There was an error submitting the form. Please try again.');
-    }
-  };
-
-
-
-  const calculateAge = (birthDate) => {
-    const today = new Date();
-    const birth = new Date(birthDate);
-    let age = today.getFullYear() - birth.getFullYear();
-    const monthDiff = today.getMonth() - birth.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-      age--;
-    }
-    return age;
   };
 
   const prevStep = () => {
@@ -795,97 +445,19 @@ export default function JobSeekerIntakeForm() {
   };
 
   const nextStep = () => {
-    if (step === 1) {
-      if (formData.date_of_birth) {
-        const age = calculateAge(formData.date_of_birth);
-        if (age < 13) {
-          setShowAgeRestrictionModal(true);
-          return;
-        }
-      }
-    }
-
-    if (validateStep()) {
-      setStep(prevStep => Math.min(9, prevStep + 1));
-    } else {
-      setShowErrorModal(true);
-    }
+    setStep(prevStep => Math.min(9, prevStep + 1));
   };
-
-  const validateStep = () => {
-    const newErrors = {};
-    switch (step) {
-        case 1:
-          if(!formData.date_of_birth) newErrors.date_of_birth = "Date of Birth is required";
-          if (!formData.phone) newErrors.phone = "Phone Number is required";
-          if (!formData.street_address) newErrors.street_address = "Street Address is required";
-          if (!formData.city) newErrors.city = "City is required";
-          if (!formData.state) newErrors.state = "State is required";
-          if (!formData.zip_code) newErrors.zip_code = "ZIP Code is required";
-          break;
-      case 2:
-
-        if (!formData.years_experience) newErrors.years_experience = "Years of Experience is required";
-        if (!formData.job_level) newErrors.job_level = "Job Level is required";
-        if (formData.startup_experience === undefined) newErrors.startup_experience = "Startup Experience is required";
-        if (!formData.open_to_work) newErrors.open_to_work = "Open to Work status is required";
-        if (formData.block_current_employer === undefined) newErrors.block_current_employer = "Block Current Employer preference is required";
-        break;
-      case 3:
-        if (!formData.highest_education) newErrors.highest_education = "Highest Education is required";
-        if (formData.languages.length === 0) newErrors.languages = "At least one language is required";
-        break;
-      case 4:
-        if (!formData.athlete_status) newErrors.athlete_status = "Athlete Status is required";
-        if (!formData.preferred_telework_policy) newErrors.preferred_telework_policy = "Preferred Telework Policy is required";
-        break;
-        case 5:
-          if (!formData.job_search_motivation) newErrors.job_search_motivation = "Job Search Motivation is required";
-          if (formData.top_strengths.length !== 3) newErrors.top_strengths = "Please select exactly 3 strengths";
-          if (!formData.job_search_challenge) newErrors.job_search_challenge = "Most Challenging Part of Job Search is required";
-          if (formData.company_culture_preferences.length !== 3) newErrors.company_culture_preferences = "Please select exactly 3 company culture preferences";
-          break;
-      case 8:
-        if (!formData.gender) newErrors.gender = "Gender is required";
-        if (!formData.race) newErrors.race = "Race/Ethnicity is required";
-        if (!formData.sexual_orientation) newErrors.sexual_orientation = "Sexual Orientation is required";
-        if (!formData.veteran_status) newErrors.veteran_status = "Veteran Status is required";
-        if (!formData.disability_status) newErrors.disability_status = "Disability Status is required";
-        break;
-      case 9:
-        if (!formData.profile_picture) newErrors.profile_picture = "Profile Picture is required";
-        if (!formData.resume) newErrors.resume = "Resume is required";
-        break;
-    }
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  console.log('FileUploader:', FileUploader);
-  console.log('formData:', formData);
-  console.log('handleFileChange:', handleFileChange);
 
   const renderStep = () => {
     switch (step) {
       case 0:
         return (
-          <div>
-            {isLoading ? (
-              <p>Loading...</p>
-            ) : error ? (
-              <p>{error}</p>
-            ) : (
-              <>
-              <div style={{textAlign: 'center'}}>
-                <FadeInText>Welcome to <span style={{ color: '#d19bf3', fontSize: '30px'}}>Arena Talent</span>, {formData.name || 'Job Seeker'}!</FadeInText>
-                <FadeInText>Let's get started by building your profile. This will help our CoachAI match you with the perfect open opportunities for you...</FadeInText>
-                <Button style={{marginTop:'10px'}}onClick={nextStep}>Let's Go</Button>
-              </div>
-              </>
-            )}
+          <div style={{textAlign: 'center'}}>
+            <FadeInText>Welcome to <span style={{ color: '#d19bf3', fontSize: '30px'}}>Arena Talent</span>, Job Seeker!</FadeInText>
+            <FadeInText>Let's get started by building your profile. This will help our CoachAI match you with the perfect open opportunities for you...</FadeInText>
+            <Button style={{marginTop:'10px'}} onClick={nextStep}>Let's Go</Button>
           </div>
         );
-
         case 1:
           return (
             <StepGrid>
@@ -1610,35 +1182,7 @@ return (
           </SlideContainer>
         </FormCard>
       </FormContainer>
-    <Modal
-        isOpen={showErrorModal}
-        onClose={() => setShowErrorModal(false)}
-        title="Required Fields"
-      >
-        <ErrorMessage>Please fill out all required fields before proceeding.</ErrorMessage>
-        <ErrorList>
-          {Object.entries(errors).map(([field, message]) => (
-            <ErrorItem key={field}>{message}</ErrorItem>
-          ))}
-        </ErrorList>
-      </Modal>
 
-      <Modal
-        isOpen={showAgeRestrictionModal}
-        onClose={() => setShowAgeRestrictionModal(false)}
-        title="Age Restriction"
-      >
-        <ModalText>
-          We're sorry, but you must be at least 13 years old to use our site.
-          You will be logged out and redirected to the login page.
-        </ModalText>
-        <ModalButton onClick={() => {
-          setShowAgeRestrictionModal(false);
-          handleLogout();
-        }}>
-          OK
-        </ModalButton>
-      </Modal>
 
 </>
 

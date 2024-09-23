@@ -11,6 +11,8 @@ const jobSeekerRoutes = require('./routes/jobSeekerRoutes')
 const employerRoutes = require('./routes/employerRoutes')
 const uploadRoutes = require('./routes/uploadRoutes')
 require('dotenv').config()
+const multer = require('multer')
+const upload = multer({ storage: multer.memoryStorage() })
 
 const app = express()
 const port = process.env.PORT || 5002
@@ -42,7 +44,14 @@ const connectToDatabase = async () => {
   }
 }
 connectToDatabase()
-
+console.log('Checking AWS credentials...')
+if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
+  console.error(
+    'AWS credentials are missing. Please check your environment variables.'
+  )
+  process.exit(1)
+}
+console.log('AWS credentials found')
 // Routes
 app.use(
   '/api/users',
@@ -57,10 +66,15 @@ app.use('/api/applications', applicationRoutes)
 app.use('/api/employer_members', employerMemberRoutes)
 app.use('/api/job_seekers', jobSeekerRoutes)
 app.use('/api/employers', employerRoutes)
-app.use('/api', uploadRoutes)
+app.use('/api', upload.single('file'), uploadRoutes)
 
 app.get('/api/test', (req, res) => {
   res.json({ message: 'Backend is reachable' })
+})
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err)
+  console.error('Error stack:', err.stack)
+  res.status(500).json({ error: 'Internal server error', details: err.message })
 })
 
 // Error Handling Middleware
