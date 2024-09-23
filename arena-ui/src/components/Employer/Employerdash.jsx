@@ -160,6 +160,57 @@ const StatusBadge = styled.span`
   font-weight: 600;
 `;
 
+// New styled components for the onboarding sections
+const OnboardingSection = styled.div`
+  background-color: #ffffff;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+`;
+
+const SectionTitle = styled.h2`
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+`;
+
+const SectionProgressBar = styled.div`
+  width: 100%;
+  height: 0.5rem;
+  background-color: #e5e7eb;
+  border-radius: 9999px;
+  margin-bottom: 0.5rem;
+`;
+
+const SectionProgress = styled.div`
+  width: ${props => props.width};
+  height: 100%;
+  background-color: #10B981;
+  border-radius: 9999px;
+`;
+
+const SectionDescription = styled.p`
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-bottom: 1rem;
+`;
+
+const Button = styled.button`
+  background-color: #2563eb;
+  color: white;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #1d4ed8;
+  }
+`;
+
 const EmployerDash = () => {
   const applicants = [
     { id: 19, name: 'Brady Hertl', role: 'Premium Experience Coordinator', applyDate: '2024-07-01', match: 95, status: 'In-Review' },
@@ -182,6 +233,38 @@ const EmployerDash = () => {
 
       <MainContent>
         <WelcomeHeader>Welcome, Minnesota Vikings!</WelcomeHeader>
+
+        {/* New onboarding sections */}
+        <OnboardingSection>
+          <SectionTitle>🔥 Complete your profile to unlock access to your candidate matches</SectionTitle>
+          <SectionProgressBar><SectionProgress width="30%" /></SectionProgressBar>
+          <SectionDescription>
+            This information helps our AI personalize its talent matches to meet your top hiring goals.
+            Note: You will not see your talent matches until you complete your profile.
+          </SectionDescription>
+          <Button>Edit Profile</Button>
+        </OnboardingSection>
+
+        <OnboardingSection>
+          <SectionTitle>📝 Post a job</SectionTitle>
+          <SectionProgressBar><SectionProgress width="0%" /></SectionProgressBar>
+          <SectionDescription>
+            Post your first job to our curated talent community and receive top candidate matches instantly!
+          </SectionDescription>
+          <Button>Post a Job</Button>
+        </OnboardingSection>
+
+        <OnboardingSection>
+          <SectionTitle>🔑 Get access to more talent</SectionTitle>
+          <SectionProgressBar><SectionProgress width="0%" /></SectionProgressBar>
+          <SectionDescription>
+            Complete this quick survey to increase your standing in our algorithm and get access to even more talent.
+            These responses are anonymous and are used to help us gather industry data on hiring trends and best practices.
+            It will be shared in reports, in responses to questions asked in our AI chatbot, and to benchmark your hiring goals and success metrics.
+            Your personal information will NEVER be shared publicly and will only be shared anonymously and in aggregate form.
+          </SectionDescription>
+          <Button>Complete Survey</Button>
+        </OnboardingSection>
 
         <Grid columns={3}>
           <Card>
