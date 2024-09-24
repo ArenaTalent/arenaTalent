@@ -280,7 +280,9 @@ const FilterDropdown = styled(Select)`
   margin-bottom: 1rem;
 `;
 
-
+const UnorderedList = styled.ul`
+  font-family: 'Inter', sans-serif;
+`;
 
 
 
@@ -430,6 +432,30 @@ const EmployerDash = () => {
 
       <MainContent>
         <WelcomeHeader>Welcome, Minnesota Vikings!</WelcomeHeader>
+        <Card style={{ marginBottom: '1.5rem' }}>
+          <SectionTitle>🏟 Welcome to Arena for MSBC!</SectionTitle>
+          <p>Your one-stop-shop to top talent in sports, media and entertainment is here. As the official Recruiting Sponsor for the Michigan Sports Business Conference, we're excited to help you connect with promising candidates.</p>
+          <SectionTitle>What you can do:</SectionTitle>
+          <ul>
+            <li>🔎  View and source attendees from MSBC</li>
+            <li>📣  Post a job directly to MSBC attendees</li>
+            <li>🤝  Access AI-powered candidate matches ranked for your needs</li>
+            <li>💬  Message and engage with top candidates</li>
+            <li>📊  Track your recruitment progress</li>
+          </ul>
+          <SectionTitle>Important Notes:</SectionTitle>
+          <ul>
+            <li>👀  You currently have access to view MSBC-specific talent on Arena.</li>
+            <li>💡  Want to explore all talent on our platform? <EventLink href="https://calendly.com/adriene-arena/arena-demo">Book a demo with our team.</EventLink></li>
+            <li>⏰  Your Arena for MSBC trial expires in on Nov. 30th, 2024.</li>
+          </ul>
+          <SectionTitle>Need Help?</SectionTitle>
+          <ul>
+            <li>📘 <EventLink href="https://arenatalent.notion.site/Arena-Quickstart-for-Employers-10be576b478b80bd9cccf2f67671881a?pvs=4">Help and quick start guide</EventLink></li>
+            <li>📧  Email us: hello@arenatalent.com</li>
+          </ul>
+          <p>🚀 Ready to find your next star for your team? Let's get started!</p>
+        </Card>
 
         <Link href="/add-team-members" style={{ position: 'absolute', top: '2rem', right: '2rem' }}>
           Add Team Members
