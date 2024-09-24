@@ -82,9 +82,11 @@ body, html {
   color: black;
   font-family: 'Open Sans';
   text-align: left;
-  margin-bottom: 0.5rem;
-  font-weight: 600;
-  font-size: 12px;
+  margin-bottom: 0.7rem;
+  margin-top: 0.7rem;
+  font-weight: 500;
+  font-size: 14px;
+
 }
 
 .form-group input {
@@ -137,6 +139,7 @@ margin-bottom: 10px;
   color: #C471ED;
   cursor: pointer;
   font-size: 10px;
+  margin-bottom: 8px;
 }
 
 .white-logo-signup {
@@ -209,7 +212,7 @@ margin-bottom: 10px;
 }
 
 .error-message {
-  color: white;
+  color: black;
   background-color: rgba(255, 0, 0, 0.1);
   border: 1px solid rgba(255, 0, 0, 0.3);
   border-radius: 4px;
@@ -274,4 +277,55 @@ margin-bottom: 10px;
   .tabs {
     margin-top: 20px; /* Add some space at the top */
   }
+}
+
+
+.date-input-signup {
+  font-family: 'Open Sans';
+}
+
+.label-with-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.info-icon {
+  cursor: help;
+  color: #888;
+}
+
+.horizontal-fields {
+  display: flex;
+  gap: 1rem;
+}
+
+.field-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.field-group label {
+  margin-bottom: 0.25rem;
+}
+
+
+.domain-check{
+  display: flex;
+  flex-direction: row;
+}
+
+.www{
+  font-family: 'Open Sans';
+  font-size: 14px
+}
+
+
+.company-size-select {
+  height: 30px;
+  border-radius: 5px;
+  font-family: 'Open Sans';
+  color: grey;
+  border: none;
 }

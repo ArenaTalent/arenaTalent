@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
 import { useNavigate } from 'react-router-dom';
@@ -8,6 +8,9 @@ const freeEmailProviders = [
   'gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'aol.com',
   'icloud.com', 'mail.com', 'protonmail.com', 'zoho.com', 'yandex.com'
 ];
+
+// Global variable to track Google Maps API loading state
+window.googleMapsApiLoaded = window.googleMapsApiLoaded || false;
 
 async function checkDomainMXRecord(domain) {
   try {
@@ -22,16 +25,12 @@ async function checkDomainMXRecord(domain) {
 
 async function isValidDomain(email) {
   const domain = email.split('@')[1];
-
   if (freeEmailProviders.includes(domain)) {
     return false;
   }
-
   const hasMXRecord = await checkDomainMXRecord(domain);
-
   return hasMXRecord;
 }
-
 
 function Signup() {
   const [step, setStep] = useState(1);
@@ -56,31 +55,148 @@ function Signup() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [addressSuggestions, setAddressSuggestions] = useState([]);
+  const [addressComponents, setAddressComponents] = useState({
+    street_number: '',
+    route: '',
+    locality: '',
+    administrative_area_level_1: '',
+    postal_code: '',
+    country: '',
+  });
+  const [companyDomain, setCompanyDomain] = useState('');
+  const [companyAddressComponents, setCompanyAddressComponents] = useState({
+    street_number: '',
+    route: '',
+    locality: '',
+    administrative_area_level_1: '',
+    postal_code: '',
+    country: '',
+  });
+
   const navigate = useNavigate();
+  const autocompleteRef = useRef(null);
+  const addressInputRef = useRef(null);
+  const companyAutocompleteRef = useRef(null);
+  const companyAddressInputRef = useRef(null);
+
+  const loadGoogleMapsAPI = useCallback(() => {
+    return new Promise((resolve, reject) => {
+      if (window.googleMapsApiLoaded) {
+        resolve(window.google.maps);
+        return;
+      }
+
+      window.initGoogleMapsAPI = () => {
+        window.googleMapsApiLoaded = true;
+        resolve(window.google.maps);
+      };
+
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyB6gP-Zq6mIDhh3FXbs3Js-ua_9FtIqLYA&libraries=places&callback=initGoogleMapsAPI`;
+      script.async = true;
+      script.defer = true;
+
+      script.onerror = () => {
+        reject(new Error('Google Maps API failed to load'));
+      };
+
+      document.head.appendChild(script);
+    });
+  }, []);
+
+  useEffect(() => {
+    loadGoogleMapsAPI()
+      .then(() => {
+        initializeAutocomplete();
+      })
+      .catch((error) => {
+        console.error('Error loading Google Maps API:', error);
+      });
+
+    return () => {
+      // Cleanup function
+      if (autocompleteRef.current) {
+        window.google.maps.event.clearInstanceListeners(autocompleteRef.current);
+      }
+      if (companyAutocompleteRef.current) {
+        window.google.maps.event.clearInstanceListeners(companyAutocompleteRef.current);
+      }
+    };
+  }, [loadGoogleMapsAPI]);
+
+  const initializeAutocomplete = useCallback(() => {
+    if (!window.google || !window.google.maps || !window.google.maps.places) {
+      console.error('Google Maps API not loaded');
+      return;
+    }
+
+    if (addressInputRef.current && !autocompleteRef.current) {
+      autocompleteRef.current = new window.google.maps.places.Autocomplete(
+        addressInputRef.current,
+        { types: ['address'] }
+      );
+      autocompleteRef.current.addListener('place_changed', handlePlaceSelect);
+    }
+    if (companyAddressInputRef.current && !companyAutocompleteRef.current) {
+      companyAutocompleteRef.current = new window.google.maps.places.Autocomplete(
+        companyAddressInputRef.current,
+        { types: ['address'] }
+      );
+      companyAutocompleteRef.current.addListener('place_changed', handleCompanyPlaceSelect);
+    }
+  }, []);
 
   const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData(prevData => ({ ...prevData, [name]: value }));
   };
 
-  // Simple address autocomplete simulation
-  useEffect(() => {
-    if (formData.address.length > 3) {
-      // This is a mock function. In a real scenario, you'd call an API here.
-      const mockSuggestions = [
-        formData.address + " Street",
-        formData.address + " Avenue",
-        formData.address + " Road"
-      ];
-      setAddressSuggestions(mockSuggestions);
-    } else {
-      setAddressSuggestions([]);
-    }
-  }, [formData.address]);
+  const handleCompanyDomainChange = (e) => {
+    setCompanyDomain(e.target.value);
+  };
 
-  const selectAddress = (address) => {
-    setFormData({ ...formData, address });
-    setAddressSuggestions([]);
+  const handlePlaceSelect = useCallback(() => {
+    if (autocompleteRef.current) {
+      const place = autocompleteRef.current.getPlace();
+      updateAddressComponents(place, setAddressComponents);
+      setFormData(prev => ({
+        ...prev,
+        address: addressInputRef.current.value,
+      }));
+    }
+  }, []);
+
+  const handleCompanyPlaceSelect = useCallback(() => {
+    if (companyAutocompleteRef.current) {
+      const place = companyAutocompleteRef.current.getPlace();
+      updateAddressComponents(place, setCompanyAddressComponents);
+      setFormData(prev => ({
+        ...prev,
+        companyAddress: companyAddressInputRef.current.value,
+      }));
+    }
+  }, []);
+
+  const updateAddressComponents = (place, setComponents) => {
+    if (!place.address_components) return;
+
+    const components = {
+      street_number: '',
+      route: '',
+      locality: '',
+      administrative_area_level_1: '',
+      postal_code: '',
+      country: '',
+    };
+
+    place.address_components.forEach(component => {
+      const type = component.types[0];
+      if (components.hasOwnProperty(type)) {
+        components[type] = component.long_name;
+      }
+    });
+
+    setComponents(components);
   };
 
   const isPasswordValid = formData.password.length >= 8 && /\d/.test(formData.password);
@@ -97,6 +213,15 @@ function Signup() {
     return age >= 18;
   };
 
+  useEffect(() => {
+    setError(null);
+  }, [formData.companyEmail, companyDomain, formData.password, formData.confirmPassword]);
+
+  const validateCompanyEmail = () => {
+    const emailDomain = formData.companyEmail.split('@')[1];
+    return emailDomain === companyDomain;
+  };
+
   const handleNextStep = async () => {
     if (step === 1) {
       if (!isPasswordValid || !isConfirmPasswordValid) {
@@ -104,6 +229,10 @@ function Signup() {
         return;
       }
       if (isEmployer) {
+        if (!validateCompanyEmail()) {
+          setError('Company email domain must match the provided company domain.');
+          return;
+        }
         setLoading(true);
         const isValid = await isValidDomain(formData.companyEmail);
         setLoading(false);
@@ -118,7 +247,7 @@ function Signup() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!isOver18(formData.dateOfBirth)) {
+    if (!isEmployer && !isOver18(formData.dateOfBirth)) {
       setError('You must be at least 18 years old to sign up.');
       return;
     }
@@ -155,28 +284,98 @@ function Signup() {
     }
   };
 
+  const renderAddressFields = () => (
+    <div className="form-group">
+      <label htmlFor="address">Address</label>
+      <input
+        type="text"
+        id="address"
+        name="address"
+        ref={addressInputRef}
+        value={formData.address}
+        onChange={handleInputChange}
+        placeholder="Enter your address"
+        required
+      />
+      <input
+        type="text"
+        id="apt-suite"
+        name="aptSuite"
+        value={formData.aptSuite || ''}
+        onChange={handleInputChange}
+        placeholder="Apt, Suite, etc (optional)"
+      />
+      <div className="horizontal-fields">
+        <input
+          type="text"
+          id="city"
+          name="city"
+          value={addressComponents.locality}
+          onChange={handleInputChange}
+          placeholder="City"
+          readOnly
+        />
+        <input
+          type="text"
+          id="state"
+          name="state"
+          value={addressComponents.administrative_area_level_1}
+          onChange={handleInputChange}
+          placeholder="State/Province"
+          readOnly
+        />
+      </div>
+      <div className="horizontal-fields">
+        <input
+          type="text"
+          id="zipCode"
+          name="zipCode"
+          value={addressComponents.postal_code}
+          onChange={handleInputChange}
+          placeholder="Zip/Postal code"
+          readOnly
+        />
+        <input
+          type="text"
+          id="country"
+          name="country"
+          value={addressComponents.country}
+          onChange={handleInputChange}
+          placeholder="Country"
+          readOnly
+        />
+      </div>
+    </div>
+  );
+
   const renderJobSeekerForm = () => (
     <>
       {step === 1 && (
         <div className="form-group">
-          <label htmlFor="firstName">First Name</label>
-          <input
-            type="text"
-            id="firstName"
-            name="firstName"
-            value={formData.firstName}
-            onChange={handleInputChange}
-            required
-          />
-          <label htmlFor="lastName">Last Name</label>
-          <input
-            type="text"
-            id="lastName"
-            name="lastName"
-            value={formData.lastName}
-            onChange={handleInputChange}
-            required
-          />
+          <div className="horizontal-fields">
+            <div className="field-group">
+              <label htmlFor="firstName">First Name</label>
+              <input
+                type="text"
+                id="firstName"
+                name="firstName"
+                value={formData.firstName}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+            <div className="field-group">
+              <label htmlFor="lastName">Last Name</label>
+              <input
+                type="text"
+                id="lastName"
+                name="lastName"
+                value={formData.lastName}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+          </div>
           <label htmlFor="email">Email</label>
           <input
             type="email"
@@ -186,6 +385,7 @@ function Signup() {
             onChange={handleInputChange}
             required
           />
+
           <label htmlFor="password">Password</label>
           <div className="password-input-container">
             <input
@@ -200,6 +400,7 @@ function Signup() {
               {showPassword ? 'Hide' : 'Show'}
             </button>
           </div>
+
           {formData.password && !isPasswordValid && <span className="alert" style={{ color: 'red' }}>✗ Password must be at least 8 characters and include a number</span>}
           {formData.password && isPasswordValid && <span className="alert" style={{ color: 'green' }}>✓ Valid password</span>}
           <label htmlFor="confirmPassword">Confirm Password</label>
@@ -219,48 +420,42 @@ function Signup() {
       )}
       {step === 2 && (
         <div className="form-group">
-          <label htmlFor="dateOfBirth">Date of Birth</label>
+          <div className="label-with-info">
+            <label htmlFor="dateOfBirth">Date of Birth</label>
+          </div>
           <input
             type="date"
             id="dateOfBirth"
+            className="date-input-signup"
             name="dateOfBirth"
             value={formData.dateOfBirth}
             onChange={handleInputChange}
             required
           />
-          <label htmlFor="address">Address</label>
-          <input
-            type="text"
-            id="address"
-            name="address"
-            value={formData.address}
-            onChange={handleInputChange}
-            required
-          />
-          {addressSuggestions.length > 0 && (
-            <ul className="address-suggestions">
-              {addressSuggestions.map((suggestion, index) => (
-                <li key={index} onClick={() => selectAddress(suggestion)}>{suggestion}</li>
-              ))}
-            </ul>
-          )}
-          <label htmlFor="phone">Phone Number</label>
-          <input
-            type="tel"
-            id="phone"
-            name="phone"
-            value={formData.phone}
-            onChange={handleInputChange}
-            required
-          />
-          <label htmlFor="eventCode">Event Code (Optional)</label>
-          <input
-            type="text"
-            id="eventCode"
-            name="eventCode"
-            value={formData.eventCode}
-            onChange={handleInputChange}
-          />
+          {renderAddressFields()}
+          <div className="horizontal-fields">
+            <div className="field-group">
+              <label htmlFor="phone">Phone Number</label>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                value={formData.phone}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+            <div className="field-group">
+              <label htmlFor="eventCode">Event Code (Optional)</label>
+              <input
+                type="text"
+                id="eventCode"
+                name="eventCode"
+                value={formData.eventCode}
+                onChange={handleInputChange}
+              />
+            </div>
+          </div>
         </div>
       )}
     </>
@@ -270,132 +465,223 @@ function Signup() {
     <>
       {step === 1 && (
         <div className="form-group">
-          <label htmlFor="firstName">First Name</label>
-          <input
-            type="text"
-            id="firstName"
-            name="firstName"
-            value={formData.firstName}
-            onChange={handleInputChange}
-            required
-          />
-          <label htmlFor="lastName">Last Name</label>
-          <input
-            type="text"
-            id="lastName"
-            name="lastName"
-            value={formData.lastName}
-            onChange={handleInputChange}
-            required
-          />
-          <label htmlFor="companyEmail">Company Email</label>
-          <input
-            type="email"
-            id="companyEmail"
-            name="companyEmail"
-            value={formData.companyEmail}
-            onChange={handleInputChange}
-            required
-          />
-          <label htmlFor="password">Password</label>
-          <div className="password-input-container">
-            <input
-              type={showPassword ? 'text' : 'password'}
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleInputChange}
-              required
-            />
-            <button type="button" className="show-password-button" onClick={() => setShowPassword(!showPassword)}>
-              {showPassword ? 'Hide' : 'Show'}
-            </button>
+          <div className="horizontal-fields">
+            <div className="field-group">
+              <label htmlFor="firstName">First Name</label>
+              <input
+                type="text"
+                id="firstName"
+                placeholder="First Name"
+                name="firstName"
+                value={formData.firstName}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+            <div className="field-group">
+              <label htmlFor="lastName">Last Name</label>
+              <input
+                type="text"
+                id="lastName"
+                placeholder="Last Name"
+                name="lastName"
+                value={formData.lastName}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
           </div>
-          {formData.password && !isPasswordValid && <span className="alert" style={{ color: 'red' }}>✗ Password must be at least 8 characters and include a number</span>}
-          {formData.password && isPasswordValid && <span className="alert" style={{ color: 'green' }}>✓ Valid password</span>}
-          <label htmlFor="confirmPassword">Confirm Password</label>
-          <div className="password-input-container">
-            <input
-              type={showPassword ? 'text' : 'password'}
-              id="confirmPassword"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleInputChange}
-              required
-            />
+          <div className="horizontal-fields">
+            <div className="field-group">
+              <label htmlFor="companyDomain">Company Domain</label>
+              <input
+                type="text"
+                id="companyDomain"
+                name="companyDomain"
+                value={companyDomain}
+                placeholder="e.g. company.com leave off www."
+                onChange={handleCompanyDomainChange}
+                required
+              />
+            </div>
+            <div className="field-group">
+              <label htmlFor="companyEmail">Company Email</label>
+              <input
+                type="email"
+                id="companyEmail"
+                placeholder="hello@arenatalent.com"
+                name="companyEmail"
+                value={formData.companyEmail}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
           </div>
-          {formData.password && formData.confirmPassword && !isConfirmPasswordValid && <span className="alert" style={{ color: 'red' }}>✗ Passwords must match</span>}
-          {formData.password && formData.confirmPassword && isConfirmPasswordValid && <span className="alert" style={{ color: 'green' }}>✓ Passwords match</span>}
+          <div className="horizontal-fields">
+            <div className="field-group">
+              <label htmlFor="password">Password</label>
+              <div className="password-input-container">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  required
+                />
+                <button type="button" className="show-password-button" onClick={() => setShowPassword(!showPassword)}>
+                  {showPassword ? 'Hide' : 'Show'}
+                </button>
+              </div>
+            </div>
+            <div className='field-group'>
+              {formData.password && !isPasswordValid && <span className="alert" style={{ color: 'red' }}>✗ Password must be at least 8 characters and include a number</span>}
+              {formData.password && isPasswordValid && <span className="alert" style={{ color: 'green' }}>✓ Valid password</span>}
+              <label htmlFor="confirmPassword">Confirm Password</label>
+              <div className="password-input-container">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              {formData.password && formData.confirmPassword && !isConfirmPasswordValid && <span className="alert" style={{ color: 'red' }}>✗ Passwords must match</span>}
+              {formData.password && formData.confirmPassword && isConfirmPasswordValid && <span className="alert" style={{ color: 'green' }}>✓ Passwords match</span>}
+            </div>
+          </div>
         </div>
       )}
       {step === 2 && (
         <div className="form-group">
-          <label htmlFor="personalEmail">Personal Email</label>
-          <input
-            type="email"
-            id="personalEmail"
-            name="personalEmail"
-            value={formData.personalEmail}
-            onChange={handleInputChange}
-            required
-          />
-          <label htmlFor="title">Title</label>
-          <input
-            type="text"
-            id="title"
-            name="title"
-            value={formData.title}
-            onChange={handleInputChange}
-            required
-          />
           <label htmlFor="companyAddress">Company Address</label>
           <input
             type="text"
             id="companyAddress"
             name="companyAddress"
+            ref={companyAddressInputRef}
             value={formData.companyAddress}
             onChange={handleInputChange}
+            placeholder="Enter company address"
             required
           />
-          {addressSuggestions.length > 0 && (
-            <ul className="address-suggestions">
-              {addressSuggestions.map((suggestion, index) => (
-                <li key={index} onClick={() => selectAddress(suggestion)}>{suggestion}</li>
-              ))}
-            </ul>
-          )}
-          <label htmlFor="companyPhone">Company Phone</label>
-          <input
-            type="tel"
-            id="companyPhone"
-            name="companyPhone"
-            value={formData.companyPhone}
-            onChange={handleInputChange}
-            required
-          />
-          <label htmlFor="companySize">Company Size</label>
-          <select
-            id="companySize"
-            name="companySize"
-            value={formData.companySize}
-            onChange={handleInputChange}
-            required
-          >
-            <option value="">Select Company Size</option>
-            <option value="1-10">1-10 employees</option>
-            <option value="11-50">11-50 employees</option>
-            <option value="51-200">51-200 employees</option>
-            <option value="201-500">201-500 employees</option>
-            <option value="501+">501+ employees</option>
-          </select>
-          <label htmlFor="eventCode">Event Code (Optional)</label>
           <input
             type="text"
-            id="eventCode"
-            name="eventCode"
-            value={formData.eventCode}
+            id="company-apt-suite"
+            name="companyAptSuite"
+            value={formData.companyAptSuite || ''}
             onChange={handleInputChange}
+            placeholder="Apt, Suite, etc (optional)"
           />
+          <div className="horizontal-fields">
+            <input
+              type="text"
+              id="companyCity"
+              name="companyCity"
+              value={companyAddressComponents.locality}
+              onChange={handleInputChange}
+              placeholder="City"
+              readOnly
+            />
+            <input
+              type="text"
+              id="companyState"
+              name="companyState"
+              value={companyAddressComponents.administrative_area_level_1}
+              onChange={handleInputChange}
+              placeholder="State/Province"
+              readOnly
+            />
+          </div>
+          <div className="horizontal-fields">
+            <input
+              type="text"
+              id="companyZipCode"
+              name="companyZipCode"
+              value={companyAddressComponents.postal_code}
+              onChange={handleInputChange}
+              placeholder="Zip/Postal code"
+              readOnly
+            />
+            <input
+              type="text"
+              id="companyCountry"
+              name="companyCountry"
+              value={companyAddressComponents.country}
+              onChange={handleInputChange}
+              placeholder="Country"
+              readOnly
+            />
+          </div>
+          <div className="horizontal-fields">
+            <div className="field-group">
+              <label htmlFor="title">Contact Title</label>
+              <input
+                type="text"
+                id="title"
+                name="title"
+                placeholder='e.g. HR Manager'
+                value={formData.title}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+            <div className="field-group">
+              <label htmlFor="personalEmail">Personal Email</label>
+              <input
+                type="email"
+                id="personalEmail"
+                name="personalEmail"
+                placeholder='email@gmail.com'
+                value={formData.personalEmail}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+          </div>
+          <div className="horizontal-fields">
+            <div className="field-group">
+              <label htmlFor="companySize">Company Size</label>
+              <select
+                id="companySize"
+                name="companySize"
+                className="company-size-select"
+                value={formData.companySize}
+                onChange={handleInputChange}
+                required
+              >
+                <option value="">Select Company Size</option>
+                <option value="1-10">1-10 employees</option>
+                <option value="11-50">11-50 employees</option>
+                <option value="51-200">51-200 employees</option>
+                <option value="201-500">201-500 employees</option>
+                <option value="501+">501+ employees</option>
+              </select>
+            </div>
+            <div className="field-group">
+              <label htmlFor="companyPhone">Company Phone</label>
+              <input
+                type="tel"
+                id="companyPhone"
+                name="companyPhone"
+                value={formData.companyPhone}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+          </div>
+          <div className="field-group">
+            <label htmlFor="eventCode">Event Code (Optional)</label>
+            <input
+              type="text"
+              id="eventCode"
+              name="eventCode"
+              value={formData.eventCode}
+              onChange={handleInputChange}
+            />
+          </div>
         </div>
       )}
     </>
@@ -423,14 +709,19 @@ function Signup() {
         </div>
 
         <form className="login-form" onSubmit={handleSubmit}>
-          <img src="/images/black-logo.png" alt="Signup" style={{height: '100px'}}className="white-logo-signup" />
+          <img src="/images/black-logo.png" alt="Signup" style={{height: '100px'}} className="white-logo-signup" />
 
           {isEmployer ? renderEmployerForm() : renderJobSeekerForm()}
 
           {error && <div className="error-message">{error}</div>}
 
           {step === 1 ? (
-            <button type="button" className="btn" onClick={handleNextStep} disabled={loading}>
+            <button
+              type="button"
+              className="btn"
+              onClick={handleNextStep}
+              disabled={loading || error !== null}
+            >
               {loading ? 'Checking...' : 'Next'}
             </button>
           ) : (
