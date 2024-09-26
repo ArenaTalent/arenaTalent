@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import JobSeekerNav from './JobSeekerNav';
 import styled from 'styled-components';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 
 
 const PageWrapper = styled.div`
@@ -94,11 +96,21 @@ const TabButton = ({ active, onClick, children }) => (
   );
 
   export default function JobSeekerSettings() {
+   
+
     const [activeTab, setActiveTab] = useState('login');
     const [email, setEmail] = useState('john@email.com');
     const [newEmail, setNewEmail] = useState('');
     const [oldPassword, setOldPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
+
+
+
+
+    const [currentTab, setCurrentTab] = useState('monthly');
+    const [selectedCard, setSelectedCard] = useState(null);
+    
+
 
     const handleUpdateEmail = (e) => {
       e.preventDefault();
@@ -112,7 +124,7 @@ const TabButton = ({ active, onClick, children }) => (
       setNewPassword('');
     };
 
-
+   
   return (
     <PageWrapper>
     <NavbarWrapper>
@@ -150,11 +162,216 @@ const TabButton = ({ active, onClick, children }) => (
         </div>
       )}
 
+
+
+
+{/* 
       {activeTab === 'billing' && (
         <div style={{ textAlign: 'center', padding: '20px' }}>
           <p style={{ color: '#6b7280' }}>Billing details will be implemented here.</p>
         </div>
-      )}
+      )} */}
+      
+      {activeTab === 'billing' && (
+ <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+ {/* Toggle Buttons */}
+ <div style={{ textAlign: 'center' }}>
+   <button
+     onClick={() => setCurrentTab('monthly')}
+     style={{
+       padding: '10px 20px',
+       margin: '10px',
+       backgroundColor: currentTab === 'monthly' ? '#9f7aea' : '#e5e7eb',
+       border: 'none',
+       color: currentTab === 'monthly' ? 'white' : 'black',
+       cursor: 'pointer',
+     }}
+   >
+     Monthly
+   </button>
+   <button
+     onClick={() => setCurrentTab('every3months')}
+     style={{
+       padding: '10px 20px',
+       margin: '10px',
+       backgroundColor: currentTab === 'every3months' ? '#9f7aea' : '#e5e7eb',
+       border: 'none',
+       color: currentTab === 'every3months' ? 'white' : 'black',
+       cursor: 'pointer',
+     }}
+   >
+     Every 3 months
+   </button>
+ </div>
+
+ {/* Monthly Plan */}
+ {currentTab === 'monthly' && (
+   <div style={{ textAlign: 'center', padding: '20px' }}>
+     <div
+       style={{
+         display: 'inline-block',
+         width: '280px',
+         padding: '20px',
+         border: '1px solid #ccc',
+         borderRadius: '10px',
+         backgroundColor: '#1f2937',
+         color: 'white',
+         margin: '20px',
+         transition: 'transform 0.2s', 
+         transform: selectedCard === 'basic' ? 'scale(1.05)' : 'scale(1)', 
+         boxShadow: selectedCard === 'basic' ? '0 4px 20px rgba(0, 0, 0, 0.2)' : 'none', 
+         cursor: 'pointer',
+       }}
+       onClick={() => setSelectedCard('basic')} 
+     >
+       <h2>Arena</h2>
+       <p>Apply for jobs and track your progress for free, forever</p>
+       <h3 style={{ fontSize: '32px', margin: '10px 0' }}>$0 <span style={{ fontSize: '16px' }}>per month</span></h3>
+       <button style={{ padding: '10px 20px', backgroundColor: '#9f7aea', border: 'none', color: 'white', borderRadius: '5px', cursor: 'pointer' }}>Subscribe</button>
+       <h3 style={{ textAlign: 'left', fontSize: '18px', fontWeight: 'bold', marginBottom: '8px' }}>This Includes:</h3>
+       <div style={{ textAlign: 'left', padding: '10px' }}>
+         <div style={{ display: 'flex', alignItems: 'center' }}>
+           <FontAwesomeIcon icon={faCheckCircle} style={{ marginRight: '10px' }} />
+           <span>Detailed profile</span>
+         </div>
+         <div style={{ display: 'flex', alignItems: 'center' }}>
+           <FontAwesomeIcon icon={faCheckCircle} style={{ marginRight: '10px' }} />
+           <span>Apply to unlimited jobs</span>
+         </div>
+         <div style={{ display: 'flex', alignItems: 'center' }}>
+           <FontAwesomeIcon icon={faCheckCircle} style={{ marginRight: '10px' }} />
+           <span>Automated application tracker & status updates</span>
+         </div>
+         <div style={{ display: 'flex', alignItems: 'center' }}>
+           <FontAwesomeIcon icon={faCheckCircle} style={{ marginRight: '10px' }} />
+           <span>Get amplified to recruiters</span>
+         </div>
+       </div>
+     </div>
+
+     <div
+       style={{
+         display: 'inline-block',
+         width: '280px',
+         padding: '20px',
+         border: '1px solid #ccc',
+         borderRadius: '10px',
+         backgroundColor: '#1f2937',
+         color: 'white',
+         margin: '20px',
+         transition: 'transform 0.2s',
+         transform: selectedCard === 'pro' ? 'scale(1.05)' : 'scale(1)',
+         boxShadow: selectedCard === 'pro' ? '0 4px 20px rgba(0, 0, 0, 0.2)' : 'none',
+         cursor: 'pointer',
+       }}
+       onClick={() => setSelectedCard('pro')}
+     >
+       <h2>Arena PRO <span style={{ backgroundColor: '#111827', color: '#9f7aea', padding: '5px', borderRadius: '5px', fontSize: '12px' }}>Most popular</span></h2>
+       <p>Land your dream job faster with personalized insights & advice (7-day free trial included)</p>
+       <h3 style={{ fontSize: '32px', margin: '10px 0' }}>$14.99 <span style={{ fontSize: '16px' }}>per month</span></h3>
+       <button style={{ padding: '10px 20px', backgroundColor: '#9f7aea', border: 'none', color: 'white', borderRadius: '5px', cursor: 'pointer' }}>Start trial</button>
+       <h3 style={{ textAlign: 'left', fontSize: '18px', fontWeight: 'bold', marginBottom: '8px' }}>This Includes:</h3>
+       <div style={{ textAlign: 'left', padding: '10px' }}>
+         <div style={{ display: 'flex', alignItems: 'center' }}>
+           <FontAwesomeIcon icon={faCheckCircle} style={{ marginRight: '10px' }} />
+           <span>Detailed profile</span>
+         </div>
+         <div style={{ display: 'flex', alignItems: 'center' }}>
+           <FontAwesomeIcon icon={faCheckCircle} style={{ marginRight: '10px' }} />
+           <span>Apply to unlimited jobs</span>
+         </div>
+         <div style={{ display: 'flex', alignItems: 'center' }}>
+           <FontAwesomeIcon icon={faCheckCircle} style={{ marginRight: '10px' }} />
+           <span>Automated application tracker & status updates</span>
+         </div>
+         <div style={{ display: 'flex', alignItems: 'center' }}>
+           <FontAwesomeIcon icon={faCheckCircle} style={{ marginRight: '10px' }} />
+           <span>Get amplified to recruiters</span>
+         </div>
+         <div style={{ display: 'flex', alignItems: 'center' }}>
+           <FontAwesomeIcon icon={faCheckCircle} style={{ marginRight: '10px' }} />
+           <span>AI-powered job match scores</span>
+         </div>
+         <div style={{ display: 'flex', alignItems: 'center' }}>
+           <FontAwesomeIcon icon={faCheckCircle} style={{ marginRight: '10px' }} />
+           <span>Personalized career advice</span>
+         </div>
+         <div style={{ display: 'flex', alignItems: 'center' }}>
+           <FontAwesomeIcon icon={faCheckCircle} style={{ marginRight: '10px' }} />
+           <span>Salary transparency & insights</span>
+         </div>
+       </div>
+     </div>
+   </div>
+ )}
+
+ {/* Every 3 Months Plan */}
+ {currentTab === 'every3months' && (
+      <div style={{ textAlign: 'center', padding: '20px' }}>
+        <div
+          style={{
+            display: 'inline-block',
+            width: '280px',
+            padding: '20px',
+            border: '1px solid #ccc',
+            borderRadius: '10px',
+            backgroundColor: '#1f2937',
+            color: 'white',
+            margin: '20px',
+            transition: 'transform 0.2s',
+            transform: selectedCard === 'pro' ? 'scale(1.05)' : 'scale(1)',
+            boxShadow: selectedCard === 'pro' ? '0 4px 20px rgba(0, 0, 0, 0.2)' : 'none',
+            cursor: 'pointer',
+          }}
+          onClick={() => setSelectedCard('pro')} 
+        >
+          <h2>Arena PRO <span style={{ backgroundColor: '#111827', color: '#9f7aea', padding: '5px', borderRadius: '5px', fontSize: '12px' }}>Most popular</span></h2>
+          <p>Land your dream job faster with personalized insights & advice (7-day free trial included)</p>
+          <h3 style={{ fontSize: '32px', margin: '10px 0' }}>$39.99 <span style={{ fontSize: '16px' }}>every 3 months</span></h3>
+          <button style={{ padding: '10px 20px', backgroundColor: '#9f7aea', border: 'none', color: 'white', borderRadius: '5px', cursor: 'pointer' }}>Start trial</button>
+          <h3 style={{ textAlign: 'left', fontSize: '18px', fontWeight: 'bold', marginBottom: '8px' }}>This Includes:</h3>
+          <div style={{ textAlign: 'left', padding: '10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <FontAwesomeIcon icon={faCheckCircle} style={{ marginRight: '10px' }} />
+              <span>Detailed profile</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <FontAwesomeIcon icon={faCheckCircle} style={{ marginRight: '10px' }} />
+              <span>Apply to unlimited jobs</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <FontAwesomeIcon icon={faCheckCircle} style={{ marginRight: '10px' }} />
+              <span>Automated application tracker & status updates</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <FontAwesomeIcon icon={faCheckCircle} style={{ marginRight: '10px' }} />
+              <span>Get amplified to recruiters</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <FontAwesomeIcon icon={faCheckCircle} style={{ marginRight: '10px' }} />
+              <span>AI-powered job match scores</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <FontAwesomeIcon icon={faCheckCircle} style={{ marginRight: '10px' }} />
+              <span>Personalized career advice</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <FontAwesomeIcon icon={faCheckCircle} style={{ marginRight: '10px' }} />
+              <span>Salary transparency & insights</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
+  </div>
+)}
+
+
+
+
+
+
+
 
       {activeTab === 'notifications' && (
         <div>
