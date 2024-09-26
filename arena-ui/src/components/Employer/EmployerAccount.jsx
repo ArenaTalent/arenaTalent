@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import EmployerNav from './EmployerNav';
 import styled from 'styled-components';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheckCircle } from '@fortawesome/free-solid-svg-icons';
+
+
 
 
 const PageWrapper = styled.div`
@@ -100,6 +104,13 @@ const TabButton = ({ active, onClick, children }) => (
     const [oldPassword, setOldPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
 
+
+     const [selectedPlan, setSelectedPlan] = useState(null);
+
+  const handlePlanClick = (plan) => {
+    setSelectedPlan(plan);
+  };
+
     const handleUpdateEmail = (e) => {
       e.preventDefault();
       setEmail(newEmail);
@@ -150,11 +161,181 @@ const TabButton = ({ active, onClick, children }) => (
         </div>
       )}
 
-      {activeTab === 'billing' && (
+      {/* {activeTab === 'billing' && (
         <div style={{ textAlign: 'center', padding: '20px' }}>
           <p style={{ color: '#6b7280' }}>Billing details will be implemented here.</p>
         </div>
-      )}
+      )} */}
+{activeTab === 'billing' && (
+  <div
+    style={{
+      display: 'grid',
+      gridTemplateColumns: 'repeat(3, 1fr)',
+      gap: '100px', 
+      marginTop: '32px',
+      width: '100%',
+      // maxWidth: '1400px',
+      margin: '0 auto',
+    }}
+  >
+    {/* Starter Plan */}
+    <div
+      style={{
+        padding: '40px',
+        backgroundColor: selectedPlan === 'starter' ? '#E6D6F1' : '#f3f4f6',
+        borderRadius: '8px',
+        boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        width: '100%',
+        maxWidth: '350px', 
+        flex: '1', 
+        transform: selectedPlan === 'starter' ? 'scale(1.05) translateY(-10px)' : 'scale(1)',
+        transition: 'transform 0.3s ease',
+      }}
+      onClick={() => handlePlanClick('starter')}
+    >
+      <div>
+        <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '8px' }}>Starter</h2>
+        <p style={{ fontSize: '14px', color: '#6b46c1', marginBottom: '16px' }}>
+          Try Arena free for 14 days
+        </p>
+        <p style={{ fontSize: '28px', fontWeight: '600', marginBottom: '16px' }}>
+          $0 <span style={{ fontSize: '14px' }}>(Start trial)</span>
+        </p>
+        <button style={{ backgroundColor: '#6b46c1', color: '#ffffff', fontWeight: 'bold', padding: '12px 16px', borderRadius: '8px', border: 'none', cursor: 'pointer', marginBottom: '24px' }}>
+          Start Trial
+        </button>
+        <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '16px' }}>This Includes:</h3>
+        <ul style={{ marginBottom: '24px', padding: '0', listStyleType: 'none' }}>
+          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> 1 recruiter seat</li>
+          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> 1 unique job slot</li>
+          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> Employer profile</li>
+          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> AI applicant matches</li>
+          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> AI candidate sourcing tool (limited)</li>
+          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> Real-time candidate insights</li>
+          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> Direct messaging (10 max)</li>
+          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> Applicant tracking</li>
+        </ul>
+      </div>
+    </div>
+
+    {/* Premium Plan */}
+    <div
+      style={{
+        padding: '40px',
+        backgroundColor: selectedPlan === 'premium' ? '#E6D6F1' : '#f3f4f6',
+        borderRadius: '8px',
+        boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        width: '100%', 
+        maxWidth: '350px', 
+        flex: '1', 
+        transform: selectedPlan === 'premium' ? 'scale(1.05) translateY(-10px)' : 'scale(1)',
+        transition: 'transform 0.3s ease',
+      }}
+      onClick={() => handlePlanClick('premium')}
+    >
+      <div>
+        <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '8px' }}>Premium</h2>
+        <p style={{ fontSize: '14px', color: '#6b46c1', marginBottom: '16px' }}>
+          For smaller companies & nonprofits
+        </p>
+        <p style={{ fontSize: '28px', fontWeight: '600', marginBottom: '16px' }}>$750/month</p>
+        <button style={{ backgroundColor: '#6b46c1', color: '#ffffff', fontWeight: 'bold', padding: '12px 16px', borderRadius: '8px', border: 'none', cursor: 'pointer', marginBottom: '24px' }}>
+          Book a demo
+        </button>
+        <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '16px' }}>This Includes:</h3>
+        <ul style={{ marginBottom: '24px', padding: '0', listStyleType: 'none' }}>
+          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> 2 recruiter seats</li>
+          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> 5 rotating job slots</li>
+          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> Employer profile</li>
+          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> AI applicant matches</li>
+          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> AI candidate sourcing tool</li>
+          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> Real-time candidate insights</li>
+          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> Direct messaging</li>
+          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> Applicant tracking</li>
+          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> Dedicated account support</li>
+        </ul>
+      </div>
+    </div>
+
+    {/* Enterprise Plan */}
+    <div
+      style={{
+        padding: '40px',
+        backgroundColor: selectedPlan === 'enterprise' ? '#E6D6F1' : '#f3f4f6',
+        borderRadius: '8px',
+        boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+        border: '2px solid #6b46c1',
+        position: 'relative',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        width: '100%', 
+        maxWidth: '350px', 
+        flex: '1', 
+        transform: selectedPlan === 'enterprise' ? 'scale(1.05) translateY(-10px)' : 'scale(1)',
+        transition: 'transform 0.3s ease',
+      }}
+      onClick={() => handlePlanClick('enterprise')}
+    >
+      <span style={{ position: 'absolute', top: '0', right: '0', backgroundColor: '#6b46c1', color: '#ffffff', padding: '8px 12px', fontSize: '12px', fontWeight: 'bold' }}>
+        Most Popular
+      </span>
+      <div>
+        <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '8px' }}>Enterprise</h2>
+        <p style={{ fontSize: '14px', color: '#6b46c1', marginBottom: '16px' }}>
+          Schedule a demo about our flexible pricing plans
+        </p>
+        <p style={{ fontSize: '28px', fontWeight: '600', marginBottom: '16px' }}>Custom</p>
+        <button style={{ backgroundColor: '#6b46c1', color: '#ffffff', fontWeight: 'bold', padding: '12px 16px', borderRadius: '8px', border: 'none', cursor: 'pointer', marginBottom: '24px' }}>
+          Schedule a demo
+        </button>
+        <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '16px' }}>This Includes:</h3>
+        <ul style={{ marginBottom: '24px', padding: '0', listStyleType: 'none' }}>
+          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> Unlimited recruiter seats</li>
+          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> Unlimited job slots</li>
+          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> Employer profile</li>
+          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> AI applicant matches</li>
+          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> AI candidate sourcing tool</li>
+          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> Real-time candidate insights</li>
+          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> Direct messaging</li>
+          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> Applicant tracking</li>
+          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> Dedicated account support</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+)}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
       {activeTab === 'notifications' && (
         <div>
