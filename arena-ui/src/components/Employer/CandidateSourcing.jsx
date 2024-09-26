@@ -287,7 +287,7 @@ export default function CandidateSourcing() {
   const [sortOrder, setSortOrder] = useState('desc')
   const [isPopupOpen, setIsPopupOpen] = useState(true)
   const [selectedJob, setSelectedJob] = useState(null)
-  const [showMatchPercentage, setShowMatchPercentage] = useState(false)
+  const [showMatchPercentage, setShowMatchPercentage] = useState(true)
 
   useEffect(() => {
     filterProfiles()
@@ -338,7 +338,7 @@ export default function CandidateSourcing() {
 
   const handleJobSelection = (job) => {
     setSelectedJob(job)
-    setShowMatchPercentage(job !== 'all')
+    setShowMatchPercentage(true)
     setIsPopupOpen(false)
   }
 
@@ -444,26 +444,11 @@ export default function CandidateSourcing() {
 
   return (
     <PageWrapper>
-      {isPopupOpen && (
-        <PopupOverlay>
-          <PopupContent>
-            <PopupTitle>Choose Job to Source For</PopupTitle>
-            <PopupDescription>
-              Select a specific job to see match percentages, or view all job seekers.
-            </PopupDescription>
-            <Select onChange={(e) => handleJobSelection(e.target.value)}>
-              <option value="">Select a job</option>
-              <option value="Coordinator, Premium Experience & Operations">Coordinator, Premium Experience & Operations</option>
-              <option value="all">View All Job Seekers</option>
-            </Select>
-          </PopupContent>
-        </PopupOverlay>
-      )}
       <NavWrapper>
         <EmployerNav />
       </NavWrapper>
       <MainContent>
-        <Header>Browse Job Seekers {selectedJob && selectedJob !== 'all' && `for ${selectedJob}`}</Header>
+        <Header>Browse MSBC Attendees</Header>
         <SearchBar>
           <SearchInput
             type="text"
