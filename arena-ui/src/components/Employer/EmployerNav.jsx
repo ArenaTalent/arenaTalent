@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react'
+import {QRCodeSVG} from 'qrcode.react';
 import styled from 'styled-components';
-import { Inbox, Search, Building, FileCheck, FileText, MessageSquare, Settings, LogOut, User } from 'lucide-react';
+import { Inbox, Search, Building, FileCheck, FileText, MessageSquare, Settings, LogOut, User, Container } from 'lucide-react';
 
 const NavContainer = styled.div`
   display: flex;
@@ -63,9 +64,56 @@ const LogoutButton = styled(NavButton)`
     color: #b91c1c;
     background-color: #fee2e2;
   }
+`
+const PopupOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+`
+
+const PopupContent = styled.div`
+  background-color: white;
+  padding: 2rem 1rem;
+  padding-top: 0rem;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+
+`
+
+const QRCloseButton = styled.button`
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+  background-color: white;
+  border-radius: 8px;
+  border: none;
+  color: #718096;
+
+  &:hover {
+    background-color: #f3f4f6;
+  }
+`
+const CloseQRNavSection = styled.div`
+  display: flex;
+  flex-direction: row-reverse;
+  padding-top: 0.5rem;
+
 `;
 
-const EmployerNav = () => {
+function EmployerNav() {
+  const [isQRPopupOpen, setIsQRPopupOpen] = useState(false);
+
+  const handleQR = () => {
+    setIsQRPopupOpen(prev => !prev);
+  };
+
   return (
     <NavContainer>
       <LogoContainer>
@@ -107,6 +155,18 @@ const EmployerNav = () => {
           <IconWrapper><LogOut size={20} /></IconWrapper>
           <ButtonText>Logout</ButtonText>
         </LogoutButton>
+      
+      <NavButton onClick={handleQR}>
+        <ButtonText>Get QR Code</ButtonText>
+      </NavButton>
+        {isQRPopupOpen && ( 
+          <PopupOverlay>
+            <PopupContent>
+              <CloseQRNavSection><QRCloseButton onClick={handleQR}>x</QRCloseButton></CloseQRNavSection>
+              <QRCodeSVG value="https://reactjs.org/" size={254}/>
+            </PopupContent>
+          </PopupOverlay>
+        )}
       </BottomSection>
     </NavContainer>
   );
