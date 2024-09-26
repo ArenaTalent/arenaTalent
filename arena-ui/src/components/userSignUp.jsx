@@ -2,15 +2,13 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
 import { useNavigate } from 'react-router-dom';
+import useGoogleMapsScript from '../hooks/useGoogleMapsScript';
 
 // List of common free email providers
 const freeEmailProviders = [
   'gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'aol.com',
   'icloud.com', 'mail.com', 'protonmail.com', 'zoho.com', 'yandex.com'
 ];
-
-// Global variable to track Google Maps API loading state
-window.googleMapsApiLoaded = window.googleMapsApiLoaded || false;
 
 async function checkDomainMXRecord(domain) {
   try {
@@ -51,6 +49,8 @@ function Signup() {
     companyAddress: '',
     companyPhone: '',
     companySize: '',
+    aptSuite: '',
+    companyAptSuite: '',
   });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -74,111 +74,173 @@ function Signup() {
   });
 
   const navigate = useNavigate();
-  const autocompleteRef = useRef(null);
-  const addressInputRef = useRef(null);
-  const companyAutocompleteRef = useRef(null);
-  const companyAddressInputRef = useRef(null);
+  const jobSeekerAddressInputRef = useRef(null);
+  const jobSeekerAutocompleteRef = useRef(null);
+  const employerAddressInputRef = useRef(null);
+  const employerAutocompleteRef = useRef(null);
 
-  const loadGoogleMapsAPI = useCallback(() => {
-    return new Promise((resolve, reject) => {
-      if (window.googleMapsApiLoaded) {
-        resolve(window.google.maps);
-        return;
-      }
+  const { isLoaded, loadError } = useGoogleMapsScript();
 
-      window.initGoogleMapsAPI = () => {
-        window.googleMapsApiLoaded = true;
-        resolve(window.google.maps);
-      };
-
-      const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyB6gP-Zq6mIDhh3FXbs3Js-ua_9FtIqLYA&libraries=places&callback=initGoogleMapsAPI`;
-      script.async = true;
-      script.defer = true;
-
-      script.onerror = () => {
-        reject(new Error('Google Maps API failed to load'));
-      };
-
-      document.head.appendChild(script);
+  const resetState = useCallback(() => {
+    setStep(1);
+    setIsEmployer(false);
+    setFormData({
+      firstName: '',
+      lastName: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      dateOfBirth: '',
+      address: '',
+      phone: '',
+      eventCode: '',
+      companyEmail: '',
+      personalEmail: '',
+      title: '',
+      companyAddress: '',
+      companyPhone: '',
+      companySize: '',
+      aptSuite: '',
+      companyAptSuite: '',
     });
+    setError(null);
+    setLoading(false);
+    setShowPassword(false);
+    setAddressComponents({
+      street_number: '',
+      route: '',
+      locality: '',
+      administrative_area_level_1: '',
+      postal_code: '',
+      country: '',
+    });
+    setCompanyDomain('');
+    setCompanyAddressComponents({
+      street_number: '',
+      route: '',
+      locality: '',
+      administrative_area_level_1: '',
+      postal_code: '',
+      country: '',
+    });
+
+    // Reset autocomplete refs
+    if (jobSeekerAutocompleteRef.current) {
+      window.google.maps.event.clearInstanceListeners(jobSeekerAutocompleteRef.current);
+      jobSeekerAutocompleteRef.current = null;
+    }
+    if (employerAutocompleteRef.current) {
+      window.google.maps.event.clearInstanceListeners(employerAutocompleteRef.current);
+      employerAutocompleteRef.current = null;
+    }
   }, []);
 
   useEffect(() => {
-    loadGoogleMapsAPI()
-      .then(() => {
-        initializeAutocomplete();
-      })
-      .catch((error) => {
-        console.error('Error loading Google Maps API:', error);
-      });
-
-    return () => {
-      // Cleanup function
-      if (autocompleteRef.current) {
-        window.google.maps.event.clearInstanceListeners(autocompleteRef.current);
-      }
-      if (companyAutocompleteRef.current) {
-        window.google.maps.event.clearInstanceListeners(companyAutocompleteRef.current);
-      }
+    // Function to handle page refresh
+    const handleBeforeUnload = () => {
+      resetState();
     };
-  }, [loadGoogleMapsAPI]);
 
-  const initializeAutocomplete = useCallback(() => {
-    if (!window.google || !window.google.maps || !window.google.maps.places) {
-      console.error('Google Maps API not loaded');
-      return;
-    }
+    // Add event listener
+    window.addEventListener('beforeunload', handleBeforeUnload);
 
-    if (addressInputRef.current && !autocompleteRef.current) {
-      autocompleteRef.current = new window.google.maps.places.Autocomplete(
-        addressInputRef.current,
-        { types: ['address'] }
-      );
-      autocompleteRef.current.addListener('place_changed', handlePlaceSelect);
-    }
-    if (companyAddressInputRef.current && !companyAutocompleteRef.current) {
-      companyAutocompleteRef.current = new window.google.maps.places.Autocomplete(
-        companyAddressInputRef.current,
-        { types: ['address'] }
-      );
-      companyAutocompleteRef.current.addListener('place_changed', handleCompanyPlaceSelect);
+    // Cleanup function
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [resetState]);
+
+  const handleJobSeekerPlaceSelect = useCallback(() => {
+    console.log('handleJobSeekerPlaceSelect called');
+    if (jobSeekerAutocompleteRef.current) {
+      const place = jobSeekerAutocompleteRef.current.getPlace();
+      console.log('Job seeker place:', place);
+      updateAddressComponents(place, setAddressComponents);
+      setFormData(prev => ({
+        ...prev,
+        address: jobSeekerAddressInputRef.current.value,
+      }));
+    } else {
+      console.log('jobSeekerAutocompleteRef is not initialized');
     }
   }, []);
 
+  const handleEmployerPlaceSelect = useCallback(() => {
+    console.log('handleEmployerPlaceSelect called');
+    if (employerAutocompleteRef.current) {
+      const place = employerAutocompleteRef.current.getPlace();
+      console.log('Employer place:', place);
+      updateAddressComponents(place, setCompanyAddressComponents);
+      setFormData(prev => ({
+        ...prev,
+        companyAddress: employerAddressInputRef.current.value,
+      }));
+    } else {
+      console.log('employerAutocompleteRef is not initialized');
+    }
+  }, []);
+
+  const initializeAutocomplete = useCallback(() => {
+    console.log("Initializing autocomplete");
+    console.log("jobSeekerAddressInputRef:", jobSeekerAddressInputRef.current);
+    console.log("employerAddressInputRef:", employerAddressInputRef.current);
+
+    if (jobSeekerAddressInputRef.current && !jobSeekerAutocompleteRef.current) {
+      jobSeekerAutocompleteRef.current = new window.google.maps.places.Autocomplete(
+        jobSeekerAddressInputRef.current,
+        { types: ['address'] }
+      );
+      jobSeekerAutocompleteRef.current.addListener('place_changed', handleJobSeekerPlaceSelect);
+      console.log("Job seeker autocomplete initialized");
+    }
+
+    if (employerAddressInputRef.current && !employerAutocompleteRef.current) {
+      employerAutocompleteRef.current = new window.google.maps.places.Autocomplete(
+        employerAddressInputRef.current,
+        { types: ['address'] }
+      );
+      employerAutocompleteRef.current.addListener('place_changed', handleEmployerPlaceSelect);
+      console.log("Employer autocomplete initialized");
+    }
+  }, [handleJobSeekerPlaceSelect, handleEmployerPlaceSelect]);
+
+  useEffect(() => {
+    console.log("useEffect for initializeAutocomplete running");
+    console.log("isLoaded:", isLoaded);
+    console.log("loadError:", loadError);
+
+    if (isLoaded && !loadError) {
+      console.log("Google Maps API loaded successfully");
+      initializeAutocomplete();
+    }
+  }, [isLoaded, loadError, initializeAutocomplete, step, isEmployer]);
+
+  useEffect(() => {
+    console.log('useEffect for loadError');
+    if (loadError) {
+      console.error('Load error:', loadError);
+      setError('Unable to load address autocomplete. Please enter your address manually.');
+    }
+  }, [loadError]);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    console.log('handleInputChange:', name, value);
     setFormData(prevData => ({ ...prevData, [name]: value }));
   };
 
   const handleCompanyDomainChange = (e) => {
+    console.log('handleCompanyDomainChange:', e.target.value);
     setCompanyDomain(e.target.value);
   };
 
-  const handlePlaceSelect = useCallback(() => {
-    if (autocompleteRef.current) {
-      const place = autocompleteRef.current.getPlace();
-      updateAddressComponents(place, setAddressComponents);
-      setFormData(prev => ({
-        ...prev,
-        address: addressInputRef.current.value,
-      }));
-    }
-  }, []);
-
-  const handleCompanyPlaceSelect = useCallback(() => {
-    if (companyAutocompleteRef.current) {
-      const place = companyAutocompleteRef.current.getPlace();
-      updateAddressComponents(place, setCompanyAddressComponents);
-      setFormData(prev => ({
-        ...prev,
-        companyAddress: companyAddressInputRef.current.value,
-      }));
-    }
-  }, []);
-
   const updateAddressComponents = (place, setComponents) => {
-    if (!place.address_components) return;
+    console.log('updateAddressComponents called');
+    console.log('place:', place);
+    if (!place.address_components) {
+      console.log('No address components found');
+      return;
+    }
 
     const components = {
       street_number: '',
@@ -196,6 +258,7 @@ function Signup() {
       }
     });
 
+    console.log('Updated components:', components);
     setComponents(components);
   };
 
@@ -284,42 +347,44 @@ function Signup() {
     }
   };
 
-  const renderAddressFields = () => (
+  const renderAddressFields = (isEmployer = false) => (
     <div className="form-group">
-      <label htmlFor="address">Address</label>
+      <label htmlFor={isEmployer ? "companyAddress" : "address"}>
+        {isEmployer ? "Company Address" : "Address"}
+      </label>
       <input
         type="text"
-        id="address"
-        name="address"
-        ref={addressInputRef}
-        value={formData.address}
+        id={isEmployer ? "companyAddress" : "address"}
+        name={isEmployer ? "companyAddress" : "address"}
+        ref={isEmployer ? employerAddressInputRef : jobSeekerAddressInputRef}
+        value={isEmployer ? formData.companyAddress : formData.address}
         onChange={handleInputChange}
-        placeholder="Enter your address"
+        placeholder={isLoaded ? `Enter ${isEmployer ? 'company ' : ''}address` : `Enter ${isEmployer ? 'company ' : ''}address (autocomplete unavailable)`}
         required
       />
       <input
         type="text"
-        id="apt-suite"
-        name="aptSuite"
-        value={formData.aptSuite || ''}
+        id={isEmployer ? "company-apt-suite" : "apt-suite"}
+        name={isEmployer ? "companyAptSuite" : "aptSuite"}
+        value={isEmployer ? formData.companyAptSuite : formData.aptSuite}
         onChange={handleInputChange}
         placeholder="Apt, Suite, etc (optional)"
       />
       <div className="horizontal-fields">
         <input
           type="text"
-          id="city"
-          name="city"
-          value={addressComponents.locality}
+          id={isEmployer ? "companyCity" : "city"}
+          name={isEmployer ? "companyCity" : "city"}
+          value={isEmployer ? companyAddressComponents.locality : addressComponents.locality}
           onChange={handleInputChange}
           placeholder="City"
           readOnly
         />
         <input
           type="text"
-          id="state"
-          name="state"
-          value={addressComponents.administrative_area_level_1}
+          id={isEmployer ? "companyState" : "state"}
+          name={isEmployer ? "companyState" : "state"}
+          value={isEmployer ? companyAddressComponents.administrative_area_level_1 : addressComponents.administrative_area_level_1}
           onChange={handleInputChange}
           placeholder="State/Province"
           readOnly
@@ -328,18 +393,18 @@ function Signup() {
       <div className="horizontal-fields">
         <input
           type="text"
-          id="zipCode"
-          name="zipCode"
-          value={addressComponents.postal_code}
+          id={isEmployer ? "companyZipCode" : "zipCode"}
+          name={isEmployer ? "companyZipCode" : "zipCode"}
+          value={isEmployer ? companyAddressComponents.postal_code : addressComponents.postal_code}
           onChange={handleInputChange}
           placeholder="Zip/Postal code"
           readOnly
         />
         <input
           type="text"
-          id="country"
-          name="country"
-          value={addressComponents.country}
+          id={isEmployer ? "companyCountry" : "country"}
+          name={isEmployer ? "companyCountry" : "country"}
+          value={isEmployer ? companyAddressComponents.country : addressComponents.country}
           onChange={handleInputChange}
           placeholder="Country"
           readOnly
@@ -432,7 +497,7 @@ function Signup() {
             onChange={handleInputChange}
             required
           />
-          {renderAddressFields()}
+          {renderAddressFields(false)}
           <div className="horizontal-fields">
             <div className="field-group">
               <label htmlFor="phone">Phone Number</label>
@@ -492,7 +557,7 @@ function Signup() {
             </div>
           </div>
           <div className="horizontal-fields">
-            <div className="field-group">
+          <div className="field-group">
               <label htmlFor="companyDomain">Company Domain</label>
               <input
                 type="text"
@@ -517,8 +582,8 @@ function Signup() {
               />
             </div>
           </div>
-          <div className="horizontal-fields">
-            <div className="field-group">
+
+
               <label htmlFor="password">Password</label>
               <div className="password-input-container">
                 <input
@@ -533,8 +598,8 @@ function Signup() {
                   {showPassword ? 'Hide' : 'Show'}
                 </button>
               </div>
-            </div>
-            <div className='field-group'>
+
+
               {formData.password && !isPasswordValid && <span className="alert" style={{ color: 'red' }}>✗ Password must be at least 8 characters and include a number</span>}
               {formData.password && isPasswordValid && <span className="alert" style={{ color: 'green' }}>✓ Valid password</span>}
               <label htmlFor="confirmPassword">Confirm Password</label>
@@ -551,70 +616,12 @@ function Signup() {
               {formData.password && formData.confirmPassword && !isConfirmPasswordValid && <span className="alert" style={{ color: 'red' }}>✗ Passwords must match</span>}
               {formData.password && formData.confirmPassword && isConfirmPasswordValid && <span className="alert" style={{ color: 'green' }}>✓ Passwords match</span>}
             </div>
-          </div>
-        </div>
+
+
       )}
       {step === 2 && (
         <div className="form-group">
-          <label htmlFor="companyAddress">Company Address</label>
-          <input
-            type="text"
-            id="companyAddress"
-            name="companyAddress"
-            ref={companyAddressInputRef}
-            value={formData.companyAddress}
-            onChange={handleInputChange}
-            placeholder="Enter company address"
-            required
-          />
-          <input
-            type="text"
-            id="company-apt-suite"
-            name="companyAptSuite"
-            value={formData.companyAptSuite || ''}
-            onChange={handleInputChange}
-            placeholder="Apt, Suite, etc (optional)"
-          />
-          <div className="horizontal-fields">
-            <input
-              type="text"
-              id="companyCity"
-              name="companyCity"
-              value={companyAddressComponents.locality}
-              onChange={handleInputChange}
-              placeholder="City"
-              readOnly
-            />
-            <input
-              type="text"
-              id="companyState"
-              name="companyState"
-              value={companyAddressComponents.administrative_area_level_1}
-              onChange={handleInputChange}
-              placeholder="State/Province"
-              readOnly
-            />
-          </div>
-          <div className="horizontal-fields">
-            <input
-              type="text"
-              id="companyZipCode"
-              name="companyZipCode"
-              value={companyAddressComponents.postal_code}
-              onChange={handleInputChange}
-              placeholder="Zip/Postal code"
-              readOnly
-            />
-            <input
-              type="text"
-              id="companyCountry"
-              name="companyCountry"
-              value={companyAddressComponents.country}
-              onChange={handleInputChange}
-              placeholder="Country"
-              readOnly
-            />
-          </div>
+          {renderAddressFields(true)}
           <div className="horizontal-fields">
             <div className="field-group">
               <label htmlFor="title">Contact Title</label>
