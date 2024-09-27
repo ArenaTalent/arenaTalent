@@ -470,7 +470,7 @@ export default function Component() {
       </NavWrapper>
       <MainContent>
         <Header>
-          <Title>🏟 Browse Companies Attending MSBC </Title>
+          <Title>🏟 Browse Companies </Title>
         </Header>
 
         <SearchBar>

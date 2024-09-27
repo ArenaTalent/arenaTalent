@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^6.6.0",
+    "@fortawesome/free-solid-svg-icons": "^6.6.0",
+    "@fortawesome/react-fontawesome": "^0.2.2",
     "@react-firebase/auth": "^0.2.10",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
@@ -12,6 +15,7 @@
     "dotenv": "^16.4.5",
     "eslint": "^8.57.1",
     "firebase": "^10.12.3",
+    "fortawesome": "^0.0.1-security",
     "lodash": "^4.17.21",
     "lucide-react": "^0.438.0",
     "prop-types": "^15.8.1",

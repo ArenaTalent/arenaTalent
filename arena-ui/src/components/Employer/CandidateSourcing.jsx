@@ -448,7 +448,7 @@ export default function CandidateSourcing() {
         <EmployerNav />
       </NavWrapper>
       <MainContent>
-        <Header>🏟 Browse MSBC Attendees</Header>
+        <Header>🏟 Browse Job Seekers</Header>
         <SearchBar>
           <SearchInput
             type="text"

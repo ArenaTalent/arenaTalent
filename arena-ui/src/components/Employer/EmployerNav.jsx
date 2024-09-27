@@ -133,7 +133,7 @@ function EmployerNav() {
           <IconWrapper><Search size={20} /></IconWrapper>
           <ButtonText>Search Candidates</ButtonText>
         </NavButton>
-        {/* <NavButton href="/ats">
+        <NavButton href="/ats">
           <IconWrapper><Building size={20} /></IconWrapper>
           <ButtonText>ATS</ButtonText>
         </NavButton>
@@ -144,7 +144,7 @@ function EmployerNav() {
         <NavButton href="/messaging">
           <IconWrapper><MessageSquare size={20} /></IconWrapper>
           <ButtonText>Messaging</ButtonText>
-        </NavButton> */}
+        </NavButton>
 
       </Nav>
       <BottomSection>
