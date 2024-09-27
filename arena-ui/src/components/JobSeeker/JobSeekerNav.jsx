@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import {QRCodeSVG} from 'qrcode.react';
 import styled from 'styled-components';
-import { Inbox, Search, Building, FileCheck, FileText, MessageSquare, Settings, LogOut, User } from 'lucide-react';
+import { Inbox, Search, Building, FileCheck, FileText, MessageSquare, Settings, LogOut, User, QrCodeIcon } from 'lucide-react';
 
 const NavContainer = styled.div`
   display: flex;
@@ -145,6 +145,10 @@ function JobSeekerNav(){
 
       </Nav>
       <BottomSection>
+      <NavButton onClick={handleQR}>
+      <IconWrapper><QrCodeIcon  size={20} /></IconWrapper>
+        <ButtonText> QR Code</ButtonText>
+        </NavButton>
         <NavButton href="/jobseeker-account">
           <IconWrapper><Settings size={20} /></IconWrapper>
           <ButtonText>Account</ButtonText>
@@ -153,10 +157,8 @@ function JobSeekerNav(){
           <IconWrapper><LogOut size={20} /></IconWrapper>
           <ButtonText>Logout</ButtonText>
         </LogoutButton>
-        <NavButton onClick={handleQR}>
-        <ButtonText>Get QR Code</ButtonText>
-        </NavButton>
-          {isQRPopupOpen && ( 
+
+          {isQRPopupOpen && (
             <PopupOverlay>
               <PopupContent>
                 <CloseQRNavSection><QRCloseButton onClick={handleQR}>x</QRCloseButton></CloseQRNavSection>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import {QRCodeSVG} from 'qrcode.react';
 import styled from 'styled-components';
-import { Inbox, Search, Building, FileCheck, FileText, MessageSquare, Settings, LogOut, User, Container } from 'lucide-react';
+import { Inbox, Search, Building, FileCheck, FileText, MessageSquare, Settings, LogOut, User, Container, QrCodeIcon } from 'lucide-react';
 
 const NavContainer = styled.div`
   display: flex;
@@ -95,6 +95,7 @@ const QRCloseButton = styled.button`
   border-radius: 8px;
   border: none;
   color: #718096;
+  cursor: pointer;
 
   &:hover {
     background-color: #f3f4f6;
@@ -120,7 +121,7 @@ function EmployerNav() {
         <Logo src="/images/black-logo.png" alt="Company Logo" />
       </LogoContainer>
       <Nav>
-        <NavButton href="/employer-dashboard">
+        <NavButton href="/msbc-employer-dashboard">
           <IconWrapper><Inbox size={20} /></IconWrapper>
           <ButtonText>Dashboard</ButtonText>
         </NavButton>
@@ -132,7 +133,7 @@ function EmployerNav() {
           <IconWrapper><Search size={20} /></IconWrapper>
           <ButtonText>Search Candidates</ButtonText>
         </NavButton>
-        <NavButton href="/ats">
+        {/* <NavButton href="/ats">
           <IconWrapper><Building size={20} /></IconWrapper>
           <ButtonText>ATS</ButtonText>
         </NavButton>
@@ -143,10 +144,15 @@ function EmployerNav() {
         <NavButton href="/messaging">
           <IconWrapper><MessageSquare size={20} /></IconWrapper>
           <ButtonText>Messaging</ButtonText>
-        </NavButton>
+        </NavButton> */}
 
       </Nav>
       <BottomSection>
+      <NavButton onClick={handleQR}>
+      <IconWrapper><QrCodeIcon size={20} /></IconWrapper>
+
+        <ButtonText>QR Code</ButtonText>
+      </NavButton>
         <NavButton href="/employer-account">
           <IconWrapper><Settings size={20} /></IconWrapper>
           <ButtonText>Account</ButtonText>
@@ -155,11 +161,9 @@ function EmployerNav() {
           <IconWrapper><LogOut size={20} /></IconWrapper>
           <ButtonText>Logout</ButtonText>
         </LogoutButton>
-      
-      <NavButton onClick={handleQR}>
-        <ButtonText>Get QR Code</ButtonText>
-      </NavButton>
-        {isQRPopupOpen && ( 
+
+
+        {isQRPopupOpen && (
           <PopupOverlay>
             <PopupContent>
               <CloseQRNavSection><QRCloseButton onClick={handleQR}>x</QRCloseButton></CloseQRNavSection>
