@@ -25,6 +25,7 @@ const Container = styled.div`
   background-color: ${softColors.background};
   color: ${softColors.text};
   font-family: 'Inter', sans-serif;
+
 `;
 
 const MainContent = styled.main`
@@ -352,6 +353,7 @@ const NavWrapper = styled.div`
   height: 100vh;
   position: sticky;
   top: 0;
+  z-index: 1000;
 `
 const PostJobButton = styled(Link)`
   position: absolute;
