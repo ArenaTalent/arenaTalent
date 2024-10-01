@@ -76,7 +76,7 @@ const PopupOverlay = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 9999;
 `
 
 const PopupContent = styled.div`
@@ -96,6 +96,7 @@ const QRCloseButton = styled.button`
   border-radius: 8px;
   border: none;
   color: #718096;
+
 
   &:hover {
     background-color: #f3f4f6;
@@ -201,11 +202,11 @@ function EmployerNav() {
           <IconWrapper><LogOut size={20} /></IconWrapper>
           <ButtonText>Logout</ButtonText>
         </LogoutButton>
-      
+
       <NavButton onClick={handleQR}>
         <ButtonText>Get QR Code</ButtonText>
       </NavButton>
-        {isQRPopupOpen && ( 
+        {isQRPopupOpen && (
           <PopupOverlay>
             <PopupContent>
               <CloseQRNavSection><QRCloseButton onClick={handleQR}>x</QRCloseButton></CloseQRNavSection>
