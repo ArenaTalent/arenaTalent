@@ -407,7 +407,7 @@ const SectionDescription = styled.p`
 const NewGrid = styled.div`
   display: grid;
   gap: 1.5rem;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(1, 1fr);
   margin-top: 2rem;
 `
 
@@ -483,7 +483,7 @@ const EmployerDash = () => {
 
 
   const applicants = [
-    { id: 19, name: 'Brady Hertl', role: 'Premium Experience Coordinator', applyDate: '9/23/24', match: 95 },
+    { id: 19, name: 'Olivia Schwartz', role: 'CTO', applyDate: '9/23/24', match: 95 },
     { id: 18, name: 'Luciano Tommasini', role: 'Premium Experience Coordinator', applyDate: '9/22/24', match: 91 },
     { id: 8, name: 'Ed Urena', role: 'Customer Service Representative', applyDate: '9/21/24', match: 92 },
     { id: 14, name: 'Jonathan Wittig', role: 'Marketing Specialist', applyDate: '9/20/24', match: 87 },
@@ -881,7 +881,7 @@ const EmployerDash = () => {
             </CardContent>
           </NewCard>
 
-          <NewCard>
+          {/* <NewCard>
             <CardHeader>
               <CardTitle>Hiring Stats</CardTitle>
             </CardHeader>
@@ -899,7 +899,7 @@ const EmployerDash = () => {
                 Avg. Time to Interview: 5 days
               </StatItem>
             </CardContent>
-          </NewCard>
+          </NewCard> */}
 
 
         </NewGrid>

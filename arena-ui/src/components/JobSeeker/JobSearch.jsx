@@ -562,8 +562,7 @@ export default function JobSearch() {
       </NavWrapper>
       <MainContent>
         <Header>
-          <Title>Browse Jobs</Title>
-        </Header>
+        <Title>🏟 Browse Jobs  </Title>        </Header>
 
         <SearchBar>
           <SearchInput

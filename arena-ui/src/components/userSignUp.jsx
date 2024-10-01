@@ -536,7 +536,7 @@ function Signup() {
               <input
                 type="text"
                 id="firstName"
-                placeholder="First Name"
+
                 name="firstName"
                 value={formData.firstName}
                 onChange={handleInputChange}
@@ -548,7 +548,7 @@ function Signup() {
               <input
                 type="text"
                 id="lastName"
-                placeholder="Last Name"
+
                 name="lastName"
                 value={formData.lastName}
                 onChange={handleInputChange}
@@ -558,13 +558,12 @@ function Signup() {
           </div>
           <div className="horizontal-fields">
           <div className="field-group">
-              <label htmlFor="companyDomain">Company Domain</label>
+              <label htmlFor="companyDomain">Company Website (without www.)</label>
               <input
                 type="text"
                 id="companyDomain"
                 name="companyDomain"
                 value={companyDomain}
-                placeholder="e.g. company.com leave off www."
                 onChange={handleCompanyDomainChange}
                 required
               />
@@ -574,7 +573,6 @@ function Signup() {
               <input
                 type="email"
                 id="companyEmail"
-                placeholder="hello@arenatalent.com"
                 name="companyEmail"
                 value={formData.companyEmail}
                 onChange={handleInputChange}
@@ -720,7 +718,7 @@ function Signup() {
 
           {isEmployer ? renderEmployerForm() : renderJobSeekerForm()}
 
-          {error && <div className="error-message">{error}</div>}
+          {error && <div className="error-message">Email Already Exists! <a href="/login">Login</a></div>}
 
           {step === 1 ? (
             <button
@@ -737,13 +735,13 @@ function Signup() {
             </button>
           )}
         </form>
-
+        <p className="terms">
+          By signing up, you acknowledge that you have read and accept the <a href="/terms">Terms of Service</a> and <a href="/privacy-policy">Privacy Policy</a>.
+        </p>
         <p className="login">
           Already have an account? <a href="/login">Login</a>
         </p>
-        <p className="terms">
-          By clicking 'Continue', you acknowledge that you have read and accept the <a href="/terms">Terms of Service</a> and <a href="/privacy-policy">Privacy Policy</a>.
-        </p>
+
       </div>
     </div>
   );

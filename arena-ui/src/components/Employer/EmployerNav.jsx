@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import {QRCodeSVG} from 'qrcode.react';
 import styled from 'styled-components';
-import { Inbox, Search, Building, FileCheck, FileText, MessageSquare, Settings, LogOut, User, Container } from 'lucide-react';
+import { Inbox, Search, Building, FileCheck, FileText, MessageSquare, Settings, LogOut, User, Container, QrCodeIcon } from 'lucide-react';
 
 const NavContainer = styled.div`
   display: flex;
@@ -96,6 +96,7 @@ const QRCloseButton = styled.button`
   border-radius: 8px;
   border: none;
   color: #718096;
+  cursor: pointer;
 
 
   &:hover {
@@ -155,7 +156,7 @@ function EmployerNav() {
         <Logo src="/images/black-logo.png" alt="Company Logo" />
       </LogoContainer>
       <Nav>
-        <NavButton href="/employer-dashboard">
+        <NavButton href="/msbc-employer-dashboard">
           <IconWrapper><Inbox size={20} /></IconWrapper>
           <ButtonText>Dashboard</ButtonText>
         </NavButton>
@@ -182,6 +183,7 @@ function EmployerNav() {
 
       </Nav>
       <BottomSection>
+<<<<<<< HEAD
         <HelpDropDown>
           <NavButton onClick={handleHelpDropDown}>
             <ButtonText>Need Help?</ButtonText>
@@ -194,6 +196,13 @@ function EmployerNav() {
             </HelpDropDownContent>
           )}
         </HelpDropDown>
+=======
+      <NavButton onClick={handleQR}>
+      <IconWrapper><QrCodeIcon size={20} /></IconWrapper>
+
+        <ButtonText>QR Code</ButtonText>
+      </NavButton>
+>>>>>>> 29216eb69107149b049e1e8d8d171afb64be9eb8
         <NavButton href="/employer-account">
           <IconWrapper><Settings size={20} /></IconWrapper>
           <ButtonText>Account</ButtonText>
@@ -203,9 +212,13 @@ function EmployerNav() {
           <ButtonText>Logout</ButtonText>
         </LogoutButton>
 
+<<<<<<< HEAD
       <NavButton onClick={handleQR}>
         <ButtonText>Get QR Code</ButtonText>
       </NavButton>
+=======
+
+>>>>>>> 29216eb69107149b049e1e8d8d171afb64be9eb8
         {isQRPopupOpen && (
           <PopupOverlay>
             <PopupContent>

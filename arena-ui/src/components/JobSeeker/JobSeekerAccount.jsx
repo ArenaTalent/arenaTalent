@@ -96,7 +96,7 @@ const TabButton = ({ active, onClick, children }) => (
   );
 
   export default function JobSeekerSettings() {
-   
+
 
     const [activeTab, setActiveTab] = useState('login');
     const [email, setEmail] = useState('john@email.com');
@@ -109,7 +109,7 @@ const TabButton = ({ active, onClick, children }) => (
 
     const [currentTab, setCurrentTab] = useState('monthly');
     const [selectedCard, setSelectedCard] = useState(null);
-    
+
 
 
     const handleUpdateEmail = (e) => {
@@ -124,7 +124,7 @@ const TabButton = ({ active, onClick, children }) => (
       setNewPassword('');
     };
 
-   
+
   return (
     <PageWrapper>
     <NavbarWrapper>
@@ -165,13 +165,13 @@ const TabButton = ({ active, onClick, children }) => (
 
 
 
-{/* 
+{/*
       {activeTab === 'billing' && (
         <div style={{ textAlign: 'center', padding: '20px' }}>
           <p style={{ color: '#6b7280' }}>Billing details will be implemented here.</p>
         </div>
       )} */}
-      
+
       {activeTab === 'billing' && (
  <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
  {/* Toggle Buttons */}
@@ -217,12 +217,12 @@ const TabButton = ({ active, onClick, children }) => (
          backgroundColor: '#1f2937',
          color: 'white',
          margin: '20px',
-         transition: 'transform 0.2s', 
-         transform: selectedCard === 'basic' ? 'scale(1.05)' : 'scale(1)', 
-         boxShadow: selectedCard === 'basic' ? '0 4px 20px rgba(0, 0, 0, 0.2)' : 'none', 
+         transition: 'transform 0.2s',
+         transform: selectedCard === 'basic' ? 'scale(1.05)' : 'scale(1)',
+         boxShadow: selectedCard === 'basic' ? '0 4px 20px rgba(0, 0, 0, 0.2)' : 'none',
          cursor: 'pointer',
        }}
-       onClick={() => setSelectedCard('basic')} 
+       onClick={() => setSelectedCard('basic')}
      >
        <h2>Arena</h2>
        <p>Apply for jobs and track your progress for free, forever</p>
@@ -323,7 +323,7 @@ const TabButton = ({ active, onClick, children }) => (
             boxShadow: selectedCard === 'pro' ? '0 4px 20px rgba(0, 0, 0, 0.2)' : 'none',
             cursor: 'pointer',
           }}
-          onClick={() => setSelectedCard('pro')} 
+          onClick={() => setSelectedCard('pro')}
         >
           <h2>Arena PRO <span style={{ backgroundColor: '#111827', color: '#9f7aea', padding: '5px', borderRadius: '5px', fontSize: '12px' }}>Most popular</span></h2>
           <p>Land your dream job faster with personalized insights & advice (7-day free trial included)</p>

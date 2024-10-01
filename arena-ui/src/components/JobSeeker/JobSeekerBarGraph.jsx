@@ -39,10 +39,10 @@ const TotalLabel = styled.div`
 `;
 
 const data = [
-  { label: 'Shortlisted', value: 15, color: '#4CAF50' },
-  { label: 'Interview', value: 10, color: '#2196F3' },
-  { label: 'Rejected', value: 7, color: '#F44336' },
-  { label: 'Unreviewed', value: 10, color: '#FFC107' },
+  { label: 'Shortlisted', value: 3, color: '#4CAF50' },
+  { label: 'Interview', value: 3, color: '#2196F3' },
+  { label: 'Rejected', value: 2, color: '#F44336' },
+  { label: 'Unreviewed', value: 2, color: '#FFC107' },
 ];
 
 const JobSeekerBarGraph = () => {
