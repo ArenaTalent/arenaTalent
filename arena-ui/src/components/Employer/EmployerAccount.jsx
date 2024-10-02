@@ -13,8 +13,10 @@ const PageWrapper = styled.div`
 `
 
 const NavbarWrapper = styled.div`
-  width: 250px;
-  background-color: #f3f4f6;
+  flex: 0 0 auto;
+  height: 100vh;
+  position: sticky;
+  top: 0;
 `
 
 const PageContainer = styled.div`
@@ -24,10 +26,9 @@ const PageContainer = styled.div`
 `
 
 const ContentContainer = styled.div`
-  max-width: 1200px;
-  margin: 30px auto;
-  padding: 2rem;
-  position: relative;
+  flex: 1;
+  padding: 1rem 3rem;
+  overflow-y: auto;
 `
 
 const TabButton = ({ active, onClick, children }) => (
@@ -131,7 +132,7 @@ const TabButton = ({ active, onClick, children }) => (
     </NavbarWrapper>
     <PageContainer>
       <ContentContainer>
-    <div style={{ maxWidth: '600px', margin: '0 auto', padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+    <div style={{padding: '20px', fontFamily: 'Arial, sans-serif' }}>
       <h1 style={{ fontSize: '24px', marginBottom: '10px' }}>Account Settings</h1>
       <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '20px' }}>Manage your employer account preferences</p>
 
@@ -171,27 +172,27 @@ const TabButton = ({ active, onClick, children }) => (
     style={{
       display: 'grid',
       gridTemplateColumns: 'repeat(3, 1fr)',
-      gap: '100px', 
-      marginTop: '32px',
-      width: '100%',
+      gap: '1rem', 
+      // marginTop: '32px',
+      //width: '100%',
       // maxWidth: '1400px',
-      margin: '0 auto',
+      // margin: '0 auto',
     }}
   >
     {/* Starter Plan */}
     <div
       style={{
-        padding: '40px',
+        padding: '1rem',
         backgroundColor: selectedPlan === 'starter' ? '#E6D6F1' : '#f3f4f6',
         borderRadius: '8px',
         boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
-        width: '100%',
+        /* width: '100%', */
         maxWidth: '350px', 
         flex: '1', 
-        transform: selectedPlan === 'starter' ? 'scale(1.05) translateY(-10px)' : 'scale(1)',
+        transform: selectedPlan === 'starter' ? 'scale(1.01) translateY(-2px)' : 'scale(1)',
         transition: 'transform 0.3s ease',
       }}
       onClick={() => handlePlanClick('starter')}
@@ -224,17 +225,17 @@ const TabButton = ({ active, onClick, children }) => (
     {/* Premium Plan */}
     <div
       style={{
-        padding: '40px',
+        padding: '1rem',
         backgroundColor: selectedPlan === 'premium' ? '#E6D6F1' : '#f3f4f6',
         borderRadius: '8px',
         boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
-        width: '100%', 
+        /* width: '100%', */
         maxWidth: '350px', 
         flex: '1', 
-        transform: selectedPlan === 'premium' ? 'scale(1.05) translateY(-10px)' : 'scale(1)',
+        transform: selectedPlan === 'premium' ? 'scale(1.01) translateY(-2px)' : 'scale(1)',
         transition: 'transform 0.3s ease',
       }}
       onClick={() => handlePlanClick('premium')}
@@ -266,7 +267,7 @@ const TabButton = ({ active, onClick, children }) => (
     {/* Enterprise Plan */}
     <div
       style={{
-        padding: '40px',
+        padding: '1rem',
         backgroundColor: selectedPlan === 'enterprise' ? '#E6D6F1' : '#f3f4f6',
         borderRadius: '8px',
         boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
@@ -275,15 +276,15 @@ const TabButton = ({ active, onClick, children }) => (
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
-        width: '100%', 
+        /* width: '100%', */
         maxWidth: '350px', 
         flex: '1', 
-        transform: selectedPlan === 'enterprise' ? 'scale(1.05) translateY(-10px)' : 'scale(1)',
+        transform: selectedPlan === 'enterprise' ? 'scale(1.01) translateY(-2px)' : 'scale(1)',
         transition: 'transform 0.3s ease',
       }}
       onClick={() => handlePlanClick('enterprise')}
     >
-      <span style={{ position: 'absolute', top: '0', right: '0', backgroundColor: '#6b46c1', color: '#ffffff', padding: '8px 12px', fontSize: '12px', fontWeight: 'bold' }}>
+      <span style={{ position: 'absolute', borderRadius: '0 0 0 8px', top: '0', right: '0', backgroundColor: '#6b46c1', color: '#ffffff', padding: '8px 12px', fontSize: '12px', fontWeight: 'bold' }}>
         Most Popular
       </span>
       <div>
