@@ -117,7 +117,7 @@ const HelpDropDownContent = styled.div`
   background-color: #f1f1f1;
   width: 80%;
   padding: 0.5rem 1rem;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.1);
   z-index: 1;
 `
 const DropDownLink = styled.a`
@@ -126,7 +126,7 @@ const DropDownLink = styled.a`
 
   color: #4a90e2;
   font-weight: 600;
-  font-size: 0.875em;
+  font-size: 0.870em;
   text-decoration: none;
   transition: color 0.2s;
 `
@@ -195,6 +195,11 @@ function EmployerNav() {
             </HelpDropDownContent>
           )}
         </HelpDropDown>
+
+        <NavButton onClick={handleQR}>
+      <IconWrapper><QrCodeIcon  size={20} /></IconWrapper>
+        <ButtonText> QR Code</ButtonText>
+        </NavButton>
         <NavButton href="/employer-account">
           <IconWrapper><Settings size={20} /></IconWrapper>
           <ButtonText>Account</ButtonText>
@@ -204,9 +209,7 @@ function EmployerNav() {
           <ButtonText>Logout</ButtonText>
         </LogoutButton>
 
-      <NavButton onClick={handleQR}>
-        <ButtonText>Get QR Code</ButtonText>
-      </NavButton>
+    
         {isQRPopupOpen && (
           <PopupOverlay>
             <PopupContent>
