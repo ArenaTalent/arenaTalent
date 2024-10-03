@@ -9,8 +9,10 @@ const PageWrapper = styled.div`
 `
 
 const NavbarWrapper = styled.div`
-  width: 250px;
-  background-color: #f3f4f6;
+  flex: 0 0 auto;
+  height: 100vh;
+  position: sticky;
+  top: 0;
 `
 
 const PageContainer = styled.div`
@@ -471,7 +473,7 @@ export default function JobSeekerProfile() {
       {
         degree: "Bachelor's",
         major: "Human Biology",
-        school: "NC State",
+        school: "North Carolina State University",
         graduationYear: "2014"
       }
     ],
@@ -530,8 +532,8 @@ export default function JobSeekerProfile() {
   const portfolioRef = useRef(null)
 
   const [portfolioItems, setPortfolioItems] = useState([
-    { imageUrl: '/images/portfolio-1.jpg', title: 'Project 1', link: 'https://example.com/project1' },
-    { imageUrl: '/images/portfolio-2.jpg', title: 'Project 2', link: 'https://example.com/project2' },
+    { imageUrl: '/images/demo-video.png', title: 'Project 1', link: 'https://example.com/project1' },
+    { imageUrl: '/images/cover-photo.png.jpg', title: 'Project 2', link: 'https://example.com/project2' },
   ])
   const handlePortfolioScroll = (direction) => {
     if (portfolioRef.current) {
@@ -869,7 +871,7 @@ export default function JobSeekerProfile() {
                 ) : (
                   <>
                     {profile.education.map((edu, index) => (
-                      <p key={index}>{edu.degree} in {edu.major}, {edu.school}, {edu.graduationYear}</p>
+                      <p key={index}>{edu.degree} in {edu.major} from {edu.school}</p>
                     ))}
                   </>
                 )}
@@ -1227,7 +1229,7 @@ export default function JobSeekerProfile() {
             </>
           )}
         </ProfileCard>
-
+{/*
               <ProfileCard>
   <EditIconButton onClick={() => handleEditSection('athleteStatus')}>
     <Edit size={20} />
@@ -1340,7 +1342,7 @@ export default function JobSeekerProfile() {
                     ))}
                   </>
                 )}
-              </ProfileCard>
+              </ProfileCard> */}
               <ProfileCard>
                 <EditIconButton onClick={() => handleEditSection('belongsTo')}>
                   <Edit size={20} />

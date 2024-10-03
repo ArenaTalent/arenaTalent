@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import {QRCodeSVG} from 'qrcode.react';
 import styled from 'styled-components';
-import { Inbox, Search, Building, FileCheck, FileText, MessageSquare, Settings, LogOut, User, Container } from 'lucide-react';
+import { Inbox, Search, Building, FileCheck, FileText, MessageSquare, Settings, LogOut, User, Container, QrCodeIcon } from 'lucide-react';
 
 const NavContainer = styled.div`
   display: flex;
@@ -41,6 +41,7 @@ const NavButton = styled.a`
 
   &:hover {
     background-color: #e5e7eb;
+    cursor: pointer;
   }
 `;
 
@@ -75,7 +76,7 @@ const PopupOverlay = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 9999;
 `
 
 const PopupContent = styled.div`
@@ -95,6 +96,8 @@ const QRCloseButton = styled.button`
   border-radius: 8px;
   border: none;
   color: #718096;
+  cursor: pointer;
+
 
   &:hover {
     background-color: #f3f4f6;
@@ -105,13 +108,46 @@ const CloseQRNavSection = styled.div`
   flex-direction: row-reverse;
   padding-top: 0.5rem;
 
-`;
+`
+const HelpDropDown = styled.div`
+  position: relative;
+`
+const HelpDropDownContent = styled.div`
+  position: absolute;
+  background-color: #f1f1f1;
+  width: 80%;
+  padding: 0.5rem 1rem;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.1);
+  z-index: 1;
+`
+const DropDownLink = styled.a`
+  padding: 10px 0px;
+  display: block;
+
+  color: #4a90e2;
+  font-weight: 600;
+  font-size: 0.870em;
+  text-decoration: none;
+  transition: color 0.2s;
+`
+const LinkText = styled.span`
+  &:hover {
+    color: #63b3ed;
+    text-decoration: underline; /* Underline only applies to the text */
+  }
+`
+;
 
 function EmployerNav() {
   const [isQRPopupOpen, setIsQRPopupOpen] = useState(false);
+  const [isHelpDropDownOpen, setIsHelpDropDownOpen] = useState(false);
 
   const handleQR = () => {
     setIsQRPopupOpen(prev => !prev);
+  };
+
+  const handleHelpDropDown = () => {
+    setIsHelpDropDownOpen(prev => !prev);
   };
 
   return (
@@ -120,7 +156,7 @@ function EmployerNav() {
         <Logo src="/images/black-logo.png" alt="Company Logo" />
       </LogoContainer>
       <Nav>
-        <NavButton href="/employer-dashboard">
+        <NavButton href="/msbc-employer-dashboard">
           <IconWrapper><Inbox size={20} /></IconWrapper>
           <ButtonText>Dashboard</ButtonText>
         </NavButton>
@@ -147,6 +183,23 @@ function EmployerNav() {
 
       </Nav>
       <BottomSection>
+        <HelpDropDown>
+          <NavButton onClick={handleHelpDropDown}>
+            <ButtonText>Need Help?</ButtonText>
+          </NavButton>
+          {isHelpDropDownOpen && (
+            <HelpDropDownContent>
+              <DropDownLink href="https://calendly.com/adriene-arena/arena-demo">📞 <LinkText>Book a demo</LinkText></DropDownLink>
+              <DropDownLink href="https://www.notion.so/10be576b478b80bd9cccf2f67671881a?pvs=21">📘 <LinkText>Help & quick start guide</LinkText></DropDownLink>
+              <DropDownLink href="mailto:support@arenatalent.com"><LinkText>Email us</LinkText></DropDownLink>
+            </HelpDropDownContent>
+          )}
+        </HelpDropDown>
+
+        <NavButton onClick={handleQR}>
+      <IconWrapper><QrCodeIcon  size={20} /></IconWrapper>
+        <ButtonText> QR Code</ButtonText>
+        </NavButton>
         <NavButton href="/employer-account">
           <IconWrapper><Settings size={20} /></IconWrapper>
           <ButtonText>Account</ButtonText>
@@ -155,11 +208,9 @@ function EmployerNav() {
           <IconWrapper><LogOut size={20} /></IconWrapper>
           <ButtonText>Logout</ButtonText>
         </LogoutButton>
-      
-      <NavButton onClick={handleQR}>
-        <ButtonText>Get QR Code</ButtonText>
-      </NavButton>
-        {isQRPopupOpen && ( 
+
+    
+        {isQRPopupOpen && (
           <PopupOverlay>
             <PopupContent>
               <CloseQRNavSection><QRCloseButton onClick={handleQR}>x</QRCloseButton></CloseQRNavSection>
