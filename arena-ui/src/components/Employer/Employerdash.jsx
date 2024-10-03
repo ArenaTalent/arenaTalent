@@ -3,6 +3,13 @@ import styled from 'styled-components';
 import { Calendar, Mail, UserPlus, Briefcase, Users, PlusCircle, ChevronDown, BarChart2, Clock, Award } from 'lucide-react';
 import EmployerNav from './EmployerNav';
 
+
+//MINE
+import { Modal, ModalContent, ModalCloseButton } from './Modal'; 
+import { useNavigate } from 'react-router-dom';
+
+
+
 const softColors = {
   background: '#f0f4f8',
   card: '#ffffff',
@@ -332,7 +339,92 @@ const LegendLabel = styled.span`
 `;
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 const EmployerDash = () => {
+  
+
+  //MINE
+  const navigate = useNavigate();
+  const [isModalOpen, setModalOpen] = useState(false);
+  const [isNewModalOpen, setNewModalOpen] = useState(false);
+  const [employeeName, setEmployeeName] = useState('');
+  const [employeeEmail, setEmployeeEmail] = useState('');
+  const [additionalFields, setAdditionalFields] = useState([]); // State for additional fields
+
+ 
+  const handleOpenModal = () => {
+    setModalOpen(true);
+  };
+
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+  };
+
+
+  const handleOpenNewModal = () => {
+    setNewModalOpen(true);
+  };
+
+
+  const handleCloseNewModal = () => {
+    setNewModalOpen(false);
+  };
+
+
+  const handleNewMemberSubmit = (e) => {
+    e.preventDefault();
+    console.log('New Member Name:', employeeName);
+    console.log('New Member Email:', employeeEmail);
+    console.log('Additional Members:', additionalFields);
+
+    setEmployeeName('');
+  setEmployeeEmail(''); 
+  setAdditionalFields([]); 
+  setNewModalOpen(false); 
+  };
+
+  const handleManageMembers = () => {
+    console.log("Managing team members");
+
+
+    navigate('/employer-account'); 
+  };
+
+  const handleAddMembers = () => {
+    console.log("Adding team members");
+    handleOpenNewModal(); 
+  };
+
+  // Function to add additional member fields
+  const handleAddAdditional = () => {
+    setAdditionalFields((prevFields) => [
+      ...prevFields,
+      { name: '', email: '' }, 
+    ]);
+    setEmployeeName(''); 
+  setEmployeeEmail(''); 
+  };
+
+
+  
+
+
+ 
+
+
+
   const [showIndustryData, setShowIndustryData] = useState(false);
   const [selectedRole, setSelectedRole] = useState('All Roles');
   const [hoveredSegment, setHoveredSegment] = useState(null);
@@ -416,6 +508,7 @@ const EmployerDash = () => {
     let total = data.reduce((sum, item) => sum + item.value, 0);
     let accumulatedPercentage = 0;
 
+
     return (
       <PieChartContainer>
         <PieChart viewBox="0 0 32 32">
@@ -448,9 +541,194 @@ const EmployerDash = () => {
       <MainContent>
         <WelcomeHeader>Welcome, Minnesota Vikings!</WelcomeHeader>
 
-        <Link href="/add-team-members" style={{ position: 'absolute', top: '2rem', right: '2rem' }}>
+        {/* <Link href="/add-team-members" style={{ position: 'absolute', top: '2rem', right: '2rem' }}>
           Add Team Members
+        </Link> */}
+
+        {/* MINE */}
+
+        <Link
+            as="button"
+            onClick={handleOpenModal}
+            style={{
+                position: 'absolute',
+                top: '2rem',
+                right: '2rem',
+                padding: '8px',
+                backgroundColor: '#6F42C1', 
+                color: 'white', 
+                border: 'none', 
+                borderRadius: '5px', 
+                cursor: 'pointer', 
+                textAlign: 'center', 
+                textDecoration: 'none',
+                fontSize: '16px', 
+                transition: 'background-color 0.3s, transform 0.2s', 
+                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', 
+            }}
+            onMouseEnter={(e) => {
+                e.target.style.backgroundColor = '#5A2D8C'; 
+                e.target.style.transform = 'scale(1.05)'; 
+            }}
+            onMouseLeave={(e) => {
+                e.target.style.backgroundColor = '#6F42C1'; 
+                e.target.style.transform = 'scale(1)'; 
+            }}
+        >
+            Add Team Members
         </Link>
+        {isModalOpen && (
+          <Modal>
+            <ModalContent>
+              <h2>Add And Manage Members</h2>
+              <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <button
+                  style={{
+                    padding: '10px 20px',
+                    backgroundColor: '#4CAF50',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '5px',
+                    cursor: 'pointer',
+                    fontSize: '16px',
+                  }}
+                  onClick={handleManageMembers}
+                >
+                  Manage Team Members
+                </button>
+
+                <button
+                  style={{
+                    padding: '10px 20px',
+                    backgroundColor: '#2196F3',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '5px',
+                    cursor: 'pointer',
+                    fontSize: '16px',
+                  }}
+                  onClick={handleAddMembers} 
+                >
+                  Add Team Members
+                </button>
+              </div>
+
+             
+              <ModalCloseButton onClick={handleCloseModal}>Close</ModalCloseButton>
+            </ModalContent>
+          </Modal>
+        )}
+
+      
+        {isNewModalOpen && (
+  <Modal>
+    <ModalContent>
+  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+  
+    <button
+      type="button"
+      onClick={handleCloseNewModal}
+      style={{
+        padding: '5px',
+        backgroundColor: 'transparent',
+        color: '#f44336',
+        border: 'none',
+        cursor: 'pointer',
+        fontSize: '20px',
+      }}
+    >
+      X
+    </button>
+
+
+    <h2 style={{ margin: '0' }}>Add Member</h2>
+
+ 
+    <button
+      type="submit"
+      style={{
+        padding: '10px 20px',
+        backgroundColor: '#4CAF50',
+        color: 'white',
+        border: 'none',
+        borderRadius: '5px',
+        cursor: 'pointer',
+        fontSize: '16px',
+      }}
+    >
+      Save
+    </button>
+  </div>
+
+  <form onSubmit={handleNewMemberSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+    <div>
+      <label htmlFor="employeeName">Name:</label>
+      <input
+        id="employeeName"
+        type="text"
+        value={employeeName}
+        onChange={(e) => setEmployeeName(e.target.value)}
+        required
+        placeholder="Enter name"
+        style={{
+          width: '100%',
+          padding: '10px',
+          border: '1px solid #ccc',
+          borderRadius: '5px',
+          fontSize: '16px',
+          boxSizing: 'border-box', 
+        }}
+      />
+    </div>
+    <div>
+      <label htmlFor="employeeEmail">Email:</label>
+      <input
+        id="employeeEmail"
+        type="email"
+        value={employeeEmail}
+        onChange={(e) => setEmployeeEmail(e.target.value)}
+        required
+        placeholder="Enter email"
+        style={{
+          width: '100%',
+          padding: '10px',
+          border: '1px solid #ccc',
+          borderRadius: '5px',
+          fontSize: '16px',
+          boxSizing: 'border-box', 
+        }}
+      />
+    </div>
+
+ 
+    <button
+      type="button"
+      onClick={handleAddAdditional}
+      style={{
+        padding: '10px 20px',
+        backgroundColor: '#2196F3',
+        color: 'white',
+        border: 'none',
+        borderRadius: '5px',
+        cursor: 'pointer',
+        fontSize: '16px',
+        marginTop: '1rem',
+      }}
+    >
+      Add Additional
+    </button>
+  </form>
+</ModalContent>
+
+  </Modal>
+)}
+
+
+
+
+
+
+
 
         <OnboardingSection>
           <SectionTitle>🔥 Complete your profile to unlock access to your candidate matches</SectionTitle>
