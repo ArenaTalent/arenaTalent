@@ -137,6 +137,7 @@ const LinkText = styled.span`
 function JobSeekerNav(){
   const [isQRPopupOpen, setIsQRPopupOpen] = useState(false);
   const [isHelpDropDownOpen, setIsHelpDropDownOpen] = useState(false);
+  const [isTrialComplete, setIsTrialComplete] = useState(true);
 
   const handleQR = () => {
     setIsQRPopupOpen(prev => !prev);
@@ -179,6 +180,12 @@ function JobSeekerNav(){
 
       </Nav>
       <BottomSection>
+        {isTrialComplete && (
+          <NavButton href="/jobseeker-account?tab=billing">
+            <ButtonText>Upgrade to Pro</ButtonText>
+          </NavButton>
+        )}
+        
       <HelpDropDown>
           <NavButton onClick={handleHelpDropDown}>
             <ButtonText>Need Help?</ButtonText>
