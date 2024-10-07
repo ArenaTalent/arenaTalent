@@ -54,25 +54,28 @@ function Login() {
             } else {
                 throw new Error('Invalid response from server');
             }
-        } catch (error) {
+        }catch (error) {
             console.error("Login error:", error);
-            if (error.code) {
-                // Firebase Auth error
-                switch (error.code) {
-                    case 'auth/user-not-found':
-                    case 'auth/wrong-password':
-                        setError('Invalid email or password. Please try again.');
-                        break;
-                    case 'auth/too-many-requests':
-                        setError('Too many failed login attempts. Please try again later.');
-                        break;
-                    default:
-                        setError('An error occurred during login. Please try again.');
-                }
-            } else if (axios.isAxiosError(error)) {
-                setError(error.response?.data?.error || 'An error occurred during login. Please try again.');
+
+            if (axios.isAxiosError(error)) {
+              console.error("Axios error response:", error.response); // Log the full error response
+              setError(error.response?.data?.error || 'An error occurred during login. Please try again.');
+            } else if (error.code) {
+              console.error("Firebase error code:", error.code);
+              switch (error.code) {
+                case 'auth/user-not-found':
+                case 'auth/wrong-password':
+                  setError('Invalid email or password. Please try again.');
+                  break;
+                case 'auth/too-many-requests':
+                  setError('Too many failed login attempts. Please try again later.');
+                  break;
+                default:
+                  setError('An error occurred during login. Please try again.');
+              }
             } else {
-                setError('An unexpected error occurred. Please try again.');
+              console.error("Unexpected error:", error);
+              setError('An unexpected error occurred. Please try again.');
             }
         } finally {
             setLoading(false);
