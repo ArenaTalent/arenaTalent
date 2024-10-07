@@ -1,7 +1,8 @@
-import React, { useState, useRef, useEffect} from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
-import { Calendar, Mail, UserPlus, Briefcase, Users, PlusCircle, ChevronDown, BarChart2, Clock, Award, ExternalLink} from 'lucide-react';
+import { Calendar, Mail, UserPlus, Briefcase, Users, PlusCircle, ChevronDown, BarChart2, Clock, Award, ExternalLink } from 'lucide-react';
 import EmployerNav from './EmployerNav';
+import JobPostModal from './JobPostModal';
 
 const softColors = {
   background: '#f0f4f8',
@@ -16,8 +17,9 @@ const softColors = {
   danger: '#fc8181',
   info: '#63b3ed',
   icons: '#12C2E8',
-icontext: '#C859FF',
-yellow: '#f6e05e',};
+  icontext: '#C859FF',
+  yellow: '#f6e05e',
+};
 
 const Container = styled.div`
   display: flex;
@@ -25,7 +27,6 @@ const Container = styled.div`
   background-color: ${softColors.background};
   color: ${softColors.text};
   font-family: 'Inter', sans-serif;
-
 `;
 
 const MainContent = styled.main`
@@ -69,41 +70,26 @@ const CardTitle = styled.h3`
 
 const Link = styled.a`
   color: white;
-   background-color: ${softColors.icontext};
+  background-color: ${softColors.icontext};
   font-weight: 500;
   text-decoration: none;
   font-size: 14px;
   transition: color 0.2s;
-
   border: 1px solid ${softColors.icontext};
-
   width: auto;
   padding: 10px;
-
   border-radius: 5px;
-
-
 
   &:hover {
     background-color: white;
     color: ${softColors.icontext};
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-
   }
 `;
 
-const StatCard = styled.div`
-  background-color: ${softColors.card};
-  border-radius: 0.75rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  padding: 1.5rem;
-  transition: all 0.3s ease;
+const StatCard = styled(Card)`
   position: relative;
-
-  &:hover {
-    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
-    transform: translateY(-2px);
-  }`
+`;
 
 const StatNumber = styled.p`
   font-size: 2.25rem;
@@ -178,7 +164,7 @@ const TableRow = styled.tr`
 
   &:hover {
     box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.1);
-   background-color: ${softColors.background};
+    background-color: ${softColors.background};
   }
 `;
 
@@ -196,13 +182,6 @@ const TableCell = styled.td`
     border-top-right-radius: 0.5rem;
     border-bottom-right-radius: 0.5rem;
   }
-`;
-
-
-const MatchRating = styled.div`
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: ${softColors.success};
 `;
 
 const EventLink = styled.a`
@@ -238,22 +217,6 @@ const SectionTitle = styled.h2`
   margin-top: -0.5rem;
   color: ${softColors.text};
 `;
-// const SectionProgressBar = styled(ProgressBarContainer)`
-//   margin-bottom: 1rem;
-//   position: relative;
-// `;
-
-// const SectionProgress = styled(ProgressBar)`
-//   background-color: ${props => props.started ? softColors.success : softColors.danger};
-// `;
-
-// const SectionDescription = styled.p`
-//   font-size: 0.875rem;
-//   color: ${softColors.textLight};
-//   margin-bottom: 1rem;
-//   line-height: 1.5;
-// `;
-
 
 const ApplicantInfo = styled.div`
   flex: 1;
@@ -277,6 +240,7 @@ const ApplicantCard = styled.div`
     background-color: ${softColors.background};
   }
 `;
+
 const ApplicantName = styled.h4`
   font-size: 1rem;
   font-weight: 600;
@@ -303,10 +267,6 @@ const MatchScore = styled.div`
 const FilterDropdown = styled(Select)`
   margin-bottom: 1rem;
 `;
-
-
-
-
 
 const PieChartContainer = styled.div`
   position: relative;
@@ -335,7 +295,6 @@ const PieChartSegment = styled.circle`
 `;
 
 const PieChartTooltip = styled.div`
-
   background-color: ${softColors.card};
   border: 1px solid ${softColors.border};
   border-radius: 4px;
@@ -354,12 +313,13 @@ const NavWrapper = styled.div`
   position: sticky;
   top: 0;
   z-index: 1000;
-`
+`;
+
 const PostJobButton = styled(Link)`
   position: absolute;
   top: 1rem;
   right: 1rem;
-`
+`;
 
 const ReviewButton = styled(Link)`
   display: block;
@@ -368,15 +328,13 @@ const ReviewButton = styled(Link)`
   margin-top: 1rem;
   padding: 0.5rem;
   margin-left: -10px;
-`
+`;
 
 const SectionHeader = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
 `;
-
-
 
 const SectionIcon = styled.span`
   margin-right: 0.5rem;
@@ -400,7 +358,6 @@ const SectionContent = styled.div`
 const SectionDescription = styled.p`
   font-size: 0.875rem;
   color: ${softColors.textLight};
-  // margin-bottom: 1rem;
   line-height: 1.5;
 `;
 
@@ -409,68 +366,37 @@ const NewGrid = styled.div`
   gap: 1.5rem;
   grid-template-columns: repeat(1, 1fr);
   margin-top: 2rem;
-`
+`;
 
 const NewCard = styled(Card)`
   padding: 1.5rem;
-`
+`;
+
 const NewLink = styled(Link)`
   display: block;
   margin-top: 1rem;
   text-align: center;
-`
+`;
 
 const CardHeader = styled.div`
   margin-bottom: 1rem;
-`
+`;
 
 const CardContent = styled.div`
   font-size: 0.875rem;
   color: ${softColors.textLight};
-`
+`;
 
 const StatItem = styled.div`
   display: flex;
   justify-content: space-between;
   margin-bottom: 0.5rem;
-`
-
-
-
-// const StatValue = styled.span`
-//   font-weight: 600;
-//   color: ${softColors.text};
-// `
-
-// const TalentList = styled.ul`
-//   list-style-type: none;
-//   padding: 0;
-//   margin: 0 0 1rem 0;
-// `
-
-// const TalentItem = styled.li`
-//   margin-bottom: 0.5rem;
-// `
-
-// const TalentLink = styled.a`
-//   color: ${softColors.primary};
-//   text-decoration: none;
-//   &:hover {
-//     text-decoration: underline;
-//   }
-// `
-
-// const MatchPercentage = styled.span`
-//   font-weight: 600;
-//   color: ${softColors.success};
-//   margin-left: 0.5rem;
-// `
+`;
 
 const EmployerDash = () => {
   const [showIndustryData, setShowIndustryData] = useState(false);
   const [selectedRole, setSelectedRole] = useState('All Roles');
   const [tooltipData, setTooltipData] = useState(null);
-
   const [openSections, setOpenSections] = useState({
     profile: false,
     postJob: false,
@@ -480,7 +406,6 @@ const EmployerDash = () => {
   const toggleSection = (section) => {
     setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
   };
-
 
   const applicants = [
     { id: 19, name: 'Olivia Schwartz', role: 'CTO', applyDate: '9/23/24', match: 95 },
@@ -494,13 +419,7 @@ const EmployerDash = () => {
     { title: 'Premium Experience Coordinator', status: 'Active', views: 152, applications: 43, highMatches: 15 },
     { title: 'Marketing Specialist', status: 'Active', views: 98, applications: 27, highMatches: 8 },
     { title: 'Data Analyst', status: 'Draft', views: 0, applications: 0, highMatches: 0 },
-  ]
-
-  const newTopTalent = [
-    { name: 'John Doe', role: 'Marketing Specialist', match: 92 },
-    { name: 'Jane Smith', role: 'Data Analyst', match: 88 },
-    { name: 'Alex Johnson', role: 'Customer Service Rep', match: 85 },
-  ]
+  ];
 
   const applicantStages = [
     { stage: 'Reviewed', count: 15, color: softColors.success },
@@ -516,9 +435,9 @@ const EmployerDash = () => {
         { label: 'Male', value: 60, color: '#4a90e2' },
         { label: 'Female', value: 35, color: '#68d391' },
         { label: 'Non-binary', value: 5, color: '#f6ad55' },
-        {label: 'Transgender Male', value: 0, color: '#fc8181' },
-        {label: 'Transgender Female', value: 0, color: '#63b3ed' },
-        {label: 'Prefer not to say', value: 0, color: '#f6e05e' }
+        { label: 'Transgender Male', value: 0, color: '#fc8181' },
+        { label: 'Transgender Female', value: 0, color: '#63b3ed' },
+        { label: 'Prefer not to say', value: 0, color: '#f6e05e' }
       ]
     },
     {
@@ -528,9 +447,9 @@ const EmployerDash = () => {
         { label: 'Black or African American', value: 20, color: '#68d391' },
         { label: 'Hispanic or Latino', value: 15, color: '#f6ad55' },
         { label: 'Asian', value: 10, color: '#fc8181' },
-        {label: 'Indigenous', value: 5, color: '#63b3ed' },
-        {label: 'Middle Eastern/Arab', value: 5, color: '#f6e05e' },
-        {label: 'Pacific Islander', value: 5, color: '#f6e05e' },
+        { label: 'Indigenous', value: 5, color: '#63b3ed' },
+        { label: 'Middle Eastern/Arab', value: 5, color: '#f6e05e' },
+        { label: 'Pacific Islander', value: 5, color: '#f6e05e' },
         { label: 'Other', value: 5, color: '#63b3ed' }
       ]
     },
@@ -538,12 +457,11 @@ const EmployerDash = () => {
       title: 'LGBTQIA+',
       data: [
         { label: 'Straight/Heterosexual', value: 85, color: '#4a90e2' },
-        {label: 'Gay', value: 10, color: '#f6ad55' },
-        {label: 'Lesbian', value: 5, color: '#fc8181' },
-        {label: 'Bisexual', value: 5, color: '#63b3ed' },
-        {label: 'Queer', value: 5, color: '#f6e05e' },
-        {label: 'Prefer not to say', value: 0, color: '#f6e05e' }
-
+        { label: 'Gay', value: 10, color: '#f6ad55' },
+        { label: 'Lesbian', value: 5, color: '#fc8181' },
+        { label: 'Bisexual', value: 5, color: '#63b3ed' },
+        { label: 'Queer', value: 5, color: '#f6e05e' },
+        { label: 'Prefer not to say', value: 0, color: '#f6e05e' }
       ]
     },
     {
@@ -551,7 +469,7 @@ const EmployerDash = () => {
       data: [
         { label: 'With Disability', value: 10, color: '#4a90e2' },
         { label: 'Without Disability', value: 90, color: '#68d391' },
-        {label: 'Prefer Not to Say', value: 0, color: '#f6ad55' }
+        { label: 'Prefer Not to Say', value: 0, color: '#f6ad55' }
       ]
     },
     {
@@ -559,109 +477,111 @@ const EmployerDash = () => {
       data: [
         { label: 'Veteran', value: 8, color: '#4a90e2' },
         { label: 'Non-Veteran', value: 92, color: '#68d391' },
-        {label: 'Prefer Not to Say', value: 0, color: '#f6ad55' }
+        { label: 'Prefer Not to Say', value: 0, color: '#f6ad55' }
       ]
     },
   ];
+
   const roles = ['All Roles', 'Premium Experience Coordinator', 'Customer Service Representative', 'Marketing Specialist', 'Data Analyst'];
 
   const filteredApplicants = selectedRole === 'All Roles'
     ? applicants
     : applicants.filter(applicant => applicant.role === selectedRole);
 
-    const PieChartWithTooltip = ({ data, title }) => {
-      const [tooltipData, setTooltipData] = useState(null);
-      const chartRef = useRef(null);
+  const PieChartWithTooltip = ({ data, title }) => {
+    const [tooltipData, setTooltipData] = useState(null);
+    const chartRef = useRef(null);
 
-      const total = data.reduce((sum, item) => sum + item.value, 0);
+    const total = data.reduce((sum, item) => sum + item.value, 0);
 
-      const getAngleFromEvent = (event) => {
-        const rect = chartRef.current.getBoundingClientRect();
-        const x = event.clientX - rect.left - rect.width / 2;
-        const y = event.clientY - rect.top - rect.height / 2;
-        return Math.atan2(y, x) * (180 / Math.PI);
-      };
+    const getAngleFromEvent = (event) => {
+      const rect = chartRef.current.getBoundingClientRect();
+      const x = event.clientX - rect.left - rect.width / 2;
+      const y = event.clientY - rect.top - rect.height / 2;
+      return Math.atan2(y, x) * (180 / Math.PI);
+    };
 
-      const getItemFromAngle = (angle) => {
-        let accumulatedPercentage = 0;
-        return data.find(item => {
-          accumulatedPercentage += (item.value / total) * 360;
-          return accumulatedPercentage > angle;
+    const getItemFromAngle = (angle) => {
+      let accumulatedPercentage = 0;
+      return data.find(item => {
+        accumulatedPercentage += (item.value / total) * 360;
+        return accumulatedPercentage > angle;
+      });
+    };
+
+    const handleMouseMove = (event) => {
+      const angle = (getAngleFromEvent(event) + 180) % 360;
+      const item = getItemFromAngle(angle);
+      if (item) {
+        setTooltipData({
+          item,
+          x: event.clientX,
+          y: event.clientY,
         });
-      };
+      }
+    };
 
-      const handleMouseMove = (event) => {
-        const angle = (getAngleFromEvent(event) + 180) % 360;
-        const item = getItemFromAngle(angle);
-        if (item) {
-          setTooltipData({
-            item,
-            x: event.clientX,
-            y: event.clientY,
-          });
-        }
-      };
+    const handleMouseLeave = () => {
+      setTooltipData(null);
+    };
 
-      const handleMouseLeave = () => {
-        setTooltipData(null);
-      };
-
-      const renderPieChart = () => {
-        let accumulatedPercentage = 0;
-
-        return (
-          <PieChartContainer
-            ref={chartRef}
-            onMouseMove={handleMouseMove}
-            onMouseLeave={handleMouseLeave}
-          >
-            <PieChart viewBox="0 0 32 32">
-              {data.map((item, index) => {
-                const percentage = (item.value / total) * 100;
-                const strokeDasharray = `${percentage} ${100 - percentage}`;
-                const strokeDashoffset = -accumulatedPercentage;
-                accumulatedPercentage += percentage;
-
-                return (
-                  <PieChartSegment
-                    key={index}
-                    cx="16"
-                    cy="16"
-                    r="15.9155"
-                    stroke={item.color}
-                    strokeDasharray={strokeDasharray}
-                    strokeDashoffset={strokeDashoffset}
-                  />
-                );
-              })}
-            </PieChart>
-            {tooltipData && (
-              <PieChartTooltip
-                visible={true}
-                style={{
-                  left: `${tooltipData.x}px`,
-                  top: `${tooltipData.y}px`,
-                  transform: 'translate(-50%, -100%)'
-                }}
-              >
-                {tooltipData.item.label}: {tooltipData.item.value}%
-              </PieChartTooltip>
-            )}
-          </PieChartContainer>
-        );
-      };
+    const renderPieChart = () => {
+      let accumulatedPercentage = 0;
 
       return (
-        <Card>
-          <CardTitle>{title}</CardTitle>
-          {renderPieChart()}
-        </Card>
+        <PieChartContainer
+          ref={chartRef}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+        >
+          <PieChart viewBox="0 0 32 32">
+            {data.map((item, index) => {
+              const percentage = (item.value / total) * 100;
+              const strokeDasharray = `${percentage} ${100 - percentage}`;
+              const strokeDashoffset = -accumulatedPercentage;
+              accumulatedPercentage += percentage;
+
+              return (
+                <PieChartSegment
+                  key={index}
+                  cx="16"
+                  cy="16"
+                  r="15.9155"
+                  stroke={item.color}
+                  strokeDasharray={strokeDasharray}
+                  strokeDashoffset={strokeDashoffset}
+                />
+              );
+            })}
+          </PieChart>
+          {tooltipData && (
+            <PieChartTooltip
+              visible={true}
+              style={{
+                left: `${tooltipData.x}px`,
+                top: `${tooltipData.y}px`,
+                transform: 'translate(-50%, -100%)'
+              }}
+            >
+              {tooltipData.item.label}: {tooltipData.item.value}%
+            </PieChartTooltip>
+          )}
+        </PieChartContainer>
       );
     };
+
+    return (
+      <Card>
+        <CardTitle>{title}</CardTitle>
+        {renderPieChart()}
+      </Card>
+    );
+  };
+
   return (
     <Container>
       <NavWrapper>
-      <EmployerNav />
+        <EmployerNav />
       </NavWrapper>
       <MainContent>
         <WelcomeHeader>🏟 Welcome to Arena for MSBC!</WelcomeHeader>
@@ -753,75 +673,77 @@ const EmployerDash = () => {
             <Link href="/complete-survey">Complete Survey</Link>
           </SectionContent>
         </OnboardingSection>
-      <Grid>
-        <StatCard>
-          <PostJobButton href="/post-job">Post a Job</PostJobButton>
-          <IconWrapper bgColor={softColors.icons}>
-            <Briefcase size={20} />
-          </IconWrapper>
-          <div>
-            <StatNumber color={softColors.icontext}>1</StatNumber>
-            <StatLabel>Open Positions</StatLabel>
-          </div>
-          <ReviewButton href="/review-recommendations">Review Recommendations</ReviewButton>
-        </StatCard>
 
-        <StatCard>
-          <IconWrapper bgColor={softColors.icons}>
-            <Users size={20} />
-          </IconWrapper>
-          <div>
-            <StatNumber color={softColors.icontext}>65</StatNumber>
-            <StatLabel>Total Applicants</StatLabel>
-          </div>
-        </StatCard>
+        <Grid>
+          <StatCard>
+            <JobPostModal />
+            <IconWrapper bgColor={softColors.icons}>
+              <Briefcase size={20} />
+            </IconWrapper>
+            <div>
+              <StatNumber color={softColors.icontext}>1</StatNumber>
+              <StatLabel>Open Positions</StatLabel>
+            </div>
+            <ReviewButton href="/review-recommendations">Review Recommendations</ReviewButton>
+          </StatCard>
 
-        <StatCard>
-          <IconWrapper bgColor={softColors.icons}>
-            <Calendar size={20} />
-          </IconWrapper>
-          <div>
-            <StatNumber color={softColors.icontext}>0</StatNumber>
-            <StatLabel>Total Interviews</StatLabel>
-          </div>
-        </StatCard>
+          <StatCard>
+            <IconWrapper bgColor={softColors.icons}>
+              <Users size={20} />
+            </IconWrapper>
+            <div>
+              <StatNumber color={softColors.icontext}>65</StatNumber>
+              <StatLabel>Total Applicants</StatLabel>
+            </div>
+          </StatCard>
 
-        <StatCard>
-          <IconWrapper bgColor={softColors.icons}>
-            <Award size={20} />
-          </IconWrapper>
-          <div>
-            <StatNumber color={softColors.icontext}>0</StatNumber>
-            <StatLabel>Total Hires</StatLabel>
-          </div>
-        </StatCard>
-      </Grid>
+          <StatCard>
+            <IconWrapper bgColor={softColors.icons}>
+              <Calendar size={20} />
+            </IconWrapper>
+            <div>
+              <StatNumber color={softColors.icontext}>0</StatNumber>
+              <StatLabel>Total Interviews</StatLabel>
+            </div>
+          </StatCard>
+
+          <StatCard>
+            <IconWrapper bgColor={softColors.icons}>
+              <Award size={20} />
+            </IconWrapper>
+            <div>
+              <StatNumber color={softColors.icontext}>0</StatNumber>
+              <StatLabel>Total Hires</StatLabel>
+            </div>
+          </StatCard>
+        </Grid>
+
         <Grid style={{ marginTop: '2rem' }}>
-        <Card>
-  <CardTitle>Applicant Matches</CardTitle>
-  <div>
-    {[
-      { label: '80% or more', color: softColors.success, count: 15 },
-      { label: '60-79%', color: softColors.warning, count: 10 },
-      { label: '40-59%', color: '#f6e05e', count: 8 }, // Yellow color
-      { label: '40% or lower', color: softColors.danger, count: 5 }
-    ].map((category, index) => (
-      <div key={category.label} style={{ marginBottom: '1rem' }}>
-        <ProgressBarContainer>
-          <ProgressBar
-            width={`${(category.count / 38) * 100}%`}
-            color={category.color}
-          />
-        </ProgressBarContainer>
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <StageLabel>{category.label}</StageLabel>
-          <StageCount>{category.count}</StageCount>
-        </div>
-      </div>
-    ))}
-  </div>
-  <Link href="/matches" style={{ marginTop: '1rem' }}>Review Now</Link>
-</Card>
+          <Card>
+            <CardTitle>Applicant Matches</CardTitle>
+            <div>
+              {[
+                { label: '80% or more', color: softColors.success, count: 15 },
+                { label: '60-79%', color: softColors.warning, count: 10 },
+                { label: '40-59%', color: '#f6e05e', count: 8 },
+                { label: '40% or lower', color: softColors.danger, count: 5 }
+              ].map((category, index) => (
+                <div key={category.label} style={{ marginBottom: '1rem' }}>
+                  <ProgressBarContainer>
+                    <ProgressBar
+                      width={`${(category.count / 38) * 100}%`}
+                      color={category.color}
+                    />
+                  </ProgressBarContainer>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <StageLabel>{category.label}</StageLabel>
+                    <StageCount>{category.count}</StageCount>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <Link href="/matches" style={{ marginTop: '1rem' }}>Review Now</Link>
+          </Card>
 
           <Card>
             <CardTitle>Applicant Stages</CardTitle>
@@ -880,48 +802,26 @@ const EmployerDash = () => {
               </NewLink>
             </CardContent>
           </NewCard>
-
-          {/* <NewCard>
-            <CardHeader>
-              <CardTitle>Hiring Stats</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <StatItem style={{marginTop: '60px'}}>
-                <IconWrapper bgColor={softColors.icons}><Clock size={16} /></IconWrapper>
-                Avg. Time to Hire: 21 days
-              </StatItem>
-              <StatItem>
-                <IconWrapper bgColor={softColors.icons}><BarChart2 size={16} /></IconWrapper>
-                Avg. Applicant Review: 4.2/5
-              </StatItem>
-              <StatItem>
-                <IconWrapper bgColor={softColors.icons}><Award size={16} bgColor={softColors.icons} /></IconWrapper>
-                Avg. Time to Interview: 5 days
-              </StatItem>
-            </CardContent>
-          </NewCard> */}
-
-
         </NewGrid>
 
         <SectionTitle style={{ marginTop: '2rem', marginBottom: '1rem' }}>Your Applicant Demographics</SectionTitle>
-      <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h3 style={{ fontSize: '1.25rem', fontWeight: 600, color: softColors.text }}> </h3>
-        <label style={{ display: 'flex', alignItems: 'center', fontSize: '0.875rem', color: softColors.textLight }}>
-          <input
-            type="checkbox"
-            checked={showIndustryData}
-            onChange={() => setShowIndustryData(!showIndustryData)}
-            style={{ marginRight: '0.5rem' }}
-          />
-          Show Industry Standards
-        </label>
-      </div>
-      <Grid>
-        {demographicData.map((data, index) => (
-          <PieChartWithTooltip key={index} data={data.data} title={data.title} />
-        ))}
-      </Grid>
+        <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h3 style={{ fontSize: '1.25rem', fontWeight: 600, color: softColors.text }}> </h3>
+          <label style={{ display: 'flex', alignItems: 'center', fontSize: '0.875rem', color: softColors.textLight }}>
+            <input
+              type="checkbox"
+              checked={showIndustryData}
+              onChange={() => setShowIndustryData(!showIndustryData)}
+              style={{ marginRight: '0.5rem' }}
+            />
+            Show Industry Standards
+          </label>
+        </div>
+        <Grid>
+          {demographicData.map((data, index) => (
+            <PieChartWithTooltip key={index} data={data.data} title={data.title} />
+          ))}
+        </Grid>
 
         <Card style={{ marginTop: '2rem' }}>
           <CardTitle>New Top Applicants</CardTitle>
@@ -946,16 +846,13 @@ const EmployerDash = () => {
         </Card>
 
         <SectionTitle style={{ marginTop: '2rem', marginBottom: '1rem' }}>MSBC Attendee Demographics</SectionTitle>
-      <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-
-
-      </div>
-      <Grid>
-        {demographicData.map((data, index) => (
-          <PieChartWithTooltip key={index} data={data.data} title={data.title} />
-        ))}
-      </Grid>
-
+        <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        </div>
+        <Grid>
+          {demographicData.map((data, index) => (
+            <PieChartWithTooltip key={index} data={data.data} title={data.title} />
+          ))}
+        </Grid>
 
         <Card style={{ marginTop: '2rem' }}>
           <CardTitle>MSBC Attendees - Top Matches</CardTitle>
@@ -993,8 +890,6 @@ const EmployerDash = () => {
             <p style={{ fontSize: '0.875rem', color: softColors.textLight }}>New feature: AI-powered job description writer</p>
           </Card>
         </Grid>
-
-
 
         <Card style={{ marginTop: '1rem' }}>
           <CardTitle>How Our AI Works</CardTitle>
