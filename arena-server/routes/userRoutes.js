@@ -45,4 +45,8 @@ router.put(
 // Get All Users (Admin Only, if needed)
 router.get('/', authMiddleware.authenticateToken, userController.getAllUsers)
 
+router.get('/test', (req, res) => {
+  // Your logic for checking intake, e.g., fetching user info from the DB
+  res.json({ message: 'Intake data here' }) // Replace with your actual data
+})
 module.exports = router
