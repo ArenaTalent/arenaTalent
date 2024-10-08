@@ -21,24 +21,31 @@ const port = process.env.PORT || 5002
 console.log('Starting server setup...')
 
 const allowedOrigins = [
-  'https://arenatalent-d7a88.web.app', // Your frontend on Firebase
-  'https://app.arenatalent.com' // The origin where your app is running
+  'https://arenatalent-d7a88.web.app',
+  'https://app.arenatalent.com',
+  process.env.FRONTEND_URL, // Add this if you have a separate production URL
+  'http://localhost:3000' // Add this for local development
 ]
 
 const corsOptions = {
-  origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps or curl requests) and check allowed origins
-    if (!origin || allowedOrigins.includes(origin)) {
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true)
     } else {
       callback(new Error('Not allowed by CORS'))
     }
   },
-  credentials: true, // Allows cookies and credentials to be sent with requests
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
   optionsSuccessStatus: 200
 }
 
 app.use(cors(corsOptions))
+app.use(cookieParser()) // Make sure this is placed after cors middleware
+app.use(express.json()) // For parsing application/json
+
+// ... rest of your routes and middleware ...
 
 // Test the database connection
 const connectToDatabase = async () => {
