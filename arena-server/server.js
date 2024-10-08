@@ -7,7 +7,7 @@ const jobRoutes = require('./routes/jobRoutes')
 const applicationRoutes = require('./routes/applicationRoutes')
 const employerMemberRoutes = require('./routes/employerMemberRoutes')
 const jobSeekerRoutes = require('./routes/jobSeekerRoutes')
-const admin = require('firebase-admin')
+// const admin = require('firebase-admin')
 
 const employerRoutes = require('./routes/employerRoutes')
 const uploadRoutes = require('./routes/uploadRoutes')
@@ -20,15 +20,15 @@ const port = process.env.PORT || 5002
 
 console.log('Starting server setup...')
 
-// Initialize Firebase Admin SDK
-admin.initializeApp({
-  credential: admin.credential.cert({
-    projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
-    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-    privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n')
-  }),
-  databaseURL: `https://${process.env.REACT_APP_FIREBASE_PROJECT_ID}.firebaseio.com`
-})
+// // Initialize Firebase Admin SDK
+// admin.initializeApp({
+//   credential: admin.credential.cert({
+//     projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+//     clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+//     privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n')
+//   }),
+//   databaseURL: `https://${process.env.REACT_APP_FIREBASE_PROJECT_ID}.firebaseio.com`
+// })
 
 // CORS configuration
 const allowedOrigins = [
