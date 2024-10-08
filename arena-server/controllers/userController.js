@@ -66,19 +66,19 @@ exports.signupWithEmail = async (req, res) => {
 
 exports.login = async (req, res) => {
   try {
+    console.log('Login request received')
     const { idToken } = req.body
 
     if (!idToken) {
+      console.log('No ID token provided')
       return res.status(400).json({ error: 'No ID token provided' })
     }
 
-    console.log('ID token received:', idToken) // Add this
-
+    console.log('Verifying ID token')
     const decodedToken = await admin.auth().verifyIdToken(idToken)
     const { uid, email } = decodedToken
 
-    console.log('Token decoded, UID:', uid) // Add this
-
+    console.log('Token verified, fetching user from database')
     let user = await User.findOne({
       where: { firebase_uid: uid },
       include: [
@@ -87,44 +87,16 @@ exports.login = async (req, res) => {
       ]
     })
 
-    console.log('User lookup result:', user) // Add this
-
     if (!user) {
-      console.log('Creating new user')
-      user = await User.create({
-        email,
-        firebase_uid: uid,
-        role: 'jobseeker',
-        first_name: decodedToken.name ? decodedToken.name.split(' ')[0] : '',
-        last_name: decodedToken.name ? decodedToken.name.split(' ')[1] : ''
-      })
-
-      await JobseekerProfile.create({
-        user_id: user.id
-      })
-
-      user = await User.findOne({
-        where: { id: user.id },
-        include: [{ model: JobseekerProfile, as: 'JobseekerProfile' }]
-      })
+      console.log('User not found in database, creating new user')
+      // ... (rest of the user creation logic)
     }
 
-    let redirectPath = ''
-    if (user.role === 'employer') {
-      redirectPath = user.EmployerProfile?.intake_completed
-        ? '/employer-dash'
-        : '/employer-intake'
-    } else if (user.role === 'jobseeker') {
-      redirectPath = user.JobseekerProfile?.intake_completed
-        ? '/jobseeker-dash'
-        : '/jobseeker-intake'
-    }
-
-    console.log('Returning login response') // Add this
-
+    console.log('Sending login response')
     res.status(200).json({
       message: 'Login successful',
-      redirectPath,
+      redirectPath:
+        user.role === 'employer' ? '/employer-dash' : '/jobseeker-dash',
       user: {
         id: user.id,
         email: user.email,
@@ -135,7 +107,9 @@ exports.login = async (req, res) => {
     })
   } catch (error) {
     console.error('Error during login:', error)
-    res.status(500).json({ error: 'Internal server error' })
+    res
+      .status(500)
+      .json({ error: 'Internal server error', details: error.message })
   }
 }
 

@@ -17,24 +17,33 @@ function Login() {
             navigate('/jobseeker-intake');
         }
     }, [user, navigate]);
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError(null);
 
         try {
-            console.log('Attempting login...');
-            const result = await login(email, password);
-            console.log('Login successful', result);
+          console.log('Attempting login...');
+          const result = await login(email, password);
+          console.log('Login successful', result);
 
-            const redirectPath = result.redirectPath || '/jobseeker-intake';
-            console.log('Redirecting to:', redirectPath);
-            navigate(redirectPath, { replace: true });
+          const redirectPath = result.redirectPath || '/jobseeker-intake';
+          console.log('Redirecting to:', redirectPath);
+          navigate(redirectPath, { replace: true });
         } catch (error) {
-            console.error('Login error:', error);
-            setError(error.message || 'An error occurred during login. Please try again.');
+          console.error('Login error:', error);
+          if (error.response) {
+            // The request was made and the server responded with a status code
+            // that falls out of the range of 2xx
+            setError(`Server error: ${error.response.data.message || error.response.statusText}`);
+          } else if (error.request) {
+            // The request was made but no response was received
+            setError('No response received from server. Please try again.');
+          } else {
+            // Something happened in setting up the request that triggered an Error
+            setError(`Error: ${error.message}`);
+          }
         }
-    };
+      };
 
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);

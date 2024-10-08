@@ -58,7 +58,10 @@ export const AuthProvider = ({ children }) => {
         password
       )
       const idToken = await userCredential.user.getIdToken()
-      const response = await axios.post('/api/users/login', { idToken })
+      const response = await axios.post(
+        'https://arena-talent-809eb598a3c0.herokuapp.com/api/users/login',
+        { idToken }
+      )
       console.log('Login response:', response.data)
       setUser(response.data.user)
       localStorage.setItem('authToken', idToken)
@@ -73,7 +76,6 @@ export const AuthProvider = ({ children }) => {
       setLoading(false)
     }
   }
-
   const logout = async () => {
     try {
       await signOut(auth)
