@@ -36,8 +36,15 @@ function Login() {
             await login(idToken);
             console.log('AuthContext login successful');
 
-            console.log('Sending request to check-intake');
-            const response = await axios.get('/api/users/check-intake', {
+            // Use the backend URL from the environment variable
+            const apiUrl = `${process.env.REACT_APP_BACKEND_URL}/api/users/check-intake`;
+            console.log('Sending request to:', apiUrl);
+            console.log('Request headers:', {
+              'Authorization': `Bearer ${idToken}`,
+              'Content-Type': 'application/json'
+            });
+
+            const response = await axios.get(apiUrl, {
                 headers: {
                     'Authorization': `Bearer ${idToken}`,
                     'Content-Type': 'application/json'
@@ -50,37 +57,36 @@ function Login() {
             if (response.data.redirectPath) {
                 console.log('Attempting to redirect to:', response.data.redirectPath);
                 navigate(response.data.redirectPath, { replace: true });
-                console.log('Navigation function called');
             } else {
                 throw new Error('Invalid response from server');
             }
-        }catch (error) {
+        } catch (error) {
             console.error("Login error:", error);
 
+            // Log the entire Axios error response
             if (axios.isAxiosError(error)) {
-              console.error("Axios error response:", error.response); // Log the full error response
-              setError(error.response?.data?.error || 'An error occurred during login. Please try again.');
+                console.error("Axios error response:", error.response);
+                setError(error.response?.data?.error || 'An error occurred during login. Please try again.');
             } else if (error.code) {
-              console.error("Firebase error code:", error.code);
-              switch (error.code) {
-                case 'auth/user-not-found':
-                case 'auth/wrong-password':
-                  setError('Invalid email or password. Please try again.');
-                  break;
-                case 'auth/too-many-requests':
-                  setError('Too many failed login attempts. Please try again later.');
-                  break;
-                default:
-                  setError('An error occurred during login. Please try again.');
-              }
+                switch (error.code) {
+                    case 'auth/user-not-found':
+                    case 'auth/wrong-password':
+                        setError('Invalid email or password. Please try again.');
+                        break;
+                    case 'auth/too-many-requests':
+                        setError('Too many failed login attempts. Please try again later.');
+                        break;
+                    default:
+                        setError('An error occurred during login. Please try again.');
+                }
             } else {
-              console.error("Unexpected error:", error);
-              setError('An unexpected error occurred. Please try again.');
+                setError('An unexpected error occurred. Please try again.');
             }
         } finally {
             setLoading(false);
         }
     };
+
 
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
