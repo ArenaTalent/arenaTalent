@@ -8,6 +8,8 @@ const jobRoutes = require('./routes/jobRoutes')
 const applicationRoutes = require('./routes/applicationRoutes')
 const employerMemberRoutes = require('./routes/employerMemberRoutes')
 const jobSeekerRoutes = require('./routes/jobSeekerRoutes')
+const admin = require('firebase-admin')
+
 const employerRoutes = require('./routes/employerRoutes')
 const uploadRoutes = require('./routes/uploadRoutes')
 require('dotenv').config()
