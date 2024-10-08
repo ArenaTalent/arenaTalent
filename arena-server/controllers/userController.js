@@ -72,8 +72,12 @@ exports.login = async (req, res) => {
       return res.status(400).json({ error: 'No ID token provided' })
     }
 
+    console.log('ID token received:', idToken) // Add this
+
     const decodedToken = await admin.auth().verifyIdToken(idToken)
     const { uid, email } = decodedToken
+
+    console.log('Token decoded, UID:', uid) // Add this
 
     let user = await User.findOne({
       where: { firebase_uid: uid },
@@ -83,7 +87,10 @@ exports.login = async (req, res) => {
       ]
     })
 
+    console.log('User lookup result:', user) // Add this
+
     if (!user) {
+      console.log('Creating new user')
       user = await User.create({
         email,
         firebase_uid: uid,
@@ -112,6 +119,8 @@ exports.login = async (req, res) => {
         ? '/jobseeker-dash'
         : '/jobseeker-intake'
     }
+
+    console.log('Returning login response') // Add this
 
     res.status(200).json({
       message: 'Login successful',
