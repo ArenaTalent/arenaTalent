@@ -17,7 +17,7 @@ function Login() {
             navigate('/jobseeker-intake');
         }
     }, [user, navigate]);
-    const handleSubmit = async (e) => {
+    c const handleSubmit = async (e) => {
         e.preventDefault();
         setError(null);
 
@@ -26,24 +26,19 @@ function Login() {
           const result = await login(email, password);
           console.log('Login successful', result);
 
-          if (result && result.user) {
-            const redirectPath = result.redirectPath || '/jobseeker-intake';
-            console.log('Redirecting to:', redirectPath);
-            navigate(redirectPath, { replace: true });
+          if (result.redirectPath) {
+            console.log('Redirecting to:', result.redirectPath);
+            navigate(result.redirectPath, { replace: true });
           } else {
-            throw new Error('Invalid login response');
+            console.log('No redirect path provided, defaulting to /jobseeker-dashboard');
+            navigate('/jobseeker-dashboard', { replace: true });
           }
         } catch (error) {
           console.error('Login error:', error);
-          if (error.response) {
-            setError(`Server error: ${error.response.status} - ${error.response.data.message || error.response.statusText}`);
-          } else if (error.request) {
-            setError('No response received from server. Please try again.');
-          } else {
-            setError(`Error: ${error.message}`);
-          }
+          setError('An error occurred during login. Please try again.');
         }
       };
+
 
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);

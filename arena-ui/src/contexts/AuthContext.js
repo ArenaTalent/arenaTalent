@@ -73,13 +73,10 @@ export const AuthProvider = ({ children }) => {
         }
       )
       console.log('Login response:', response.data)
-      if (response.data && response.data.user) {
-        setUser(response.data.user)
-        localStorage.setItem('authToken', idToken)
-        return response.data
-      } else {
-        throw new Error('Invalid response format')
-      }
+      setUser(response.data.user)
+      console.log('User set in AuthContext:', response.data.user) // Add this line
+      localStorage.setItem('authToken', idToken)
+      return response.data
     } catch (error) {
       console.error(
         'Login error:',

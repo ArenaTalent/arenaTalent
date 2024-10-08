@@ -1,12 +1,12 @@
-import React, {useState} from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Inbox, Search, Building, FileCheck, FileText, MessageSquare, Settings, LogOut, ChevronDown } from 'lucide-react';
 import JobSeekerNav from './JobSeekerNav';
 import JobSeekerBarGraph from './JobSeekerBarGraph';
 import InterviewCard from './InterviewCard';
+import axios from 'axios';
 
 // Styled components
-
 const softColors = {
   background: '#f0f4f8',
   card: '#ffffff',
@@ -20,8 +20,9 @@ const softColors = {
   danger: '#fc8181',
   info: '#63b3ed',
   icons: '#12C2E8',
-icontext: '#C859FF',
-yellow: '#f6e05e',};
+  icontext: '#C859FF',
+  yellow: '#f6e05e',
+};
 
 const Container = styled.div`
   display: flex;
@@ -29,31 +30,25 @@ const Container = styled.div`
   background-color: #f3f4f6;
 `;
 
-
 const Link = styled.a`
   color: white;
-   background-color: ${softColors.icontext};
+  background-color: ${softColors.icontext};
   font-weight: 500;
   text-decoration: none;
   font-size: 14px;
   transition: color 0.2s;
-
   border: 1px solid ${softColors.icontext};
-
   width: auto;
   padding: 10px;
-
   border-radius: 5px;
-
-
 
   &:hover {
     background-color: white;
     color: ${softColors.icontext};
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-
   }
 `;
+
 const ProgressBarContainer = styled.div`
   width: 100%;
   text-align: center;
@@ -68,35 +63,6 @@ const ProgressBar = styled.div`
   border-radius: 9999px;
   width: ${props => props.width};
   background-color: ${props => props.color || softColors.primary};
-`;
-
-
-const NavButton = styled.button`
-  display: flex;
-  align-items: center;
-  width: 100%;
-  padding: 0.5rem 1rem;
-  background: none;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s;
-
-  &:hover {
-    background-color: #e5e7eb;
-  }
-
-  svg {
-    margin-right: 0.75rem;
-  }
-`;
-
-const LogoutButton = styled(NavButton)`
-  color: #dc2626;
-
-  &:hover {
-    background-color: #fee2e2;
-    color: #b91c1c;
-  }
 `;
 
 const MainContent = styled.main`
@@ -171,41 +137,10 @@ const StatusBadge = styled.span`
   font-size: 0.875rem;
 `;
 
-// Placeholder components
-const PieChart = styled.div`
-  width: 100%;
-  height: 10rem;
-  background-color: #e5e7eb;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 0.375rem;
+const OnboardingSection = styled(Card)`
+  margin-bottom: 1.5rem;
+  height: auto;
 `;
-
-const Calendar = styled.div`
-  width: 100%;
-  height: 10rem;
-  background-color: #e5e7eb;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 0.375rem;
-`;
-
-const PostJobButton = styled(Link)`
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-`
-
-const ReviewButton = styled(Link)`
-  display: block;
-  width: 100%;
-  text-align: center;
-  margin-top: 1rem;
-  padding: 0.5rem;
-  margin-left: -10px;
-`
 
 const SectionHeader = styled.div`
   display: flex;
@@ -213,9 +148,6 @@ const SectionHeader = styled.div`
   justify-content: space-between;
   padding: .5rem;
 `;
-
-
-
 
 const SectionIcon = styled.span`
   margin-right: 0.5rem;
@@ -234,19 +166,12 @@ const SectionContent = styled.div`
   max-height: ${props => props.isOpen ? '1000px' : '0'};
   overflow: ${props => props.isOpen ? 'show' : 'hidden'};
   transition: max-height 0.1s ease-in-out;
-
 `;
 
 const SectionDescription = styled.p`
   font-size: 0.875rem;
   color: ${softColors.textLight};
-  // margin-bottom: 1rem;
   line-height: 1.5;
-`;
-
-const OnboardingSection = styled(Card)`
-  margin-bottom: 1.5rem;
-  height: auto;
 `;
 
 const SectionTitle = styled.h2`
@@ -257,6 +182,9 @@ const SectionTitle = styled.h2`
 `;
 
 export default function JobSeekerDash() {
+  const [userData, setUserData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const [openSections, setOpenSections] = useState({
     profile: false,
@@ -264,75 +192,70 @@ export default function JobSeekerDash() {
     survey: false
   });
 
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get('/api/users/profile');
+        setUserData(response.data);
+        setLoading(false);
+      } catch (err) {
+        setError('Failed to fetch user data');
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
   const toggleSection = (section) => {
     setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
   };
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>;
+  if (!userData) return <div>No user data available</div>;
+
+  const {
+    first_name,
+    JobseekerProfile: {
+      intake_completed,
+      jobs_applied,
+      current_employer,
+      current_title,
+      job_search_motivation,
+      top_strengths,
+      company_culture_preferences
+    }
+  } = userData;
+
   return (
     <Container>
-      {/* <Sidebar>
-        <Logo src="images/black-logo.png" style={{height:'100px'}}alt="Arena Logo" />
-        <Nav>
-          <NavButton>
-            <Inbox size={20} />
-            Dashboard
-          </NavButton>
-          <NavButton>
-            <Search size={20} />
-            Search Jobs
-          </NavButton>
-          <NavButton>
-            <Building size={20} />
-            Search Companies
-          </NavButton>
-          <NavButton>
-            <FileCheck size={20} />
-            Application Tracking
-          </NavButton>
-          <NavButton>
-            <FileText size={20} />
-            Templates
-          </NavButton>
-          <NavButton>
-            <MessageSquare size={20} />
-            Messaging
-          </NavButton>
-        </Nav>
-        <Nav style={{ position: 'absolute', bottom: 0, width: '16rem' }}>
-          <NavButton>
-            <Settings size={20} />
-            Account
-          </NavButton>
-          <LogoutButton>
-            <LogOut size={20} />
-            Logout
-          </LogoutButton>
-        </Nav>
-      </Sidebar> */}
-     <JobSeekerNav/>
+      <JobSeekerNav />
 
       <MainContent>
-        <WelcomeHeader>🏟 Welcome to Arena for MSBC, Olivia!</WelcomeHeader>
-        <OnboardingSection onClick={() => toggleSection('profile')}>
-          <SectionHeader>
-            <SectionTitle>
-              <SectionIcon>🔥</SectionIcon>
-              Complete your profile to get matched to relevant jobs and opportunities for you.
+        <WelcomeHeader>🏟 Welcome to Arena, {first_name}!</WelcomeHeader>
+
+        {!intake_completed && (
+          <OnboardingSection onClick={() => toggleSection('profile')}>
+            <SectionHeader>
+              <SectionTitle>
+                <SectionIcon>🔥</SectionIcon>
+                Complete your profile to get matched to relevant jobs and opportunities for you.
               </SectionTitle>
-            <ChevronDown size={20} style={{ transform: openSections.profile ? 'rotate(180deg)' : 'none', transition: 'transform 0.3s', cursor: 'pointer' }} />
-          </SectionHeader>
-          <SectionProgressBar>
-            <SectionProgress width="30%" started={true} />
-          </SectionProgressBar>
-          <SectionContent isOpen={openSections.profile}>
-            <SectionDescription>
-              This information helps our AI personalize its talent matches to meet your top hiring goals.
-              Note: You will not see your talent matches until you complete your profile.
-            </SectionDescription>
-            <Link href="/edit-profile">Edit Profile</Link>
-          </SectionContent>
-        </OnboardingSection>
-
-
+              <ChevronDown size={20} style={{ transform: openSections.profile ? 'rotate(180deg)' : 'none', transition: 'transform 0.3s', cursor: 'pointer' }} />
+            </SectionHeader>
+            <SectionProgressBar>
+              <SectionProgress width="30%" started={true} />
+            </SectionProgressBar>
+            <SectionContent isOpen={openSections.profile}>
+              <SectionDescription>
+                This information helps our AI personalize its talent matches to meet your top hiring goals.
+                Note: You will not see your talent matches until you complete your profile.
+              </SectionDescription>
+              <Link href="/edit-profile">Edit Profile</Link>
+            </SectionContent>
+          </OnboardingSection>
+        )}
 
         <OnboardingSection onClick={() => toggleSection('survey')}>
           <SectionHeader>
@@ -355,13 +278,14 @@ export default function JobSeekerDash() {
             <Link href="/complete-survey">Complete Survey</Link>
           </SectionContent>
         </OnboardingSection>
+
         <Grid columns={3}>
           <Card>
             <CardHeader>
               <CardTitle>Jobs Applied</CardTitle>
             </CardHeader>
             <CardContent>
-              <p style={{ fontSize: '2.25rem', fontWeight: 'bold' }}>10</p>
+              <p style={{ fontSize: '2.25rem', fontWeight: 'bold' }}>{jobs_applied ? jobs_applied.length : 0}</p>
             </CardContent>
           </Card>
           <Card>
@@ -373,7 +297,6 @@ export default function JobSeekerDash() {
             </CardContent>
           </Card>
           <Card>
-
             <CardContent>
               <InterviewCard />
             </CardContent>
@@ -383,13 +306,14 @@ export default function JobSeekerDash() {
         <Grid columns={2}>
           <Card>
             <CardHeader>
-              <CardTitle>News from Arena</CardTitle>
+              <CardTitle>Your Profile Summary</CardTitle>
             </CardHeader>
             <CardContent>
-              <ul style={{ listStyleType: 'disc', paddingLeft: '1.25rem' }}>
-                <li><a href="#" style={{ color: 'grey', textDecoration: 'none' }}>New feature: AI-powered resume builder</a></li>
-                <li><a href="#" style={{ color: 'grey', textDecoration: 'none' }}>Arena partners with top tech companies</a></li>
-              </ul>
+              <p><strong>Current Employer:</strong> {current_employer || 'Not specified'}</p>
+              <p><strong>Current Title:</strong> {current_title || 'Not specified'}</p>
+              <p><strong>Job Search Motivation:</strong> {job_search_motivation || 'Not specified'}</p>
+              <p><strong>Top Strengths:</strong> {top_strengths ? top_strengths.join(', ') : 'Not specified'}</p>
+              <p><strong>Preferred Company Culture:</strong> {company_culture_preferences ? company_culture_preferences.join(', ') : 'Not specified'}</p>
             </CardContent>
           </Card>
           <Card>
@@ -418,6 +342,7 @@ export default function JobSeekerDash() {
                 </tr>
               </thead>
               <tbody>
+                {/* This is a placeholder. You should map over actual job application data here */}
                 <tr>
                   <TableCell>
                     <img src="images/black-logo.png" alt="Arena Logo" style={{ width: '2.5rem', height: '2.5rem', borderRadius: '9999px' }} />
@@ -439,4 +364,4 @@ export default function JobSeekerDash() {
       </MainContent>
     </Container>
   );
-}
+};
