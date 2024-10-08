@@ -17,7 +17,7 @@ function Login() {
             navigate('/jobseeker-intake');
         }
     }, [user, navigate]);
-    c const handleSubmit = async (e) => {
+ const handleSubmit = async (e) => {
         e.preventDefault();
         setError(null);
 
