@@ -20,9 +20,15 @@ const port = process.env.PORT || 5002
 console.log('Starting server setup...')
 
 // Initialize Firebase Admin SDK
-admin.initializeApp({
-  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID
-})
+if (!admin.apps.length) {
+  admin.initializeApp({
+    projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID
+  })
+  console.log(
+    'Firebase Admin SDK initialized with project ID:',
+    process.env.REACT_APP_FIREBASE_PROJECT_ID
+  )
+}
 
 // CORS configuration
 const allowedOrigins = [
