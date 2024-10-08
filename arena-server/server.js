@@ -1,7 +1,6 @@
 const express = require('express')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
-const admin = require('firebase-admin')
 const sequelize = require('./db')
 const userRoutes = require('./routes/userRoutes')
 const jobRoutes = require('./routes/jobRoutes')
