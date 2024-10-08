@@ -30,7 +30,6 @@ if (!admin.apps.length) {
   )
 }
 
-// CORS configuration
 const corsOptions = {
   origin: [
     'https://arenatalent-d7a88.web.app',
@@ -39,6 +38,7 @@ const corsOptions = {
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
   optionsSuccessStatus: 204
 }

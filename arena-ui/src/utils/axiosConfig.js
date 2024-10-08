@@ -5,19 +5,25 @@ const instance = axios.create({
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json'
-  }
+  },
+  maxRedirects: 0 // Prevent following redirects
 })
 
-// Add a request interceptor
-instance.interceptors.request.use(
-  function (config) {
-    const token = localStorage.getItem('authToken') // Adjust this based on how you store your token
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
+// Add a response interceptor
+instance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response) {
+      console.error(
+        'Response error:',
+        error.response.status,
+        error.response.data
+      )
+    } else if (error.request) {
+      console.error('Request error:', error.request)
+    } else {
+      console.error('Error:', error.message)
     }
-    return config
-  },
-  function (error) {
     return Promise.reject(error)
   }
 )

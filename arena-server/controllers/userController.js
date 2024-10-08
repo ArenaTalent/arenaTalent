@@ -66,7 +66,8 @@ exports.signupWithEmail = async (req, res) => {
 
 exports.login = async (req, res) => {
   try {
-    console.log('Login request received')
+    console.log('Login controller reached')
+
     const { idToken } = req.body
 
     if (!idToken) {

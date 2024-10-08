@@ -26,20 +26,20 @@ function Login() {
           const result = await login(email, password);
           console.log('Login successful', result);
 
-          const redirectPath = result.redirectPath || '/jobseeker-intake';
-          console.log('Redirecting to:', redirectPath);
-          navigate(redirectPath, { replace: true });
+          if (result && result.user) {
+            const redirectPath = result.redirectPath || '/jobseeker-intake';
+            console.log('Redirecting to:', redirectPath);
+            navigate(redirectPath, { replace: true });
+          } else {
+            throw new Error('Invalid login response');
+          }
         } catch (error) {
           console.error('Login error:', error);
           if (error.response) {
-            // The request was made and the server responded with a status code
-            // that falls out of the range of 2xx
-            setError(`Server error: ${error.response.data.message || error.response.statusText}`);
+            setError(`Server error: ${error.response.status} - ${error.response.data.message || error.response.statusText}`);
           } else if (error.request) {
-            // The request was made but no response was received
             setError('No response received from server. Please try again.');
           } else {
-            // Something happened in setting up the request that triggered an Error
             setError(`Error: ${error.message}`);
           }
         }
