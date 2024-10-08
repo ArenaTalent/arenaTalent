@@ -23,19 +23,22 @@ function Login() {
         e.preventDefault();
         setError(null);
         setLoading(true);
+
         try {
             console.log('Attempting login...');
             const result = await login(email, password);
-            console.log('Login successful');
+
+            console.log('Login successful', result);
 
             if (result.redirectPath) {
-                console.log('Attempting to redirect to:', result.redirectPath);
+                console.log('Redirecting to:', result.redirectPath);
                 navigate(result.redirectPath, { replace: true });
             } else {
-                throw new Error('Invalid response from server');
+                console.log('No redirect path provided, defaulting to /jobseeker-intake');
+                navigate('/jobseeker-intake', { replace: true });
             }
         } catch (error) {
-            console.error("Login error:", error);
+            console.error('Login error:', error);
             setError('An error occurred during login. Please try again.');
         } finally {
             setLoading(false);

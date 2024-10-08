@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react'
 import axios from 'axios'
+import firebase from '../firebaseConfig' // Assuming you have Firebase initialized in this file
 
 const AuthContext = createContext()
 
@@ -10,9 +11,10 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    checkUser()
+    checkUser() // Check if the user is logged in on page load
   }, [])
 
+  // Check if the user is logged in
   const checkUser = async () => {
     const token = localStorage.getItem('authToken')
     if (token) {
@@ -22,32 +24,43 @@ export const AuthProvider = ({ children }) => {
         })
         setUser(response.data.user)
       } catch (error) {
-        console.error('Failed to fetch user', error)
+        console.error('Failed to fetch user:', error)
         localStorage.removeItem('authToken')
       }
     }
     setLoading(false)
   }
 
-  const login = async (idToken) => {
+  // Handle login with Firebase
+  const login = async (email, password) => {
     try {
+      // Sign in with Firebase
+      const userCredential = await firebase
+        .auth()
+        .signInWithEmailAndPassword(email, password)
+      const idToken = await userCredential.user.getIdToken() // Get Firebase ID token
+
+      // Send Firebase ID token to your backend
       const response = await axios.post(
         '/api/users/login',
         { idToken },
         {
-          headers: { Authorization: `Bearer ${idToken}` }
+          headers: { Authorization: `Bearer ${idToken}` } // Send ID token as a Bearer token
         }
       )
-      setUser(response.data.user)
-      localStorage.setItem('authToken', idToken)
-      return response.data
+
+      setUser(response.data.user) // Update the user state
+      localStorage.setItem('authToken', idToken) // Store token locally
+      return response.data // Return response data (redirectPath, etc.)
     } catch (error) {
       console.error('Login failed:', error)
       throw error
     }
   }
 
-  const logout = () => {
+  // Logout the user
+  const logout = async () => {
+    await firebase.auth().signOut() // Sign out from Firebase
     setUser(null)
     localStorage.removeItem('authToken')
   }
