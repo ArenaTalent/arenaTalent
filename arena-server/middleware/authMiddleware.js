@@ -1,6 +1,13 @@
 const admin = require('firebase-admin')
 const { User } = require('../models')
 
+// Initialize Firebase Admin SDK if not already initialized
+if (!admin.apps.length) {
+  admin.initializeApp({
+    projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID
+  })
+}
+
 exports.authenticateToken = async (req, res, next) => {
   console.log('Authenticating token')
   const authHeader = req.headers.authorization
