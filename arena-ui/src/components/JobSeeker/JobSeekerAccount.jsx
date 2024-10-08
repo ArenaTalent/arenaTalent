@@ -21,7 +21,7 @@ const NavbarWrapper = styled.div`
 
 const PageContainer = styled.div`
   flex-grow: 1;
-  background-color: #f3f4f6;
+  background-color: #f8f9fa;
   overflow-y: auto;
 `
 
@@ -267,7 +267,7 @@ const TabButton = ({ active, onClick, children }) => (
     fontFamily: 'Arial, sans-serif' 
   }}>
  
-   <div style={{ display: 'flex', gridTemplateColumns: 'repeat(2, 1fr)', gap:'1rem', textAlign: 'center', justifyContent: 'center'}}>
+   <div style={{ display: 'flex', gridTemplateColumns: 'repeat(2, 1fr)', gap:'2rem', textAlign: 'center', justifyContent: 'center'}}>
      {/* Arena: Free */}
      <Card onClick={() => setSelectedCard('basic')}>
         <TableTitle>Arena</TableTitle>
@@ -275,7 +275,7 @@ const TabButton = ({ active, onClick, children }) => (
         <CardDescription style={{marginBottom: '38px'}}>Apply for jobs and track your progress for free, forever </CardDescription>
         <CardPrice>Free</CardPrice>
         </DescriptionPriceContainer>
-        <CardButton>Subscribe</CardButton>
+        <CardButton>Cancel</CardButton>
 
         <BulletPointContainer>
           <BulletContainerTitle>Includes:</BulletContainerTitle>      
@@ -283,6 +283,8 @@ const TabButton = ({ active, onClick, children }) => (
           <BulletPoint><FontAwesomeIcon icon={faCheckCircle} />Apply to unlimited jobs</BulletPoint>
           <BulletPoint><FontAwesomeIcon icon={faCheckCircle} />Automated application tracker & status updates</BulletPoint>
           <BulletPoint><FontAwesomeIcon icon={faCheckCircle} />Get amplified to recruiters</BulletPoint>
+          <BulletPoint><FontAwesomeIcon icon={faCheckCircle} />Salary transparency & insights</BulletPoint>
+
         </BulletPointContainer>
      </Card>
 
@@ -293,7 +295,7 @@ const TabButton = ({ active, onClick, children }) => (
        
        <TableTitle>Arena PRO</TableTitle>
        <DescriptionPriceContainer>
-       <CardDescription style={{marginBottom: '8px'}}>Land your dream job faster with personalized insights & advice (7-day free trial included)</CardDescription>
+       <CardDescription style={{marginBottom: '8px'}}>Land your dream job faster with personalized insights & advice</CardDescription>
        {/* Toggle Buttons */}
         <div style={{ textAlign: 'center' }}>
           <button onClick={() => setCurrentTab('monthly')}
@@ -333,7 +335,8 @@ const TabButton = ({ active, onClick, children }) => (
        {currentTab === 'monthly' && (<CardPrice style={{ marginTop: '10px'}}>$14.99<span style={{ fontSize: '16px' }}>/month</span></CardPrice> )}
        {currentTab === 'every3months' && (<CardPrice style={{ marginTop: '10px'}}>$35.99<span style={{ fontSize: '16px' }}>/3 months</span></CardPrice>)}
        </DescriptionPriceContainer>
-       <CardButton>Start trial</CardButton>
+       <CardButton>Upgrade</CardButton>
+       <CardButton style={{display: 'none'}}>Subscribed</CardButton> 
 
        <BulletPointContainer>
         <BulletContainerTitle>Includes:</BulletContainerTitle>      
@@ -341,9 +344,9 @@ const TabButton = ({ active, onClick, children }) => (
         <BulletPoint><FontAwesomeIcon icon={faCheckCircle} />Apply to unlimited jobs</BulletPoint>
         <BulletPoint><FontAwesomeIcon icon={faCheckCircle} />Automated application tracker & status updates</BulletPoint>
         <BulletPoint><FontAwesomeIcon icon={faCheckCircle} />Get amplified to recruiters</BulletPoint>
+        <BulletPoint><FontAwesomeIcon icon={faCheckCircle} />Salary transparency & insights</BulletPoint>
         <BulletPoint><FontAwesomeIcon icon={faCheckCircle} />AI-powered job match scores</BulletPoint>
         <BulletPoint><FontAwesomeIcon icon={faCheckCircle} />Personalized career advice</BulletPoint>
-        <BulletPoint><FontAwesomeIcon icon={faCheckCircle} />Salary transparency & insights</BulletPoint>
        </BulletPointContainer>
      </Card>   
     </div>
