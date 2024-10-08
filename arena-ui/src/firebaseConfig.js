@@ -1,14 +1,5 @@
-// Import the functions you need from the SDKs you need
 import { initializeApp } from 'firebase/app'
 import { getAuth, GoogleAuthProvider } from 'firebase/auth'
-
-// console.log('API Key:', process.env.REACT_APP_FIREBASE_API_KEY)
-// console.log('All env:', process.env)
-// console.log('API Key:', process.env.REACT_APP_FIREBASE_API_KEY)
-// console.log('Auth Domain:', process.env.REACT_APP_FIREBASE_AUTH_DOMAIN)
-// console.log('NODE_ENV:', process.env.NODE_ENV)
-
-// ... and so on
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -24,6 +15,9 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig)
 
-// Initialize Firebase Auth and other services you might use
+// Initialize Firebase Auth and other services
 export const auth = getAuth(app)
 export const googleProvider = new GoogleAuthProvider()
+
+// Export the app as the default export
+export default app

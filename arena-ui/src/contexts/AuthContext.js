@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from 'react'
 import axios from 'axios'
-import firebase from '../firebaseConfig' // Assuming you have Firebase initialized in this file
+import { auth } from '../firebaseConfig' // Import the named export 'auth' from firebaseConfig
+import { signInWithEmailAndPassword, signOut } from 'firebase/auth' // Import specific Firebase methods
 
 const AuthContext = createContext()
 
@@ -34,10 +35,12 @@ export const AuthProvider = ({ children }) => {
   // Handle login with Firebase
   const login = async (email, password) => {
     try {
-      // Sign in with Firebase
-      const userCredential = await firebase
-        .auth()
-        .signInWithEmailAndPassword(email, password)
+      // Sign in with Firebase using the `auth` instance and the `signInWithEmailAndPassword` method
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      )
       const idToken = await userCredential.user.getIdToken() // Get Firebase ID token
 
       // Send Firebase ID token to your backend
@@ -60,7 +63,7 @@ export const AuthProvider = ({ children }) => {
 
   // Logout the user
   const logout = async () => {
-    await firebase.auth().signOut() // Sign out from Firebase
+    await signOut(auth) // Sign out from Firebase
     setUser(null)
     localStorage.removeItem('authToken')
   }
