@@ -1,7 +1,7 @@
-// backend/server.js
 const express = require('express')
 const cors = require('cors')
-const cookieParser = require('cookie-parser') // Add this
+const cookieParser = require('cookie-parser')
+const admin = require('firebase-admin')
 const sequelize = require('./db')
 const userRoutes = require('./routes/userRoutes')
 const jobRoutes = require('./routes/jobRoutes')
@@ -17,7 +17,6 @@ const upload = multer({ storage: multer.memoryStorage() })
 const app = express()
 const port = process.env.PORT || 5002
 
-// Middleware
 console.log('Starting server setup...')
 
 // Initialize Firebase Admin SDK
@@ -30,44 +29,55 @@ admin.initializeApp({
   databaseURL: `https://${process.env.REACT_APP_FIREBASE_PROJECT_ID}.firebaseio.com`
 })
 
+// CORS configuration
 const allowedOrigins = [
   'https://arenatalent-d7a88.web.app',
   'https://app.arenatalent.com',
-  process.env.FRONTEND_URL, // Add this if you have a separate production URL
-  'http://localhost:3000' // Add this for local development
+  process.env.FRONTEND_URL,
+  'http://localhost:3000'
 ]
 
-const corsOptions = {
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true)
-    } else {
-      callback(new Error('Not allowed by CORS'))
-    }
-  },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true,
-  optionsSuccessStatus: 200
-}
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true)
+      } else {
+        callback(new Error('Not allowed by CORS'))
+      }
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+    optionsSuccessStatus: 204
+  })
+)
 
-app.use(cors(corsOptions))
-app.use(cookieParser()) // Make sure this is placed after cors middleware
-app.use(express.json()) // For parsing application/json
+// Middleware
+app.use(cookieParser())
+app.use(express.json())
 
-// ... rest of your routes and middleware ...
+// Logging middleware
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`)
+  console.log('Origin:', req.headers.origin)
+  console.log('Headers:', req.headers)
+  next()
+})
 
-// Test the database connection
+// Database connection
 const connectToDatabase = async () => {
   try {
     await sequelize.authenticate()
-    console.log('Connection has been established successfully.')
+    console.log('Database connection established successfully.')
   } catch (error) {
     console.error('Unable to connect to the database:', error)
-    process.exit(1) // Exit the process with a failure code
+    process.exit(1)
   }
 }
 connectToDatabase()
+
+// AWS credentials check
 console.log('Checking AWS credentials...')
 if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
   console.error(
@@ -76,6 +86,7 @@ if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
   process.exit(1)
 }
 console.log('AWS credentials found')
+
 // Routes
 app.use('/api/users', userRoutes)
 app.use('/api/jobs', jobRoutes)
@@ -84,21 +95,35 @@ app.use('/api/employer_members', employerMemberRoutes)
 app.use('/api/job_seekers', jobSeekerRoutes)
 app.use('/api/employers', employerRoutes)
 app.use('/api', upload.single('file'), uploadRoutes)
-app.options('*', cors(corsOptions)) // Pre-flight requests
 
+// CORS test route
+app.get('/api/cors-test', (req, res) => {
+  res.json({ message: 'CORS is working' })
+})
+
+// General test route
 app.get('/api/test', (req, res) => {
   res.json({ message: 'Backend is reachable' })
 })
+
+// Error handling middleware
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err)
   console.error('Error stack:', err.stack)
   res.status(500).json({ error: 'Internal server error', details: err.message })
 })
 
-// Error Handling Middleware
-app.use((err, req, res, next) => {
-  console.error('Unhandled error:', err)
-  res.status(500).json({ error: 'Internal server error', details: err.message })
+// Response logging middleware
+app.use((req, res, next) => {
+  res.on('finish', () => {
+    console.log(
+      `${new Date().toISOString()} - ${req.method} ${req.url} - ${
+        res.statusCode
+      }`
+    )
+    console.log('Response Headers:', res.getHeaders())
+  })
+  next()
 })
 
 // Start the server
@@ -106,4 +131,4 @@ app.listen(port, () => {
   console.log(`Server listening at http://localhost:${port}`)
 })
 
-module.exports = app // Export the app for testing purposes
+module.exports = app
