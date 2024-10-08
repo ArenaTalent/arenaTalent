@@ -21,18 +21,27 @@ const port = process.env.PORT || 5002
 console.log('Starting server setup...')
 
 // CORS configuration
+// CORS configuration
+const allowedOrigins = [
+  'https://arenatalent-d7a88.web.app',
+  'https://app.arenatalent.com'
+]
+
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-  optionsSuccessStatus: 200,
-  credentials: true // Add this to allow cookies to be sent
+  origin: (origin, callback) => {
+    // Allow requests with no origin (e.g., mobile apps or curl requests)
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  },
+  credentials: true, // Allows cookies and credentials to be sent with requests
+  optionsSuccessStatus: 200
 }
+
 app.use(cors(corsOptions))
 console.log('CORS enabled')
-
-app.use(express.json())
-app.use(cookieParser()) // Add this to parse cookies
-console.log('Middleware set up')
-
 // Test the database connection
 const connectToDatabase = async () => {
   try {
