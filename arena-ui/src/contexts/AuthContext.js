@@ -5,7 +5,7 @@ import {
   signOut,
   onAuthStateChanged
 } from 'firebase/auth'
-import axios from '../axiosConfig' // Make sure this path is correct
+import axios from '../utils/axiosConfig' // Make sure this path is correct
 import firebaseApp from '../firebaseConfig' // Make sure this path is correct
 
 const AuthContext = createContext()
