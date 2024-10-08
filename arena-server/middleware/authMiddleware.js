@@ -1,8 +1,6 @@
 const admin = require('firebase-admin')
 const { User } = require('../models')
 
-// Remove the Firebase initialization from here
-
 exports.authenticateToken = async (req, res, next) => {
   console.log('Authenticating token')
   const authHeader = req.headers.authorization
@@ -38,7 +36,7 @@ exports.authenticateToken = async (req, res, next) => {
 
     req.user = {
       id: user.id,
-      firebase_uid: decodedToken.uid,
+      firebase_uid: user.firebase_uid,
       email: user.email,
       role: user.role
     }

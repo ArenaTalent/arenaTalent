@@ -132,9 +132,11 @@ exports.login = async (req, res) => {
 
 exports.checkIntakeStatus = async (req, res) => {
   try {
-    const userId = req.user.uid
+    const userId = req.user.id // Change this line
+    console.log('Checking intake status for user:', userId)
+
     const user = await User.findOne({
-      where: { firebase_uid: userId },
+      where: { id: userId }, // Change this line
       include: [
         { model: EmployerProfile, as: 'EmployerProfile' },
         { model: JobseekerProfile, as: 'JobseekerProfile' }
@@ -142,6 +144,7 @@ exports.checkIntakeStatus = async (req, res) => {
     })
 
     if (!user) {
+      console.log('User not found in the database')
       return res.status(404).json({ error: 'User not found' })
     }
 
@@ -156,6 +159,7 @@ exports.checkIntakeStatus = async (req, res) => {
       redirectPath = intakeCompleted ? '/jobseeker-dash' : '/jobseeker-intake'
     }
 
+    console.log('Intake status:', { intakeCompleted, redirectPath })
     res.status(200).json({ intakeCompleted, redirectPath })
   } catch (error) {
     console.error('Error in checkIntakeStatus:', error)
