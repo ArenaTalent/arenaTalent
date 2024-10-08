@@ -102,8 +102,6 @@ exports.login = async (req, res) => {
       })
     }
 
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET)
-
     let redirectPath = ''
     if (user.role === 'employer') {
       redirectPath = user.EmployerProfile?.intake_completed
@@ -117,7 +115,6 @@ exports.login = async (req, res) => {
 
     res.status(200).json({
       message: 'Login successful',
-      token,
       redirectPath,
       user: {
         id: user.id,
@@ -135,9 +132,9 @@ exports.login = async (req, res) => {
 
 exports.checkIntakeStatus = async (req, res) => {
   try {
-    const userId = req.user.id
+    const userId = req.user.uid
     const user = await User.findOne({
-      where: { id: userId },
+      where: { firebase_uid: userId },
       include: [
         { model: EmployerProfile, as: 'EmployerProfile' },
         { model: JobseekerProfile, as: 'JobseekerProfile' }

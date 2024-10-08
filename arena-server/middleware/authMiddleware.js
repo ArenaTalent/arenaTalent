@@ -1,21 +1,6 @@
 const admin = require('firebase-admin')
 const { User } = require('../models')
 
-const projectId = 'arenatalent-d7a88'
-
-if (!admin.apps.length) {
-  try {
-    admin.initializeApp({
-      credential: admin.credential.applicationDefault(),
-      projectId: projectId
-    })
-    console.log('Firebase Admin initialized successfully')
-  } catch (error) {
-    console.error('Error initializing Firebase Admin:', error)
-    process.exit(1)
-  }
-}
-
 exports.authenticateToken = async (req, res, next) => {
   console.log('Authenticating token')
   const authHeader = req.headers.authorization
@@ -60,7 +45,6 @@ exports.authenticateToken = async (req, res, next) => {
     next()
   } catch (error) {
     console.error('Token verification error:', error)
-
     if (error.code === 'auth/id-token-expired') {
       return res
         .status(401)
