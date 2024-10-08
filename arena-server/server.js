@@ -20,17 +20,15 @@ const port = process.env.PORT || 5002
 // Middleware
 console.log('Starting server setup...')
 
-// CORS configuration
-// CORS configuration
 const allowedOrigins = [
-  'https://arenatalent-d7a88.web.app',
-  'https://app.arenatalent.com'
+  'https://arenatalent-d7a88.web.app', // Your frontend on Firebase
+  'https://app.arenatalent.com' // The origin where your app is running
 ]
 
 const corsOptions = {
   origin: (origin, callback) => {
-    // Allow requests with no origin (e.g., mobile apps or curl requests)
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+    // Allow requests with no origin (like mobile apps or curl requests) and check allowed origins
+    if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true)
     } else {
       callback(new Error('Not allowed by CORS'))
@@ -41,7 +39,7 @@ const corsOptions = {
 }
 
 app.use(cors(corsOptions))
-console.log('CORS enabled')
+
 // Test the database connection
 const connectToDatabase = async () => {
   try {
@@ -76,6 +74,7 @@ app.use('/api/employer_members', employerMemberRoutes)
 app.use('/api/job_seekers', jobSeekerRoutes)
 app.use('/api/employers', employerRoutes)
 app.use('/api', upload.single('file'), uploadRoutes)
+app.options('*', cors(corsOptions)) // Pre-flight requests
 
 app.get('/api/test', (req, res) => {
   res.json({ message: 'Backend is reachable' })
