@@ -2,10 +2,6 @@ const { User, EmployerProfile, JobseekerProfile } = require('../models')
 const admin = require('firebase-admin')
 const jwt = require('jsonwebtoken')
 
-const { User, JobseekerProfile, EmployerProfile } = require('../models') // Import your models
-
-const { User, EmployerProfile, JobseekerProfile } = require('../models') // Import models
-
 exports.signupWithEmail = async (req, res) => {
   const {
     firebase_uid,
