@@ -97,7 +97,9 @@ exports.login = async (req, res) => {
     res.status(200).json({
       message: 'Login successful',
       redirectPath:
-        user.role === 'employer' ? '/employer-dash' : '/jobseeker-dash',
+        user.role === 'employer'
+          ? '/employer-dashboard'
+          : '/jobseeker-dashboard',
       user: {
         id: user.id,
         email: user.email,
