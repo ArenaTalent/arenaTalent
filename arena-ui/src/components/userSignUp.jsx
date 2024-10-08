@@ -322,13 +322,13 @@ function Signup() {
       const userCredential = await createUserWithEmailAndPassword(auth, email, formData.password);
       await sendEmailVerification(userCredential.user);
 
-      const response = await fetch('/api/users/signup', {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          ...formData,
+          ...formData,  // Send all formData fields
           role: isEmployer ? 'employer' : 'jobseeker',
           firebase_uid: userCredential.user.uid,
         }),
@@ -346,6 +346,7 @@ function Signup() {
       setLoading(false);
     }
   };
+
 
   const renderAddressFields = (isEmployer = false) => (
     <div className="form-group">

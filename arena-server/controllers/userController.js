@@ -2,52 +2,69 @@ const { User, EmployerProfile, JobseekerProfile } = require('../models')
 const admin = require('firebase-admin')
 const jwt = require('jsonwebtoken')
 
-exports.signupWithEmail = async (req, res) => {
-  try {
-    const {
-      email,
-      firstName,
-      lastName,
-      role,
-      companyName,
-      companyEmail,
-      companyWebsite,
-      companyPhone,
-      companyAddress,
-      firebase_uid
-    } = req.body
+const { User, JobseekerProfile, EmployerProfile } = require('../models') // Import your models
 
-    const newUser = await User.create({
-      email,
+const { User, EmployerProfile, JobseekerProfile } = require('../models') // Import models
+
+exports.signupWithEmail = async (req, res) => {
+  const {
+    firebase_uid,
+    role,
+    firstName,
+    lastName,
+    email,
+    password,
+    ...profileData
+  } = req.body
+
+  try {
+    // Validate role
+    if (!['jobseeker', 'employer'].includes(role)) {
+      return res.status(400).json({ error: 'Invalid role' })
+    }
+
+    // Check if the user already exists
+    const existingUser = await User.findOne({ where: { email } })
+    if (existingUser) {
+      return res.status(400).json({ error: 'User already exists' })
+    }
+
+    // Create the User record
+    const user = await User.create({
+      firebase_uid,
       first_name: firstName,
       last_name: lastName,
-      role,
-      firebase_uid
+      email,
+      password, // Hash the password if needed (though Firebase Auth handles passwords)
+      role
     })
 
+    // Based on role, create either an EmployerProfile or JobseekerProfile
     if (role === 'employer') {
       await EmployerProfile.create({
-        user_id: newUser.id,
-        company_name: companyName,
-        company_email: companyEmail,
-        company_website: companyWebsite,
-        company_phone: companyPhone,
-        company_address: companyAddress
+        user_id: user.id,
+        company_name: profileData.companyName,
+        company_address: profileData.companyAddress,
+        company_phone: profileData.companyPhone,
+        company_email: profileData.companyEmail,
+        company_size: profileData.companySize
+        // Add more employer fields as needed
       })
     } else if (role === 'jobseeker') {
       await JobseekerProfile.create({
-        user_id: newUser.id
+        user_id: user.id,
+        date_of_birth: profileData.dateOfBirth,
+        street_address: profileData.address,
+        phone: profileData.phone
+        // Add more jobseeker fields as needed
       })
     }
 
-    res
-      .status(201)
-      .json({ message: 'User registered successfully', user: newUser })
+    // Send a success response
+    res.status(201).json({ message: 'User registered successfully' })
   } catch (error) {
-    console.error('Error registering new user:', error)
-    res
-      .status(500)
-      .json({ error: 'Error registering new user: ' + error.message })
+    console.error('Error in signup:', error)
+    res.status(500).json({ error: 'Server error' })
   }
 }
 
