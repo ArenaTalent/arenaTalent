@@ -195,14 +195,21 @@ export default function JobSeekerDash() {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await axios.get('/api/users/profile');
+        const response = await axios.get('https://arena-talent-809eb598a3c0.herokuapp.com/api/users/profile', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+          }
+        });
         console.log('Full API response:', response);
+        if (typeof response.data === 'string' && response.data.includes('<!doctype html>')) {
+          throw new Error('Received HTML instead of JSON. API endpoint might be incorrect.');
+        }
         console.log('User data received:', response.data);
         setUserData(response.data);
         setLoading(false);
       } catch (err) {
         console.error('Error fetching user data:', err);
-        setError('Failed to fetch user data');
+        setError(err.message || 'Failed to fetch user data');
         setLoading(false);
       }
     };
