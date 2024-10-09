@@ -5,18 +5,12 @@ import {
   signOut,
   onAuthStateChanged
 } from 'firebase/auth'
-import axios from '../utils/axiosConfig' // Make sure this path is correct
-import firebaseApp from '../firebaseConfig' // Make sure this path is correct
+import axios from '../utils/axiosConfig'
+import firebaseApp from '../firebaseConfig'
 
 const AuthContext = createContext()
 
-export const useAuth = () => {
-  const context = useContext(AuthContext)
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider')
-  }
-  return context
-}
+export const useAuth = () => useContext(AuthContext)
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
@@ -32,16 +26,14 @@ export const AuthProvider = ({ children }) => {
           const response = await axios.get('/api/users/check-intake', {
             headers: { Authorization: `Bearer ${idToken}` }
           })
+          console.log('User data from check-intake:', response.data)
           setUser(response.data.user)
-          localStorage.setItem('authToken', idToken)
         } catch (error) {
-          console.error('Failed to fetch user on auth state change:', error)
+          console.error('Failed to fetch user:', error)
           setUser(null)
-          localStorage.removeItem('authToken')
         }
       } else {
         setUser(null)
-        localStorage.removeItem('authToken')
       }
       setLoading(false)
     })
@@ -58,10 +50,6 @@ export const AuthProvider = ({ children }) => {
         password
       )
       const idToken = await userCredential.user.getIdToken()
-      console.log(
-        'Sending login request to:',
-        `${axios.defaults.baseURL}/api/users/login`
-      )
       const response = await axios.post(
         '/api/users/login',
         { idToken },
@@ -74,24 +62,19 @@ export const AuthProvider = ({ children }) => {
       )
       console.log('Login response:', response.data)
       setUser(response.data.user)
-      console.log('User set in AuthContext:', response.data.user) // Add this line
-      localStorage.setItem('authToken', idToken)
       return response.data
     } catch (error) {
-      console.error(
-        'Login error:',
-        error.response ? error.response.data : error.message
-      )
+      console.error('Login error:', error)
       throw error
     } finally {
       setLoading(false)
     }
   }
+
   const logout = async () => {
     try {
       await signOut(auth)
       setUser(null)
-      localStorage.removeItem('authToken')
     } catch (error) {
       console.error('Logout error:', error)
     }
@@ -106,5 +89,3 @@ export const AuthProvider = ({ children }) => {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
-
-export default AuthProvider

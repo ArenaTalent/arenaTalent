@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { Inbox, Search, Building, FileCheck, FileText, MessageSquare, Settings, LogOut, ChevronDown } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import JobSeekerNav from './JobSeekerNav';
 import JobSeekerBarGraph from './JobSeekerBarGraph';
 import InterviewCard from './InterviewCard';
@@ -164,8 +164,8 @@ const SectionProgress = styled(ProgressBar)`
 
 const SectionContent = styled.div`
   max-height: ${props => props.isOpen ? '1000px' : '0'};
-  overflow: ${props => props.isOpen ? 'show' : 'hidden'};
-  transition: max-height 0.1s ease-in-out;
+  overflow: ${props => props.isOpen ? 'visible' : 'hidden'};
+  transition: max-height 0.3s ease-in-out;
 `;
 
 const SectionDescription = styled.p`
@@ -196,9 +196,12 @@ export default function JobSeekerDash() {
     const fetchUserData = async () => {
       try {
         const response = await axios.get('/api/users/profile');
+        console.log('Full API response:', response);
+        console.log('User data received:', response.data);
         setUserData(response.data);
         setLoading(false);
       } catch (err) {
+        console.error('Error fetching user data:', err);
         setError('Failed to fetch user data');
         setLoading(false);
       }
@@ -215,18 +218,23 @@ export default function JobSeekerDash() {
   if (error) return <div>{error}</div>;
   if (!userData) return <div>No user data available</div>;
 
-  const {
-    first_name,
-    JobseekerProfile: {
-      intake_completed,
-      jobs_applied,
-      current_employer,
-      current_title,
-      job_search_motivation,
-      top_strengths,
-      company_culture_preferences
-    }
-  } = userData;
+  console.log('Current userData state:', userData);
+
+  // Attempt to safely extract user information
+  const first_name = userData?.first_name || userData?.firstName || userData?.User?.first_name || 'User';
+  const JobseekerProfile = userData?.JobseekerProfile || userData;
+
+  console.log('Extracted first_name:', first_name);
+  console.log('Extracted JobseekerProfile:', JobseekerProfile);
+
+  // Safely access JobseekerProfile properties
+  const intake_completed = JobseekerProfile?.intake_completed || false;
+  const jobs_applied = JobseekerProfile?.jobs_applied || [];
+  const current_employer = JobseekerProfile?.current_employer || 'Not specified';
+  const current_title = JobseekerProfile?.current_title || 'Not specified';
+  const job_search_motivation = JobseekerProfile?.job_search_motivation || 'Not specified';
+  const top_strengths = JobseekerProfile?.top_strengths || [];
+  const company_culture_preferences = JobseekerProfile?.company_culture_preferences || [];
 
   return (
     <Container>
@@ -285,7 +293,7 @@ export default function JobSeekerDash() {
               <CardTitle>Jobs Applied</CardTitle>
             </CardHeader>
             <CardContent>
-              <p style={{ fontSize: '2.25rem', fontWeight: 'bold' }}>{jobs_applied ? jobs_applied.length : 0}</p>
+              <p style={{ fontSize: '2.25rem', fontWeight: 'bold' }}>{jobs_applied.length}</p>
             </CardContent>
           </Card>
           <Card>
@@ -309,11 +317,11 @@ export default function JobSeekerDash() {
               <CardTitle>Your Profile Summary</CardTitle>
             </CardHeader>
             <CardContent>
-              <p><strong>Current Employer:</strong> {current_employer || 'Not specified'}</p>
-              <p><strong>Current Title:</strong> {current_title || 'Not specified'}</p>
-              <p><strong>Job Search Motivation:</strong> {job_search_motivation || 'Not specified'}</p>
-              <p><strong>Top Strengths:</strong> {top_strengths ? top_strengths.join(', ') : 'Not specified'}</p>
-              <p><strong>Preferred Company Culture:</strong> {company_culture_preferences ? company_culture_preferences.join(', ') : 'Not specified'}</p>
+              <p><strong>Current Employer:</strong> {current_employer}</p>
+              <p><strong>Current Title:</strong> {current_title}</p>
+              <p><strong>Job Search Motivation:</strong> {job_search_motivation}</p>
+              <p><strong>Top Strengths:</strong> {top_strengths.join(', ') || 'Not specified'}</p>
+              <p><strong>Preferred Company Culture:</strong> {company_culture_preferences.join(', ') || 'Not specified'}</p>
             </CardContent>
           </Card>
           <Card>
@@ -364,4 +372,4 @@ export default function JobSeekerDash() {
       </MainContent>
     </Container>
   );
-};
+}
