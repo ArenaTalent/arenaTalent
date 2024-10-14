@@ -34,7 +34,8 @@ const corsOptions = {
   origin: [
     'https://arenatalent-d7a88.web.app',
     'https://app.arenatalent.com',
-    'http://localhost:3000'
+    'http://localhost:3000',
+    'http://localhost:5002'
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],

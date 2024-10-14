@@ -13,7 +13,7 @@ module.exports = (sequelize) => {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-          model: 'Users', // Use the table name 'users' instead of the model name 'User'
+          model: 'Users',
           key: 'id'
         }
       },
@@ -61,16 +61,42 @@ module.exports = (sequelize) => {
       video: {
         type: DataTypes.STRING,
         allowNull: true
+      },
+      domain_verified: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+      },
+      plan: {
+        type: DataTypes.ENUM(
+          '30daytrial',
+          'freetrial',
+          'premium',
+          'enterprise',
+          'paymentfail',
+          'frozen'
+        ),
+        defaultValue: 'freetrial'
       }
     },
-
     {
       tableName: 'employer_profiles'
     }
   )
 
   EmployerProfile.associate = (models) => {
-    EmployerProfile.belongsTo(models.User, { foreignKey: 'user_id' })
+    EmployerProfile.belongsTo(models.User, {
+      as: 'owner',
+      foreignKey: 'user_id'
+    })
+    EmployerProfile.hasMany(models.JobPosting, {
+      foreignKey: 'employer_profile_id'
+    })
+    EmployerProfile.belongsToMany(models.User, {
+      through: 'EmployerTeamMembers',
+      as: 'teamMembers',
+      foreignKey: 'employer_profile_id',
+      otherKey: 'user_id'
+    })
   }
 
   return EmployerProfile
