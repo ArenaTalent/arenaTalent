@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { Calendar, Mail, UserPlus, Briefcase, Users, PlusCircle, ChevronDown, BarChart2, Clock, Award, ExternalLink } from 'lucide-react';
 import EmployerNav from './EmployerNav';
 import JobPostModal from './JobPostModal';
@@ -268,11 +268,22 @@ const FilterDropdown = styled(Select)`
   margin-bottom: 1rem;
 `;
 
+const rotateAnimation = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+`;
+
 const PieChartContainer = styled.div`
   position: relative;
   width: 150px;
   height: 150px;
   margin: 0 auto 1rem;
+  cursor: pointer;
+  animation: ${rotateAnimation} 0.5s ease-in-out;
 `;
 
 const PieChart = styled.svg`
@@ -396,7 +407,8 @@ const StatItem = styled.div`
 const EmployerDash = () => {
   const [showIndustryData, setShowIndustryData] = useState(false);
   const [selectedRole, setSelectedRole] = useState('All Roles');
-  const [tooltipData, setTooltipData] = useState(null);
+  const [hoveredSegment, setHoveredSegment] = useState(null);
+  const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   const [openSections, setOpenSections] = useState({
     profile: false,
     postJob: false,
@@ -482,6 +494,60 @@ const EmployerDash = () => {
     },
   ];
 
+  const industryDemographicData = [
+    {
+      title: 'Gender',
+      data: [
+        { label: 'Male', value: 55, color: '#4a90e2' },
+        { label: 'Female', value: 40, color: '#68d391' },
+        { label: 'Non-binary', value: 3, color: '#f6ad55' },
+        { label: 'Transgender Male', value: 1, color: '#fc8181' },
+        { label: 'Transgender Female', value: 1, color: '#63b3ed' },
+        { label: 'Prefer not to say', value: 0, color: '#f6e05e' }
+      ]
+    },
+    {
+      title: 'Race/Ethnicity',
+      data: [
+        { label: 'White', value: 45, color: '#4a90e2' },
+        { label: 'Black or African American', value: 25, color: '#68d391' },
+        { label: 'Hispanic or Latino', value: 18, color: '#f6ad55' },
+        { label: 'Asian', value: 12, color: '#fc8181' },
+        { label: 'Indigenous', value: 2, color: '#63b3ed' },
+        { label: 'Middle Eastern/Arab', value: 3, color: '#f6e05e' },
+        { label: 'Pacific Islander', value: 1, color: '#f6e05e' },
+        { label: 'Other', value: 4, color: '#63b3ed' }
+      ]
+    },
+    {
+      title: 'LGBTQIA+',
+      data: [
+        { label: 'Straight/Heterosexual', value: 80, color: '#4a90e2' },
+        { label: 'Gay', value: 7, color: '#f6ad55' },
+        { label: 'Lesbian', value: 5, color: '#fc8181' },
+        { label: 'Bisexual', value: 4, color: '#63b3ed' },
+        { label: 'Queer', value: 3, color: '#f6e05e' },
+        { label: 'Prefer not to say', value: 1, color: '#f6e05e' }
+      ]
+    },
+    {
+      title: 'Disability',
+      data: [
+        { label: 'With Disability', value: 15, color: '#4a90e2' },
+        { label: 'Without Disability', value: 82, color: '#68d391' },
+        { label: 'Prefer Not to Say', value: 3, color: '#f6ad55' }
+      ]
+    },
+    {
+      title: 'Veteran Status',
+      data: [
+        { label: 'Veteran', value: 10, color: '#4a90e2' },
+        { label: 'Non-Veteran', value: 88, color: '#68d391' },
+        { label: 'Prefer Not to Say', value: 2, color: '#f6ad55' }
+      ]
+    },
+  ];
+
   const roles = ['All Roles', 'Premium Experience Coordinator', 'Customer Service Representative', 'Marketing Specialist', 'Data Analyst'];
 
   const filteredApplicants = selectedRole === 'All Roles'
@@ -525,21 +591,15 @@ const EmployerDash = () => {
       setTooltipData(null);
     };
 
-    const renderPieChart = () => {
-      let accumulatedPercentage = 0;
-
-      return (
-        <PieChartContainer
-          ref={chartRef}
-          onMouseMove={handleMouseMove}
-          onMouseLeave={handleMouseLeave}
-        >
+    return (
+      <Card>
+        <CardTitle>{title}</CardTitle>
+        <PieChartContainer ref={chartRef} onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave}>
           <PieChart viewBox="0 0 32 32">
             {data.map((item, index) => {
               const percentage = (item.value / total) * 100;
               const strokeDasharray = `${percentage} ${100 - percentage}`;
-              const strokeDashoffset = -accumulatedPercentage;
-              accumulatedPercentage += percentage;
+              const strokeDashoffset = -data.slice(0, index).reduce((sum, d) => sum + (d.value / total) * 100, 0);
 
               return (
                 <PieChartSegment
@@ -549,31 +609,23 @@ const EmployerDash = () => {
                   r="15.9155"
                   stroke={item.color}
                   strokeDasharray={strokeDasharray}
-                  strokeDashoffset={strokeDashoffset}
+                  strokeDashoffset={`${strokeDashoffset}`}
                 />
               );
             })}
           </PieChart>
-          {tooltipData && (
-            <PieChartTooltip
-              visible={true}
-              style={{
-                left: `${tooltipData.x}px`,
-                top: `${tooltipData.y}px`,
-                transform: 'translate(-50%, -100%)'
-              }}
-            >
-              {tooltipData.item.label}: {tooltipData.item.value}%
-            </PieChartTooltip>
-          )}
         </PieChartContainer>
-      );
-    };
-
-    return (
-      <Card>
-        <CardTitle>{title}</CardTitle>
-        {renderPieChart()}
+        {tooltipData && (
+          <PieChartTooltip
+            style={{
+              position: 'fixed',
+              left: tooltipData.x + 10,
+              top: tooltipData.y + 10,
+            }}
+          >
+            {tooltipData.item.label}: {tooltipData.item.value}%
+          </PieChartTooltip>
+        )}
       </Card>
     );
   };
@@ -676,10 +728,16 @@ const EmployerDash = () => {
 
         <Grid>
           <StatCard>
-            <JobPostModal />
-            <IconWrapper bgColor={softColors.icons}>
-              <Briefcase size={20} />
-            </IconWrapper>
+            <div className="job-icon-div">
+              <div>
+                <IconWrapper bgColor={softColors.icons}>
+                  <Briefcase size={20} />
+                </IconWrapper>
+              </div>
+              <div>
+                <JobPostModal />
+              </div>
+            </div>
             <div>
               <StatNumber color={softColors.icontext}>1</StatNumber>
               <StatLabel>Open Positions</StatLabel>
@@ -712,7 +770,7 @@ const EmployerDash = () => {
               <Award size={20} />
             </IconWrapper>
             <div>
-              <StatNumber color={softColors.icontext}>0</StatNumber>
+            <StatNumber color={softColors.icontext}>0</StatNumber>
               <StatLabel>Total Hires</StatLabel>
             </div>
           </StatCard>
@@ -804,7 +862,7 @@ const EmployerDash = () => {
           </NewCard>
         </NewGrid>
 
-        <SectionTitle style={{ marginTop: '2rem', marginBottom: '1rem' }}>Your Applicant Demographics</SectionTitle>
+        <SectionTitle style={{ marginTop: '2rem', marginBottom: '1rem' }}>Demographics</SectionTitle>
         <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h3 style={{ fontSize: '1.25rem', fontWeight: 600, color: softColors.text }}> </h3>
           <label style={{ display: 'flex', alignItems: 'center', fontSize: '0.875rem', color: softColors.textLight }}>
@@ -818,7 +876,7 @@ const EmployerDash = () => {
           </label>
         </div>
         <Grid>
-          {demographicData.map((data, index) => (
+          {(showIndustryData ? industryDemographicData : demographicData).map((data, index) => (
             <PieChartWithTooltip key={index} data={data.data} title={data.title} />
           ))}
         </Grid>
@@ -844,15 +902,24 @@ const EmployerDash = () => {
           ))}
           <Link href="/applicants" style={{ display: 'inline-block', marginTop: '1.5rem' }}>View All Applicants</Link>
         </Card>
-
-        <SectionTitle style={{ marginTop: '2rem', marginBottom: '1rem' }}>MSBC Attendee Demographics</SectionTitle>
-        <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        </div>
-        <Grid>
-          {demographicData.map((data, index) => (
-            <PieChartWithTooltip key={index} data={data.data} title={data.title} />
-          ))}
-        </Grid>
+        <SectionTitle style={{ marginTop: '2rem', marginBottom: '1rem' }}>Demographics</SectionTitle>
+      <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h3 style={{ fontSize: '1.25rem', fontWeight: 600, color: softColors.text }}> </h3>
+        <label style={{ display: 'flex', alignItems: 'center', fontSize: '0.875rem', color: softColors.textLight }}>
+          <input
+            type="checkbox"
+            checked={showIndustryData}
+            onChange={() => setShowIndustryData(!showIndustryData)}
+            style={{ marginRight: '0.5rem' }}
+          />
+          Show Industry Standards
+        </label>
+      </div>
+      <Grid>
+        {(showIndustryData ? industryDemographicData : demographicData).map((data, index) => (
+          <PieChartWithTooltip key={index} data={data.data} title={data.title} />
+        ))}
+      </Grid>
 
         <Card style={{ marginTop: '2rem' }}>
           <CardTitle>MSBC Attendees - Top Matches</CardTitle>

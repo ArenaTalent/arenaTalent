@@ -44,24 +44,31 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     setLoading(true)
     try {
+      // Firebase Authentication - sign in the user
       const userCredential = await signInWithEmailAndPassword(
         auth,
         email,
         password
       )
-      const idToken = await userCredential.user.getIdToken()
+      const idToken = await userCredential.user.getIdToken() // Retrieve Firebase ID token
+
+      // Send the token to your backend for verification
       const response = await axios.post(
         '/api/users/login',
         { idToken },
         {
           headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${idToken}`
+            'Content-Type': 'application/json'
           }
         }
       )
-      console.log('Login response:', response.data)
+
+      // Store the token in localStorage for future authenticated requests
+      localStorage.setItem('authToken', idToken)
+
+      // Store user data in your app's state (e.g., React Context or Redux)
       setUser(response.data.user)
+
       return response.data
     } catch (error) {
       console.error('Login error:', error)

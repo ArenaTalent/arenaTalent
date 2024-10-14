@@ -1,7 +1,10 @@
 import axios from 'axios'
 
 const instance = axios.create({
-  baseURL: 'https://arena-talent-809eb598a3c0.herokuapp.com',
+  baseURL:
+    process.env.NODE_ENV === 'production'
+      ? 'https://arena-talent-809eb598a3c0.herokuapp.com'
+      : 'http://localhost:5002',
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json'

@@ -3,6 +3,7 @@ import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/
 import { auth } from '../firebaseConfig';
 import { useNavigate } from 'react-router-dom';
 import useGoogleMapsScript from '../hooks/useGoogleMapsScript';
+import { Tooltip } from '@/components/ui/tooltip';
 
 // List of common free email providers
 const freeEmailProviders = [
@@ -72,6 +73,7 @@ function Signup() {
     postal_code: '',
     country: '',
   });
+  const [isDomainValid, setIsDomainValid] = useState(true);
 
   const navigate = useNavigate();
   const jobSeekerAddressInputRef = useRef(null);
@@ -123,6 +125,7 @@ function Signup() {
       postal_code: '',
       country: '',
     });
+    setIsDomainValid(true);
 
     // Reset autocomplete refs
     if (jobSeekerAutocompleteRef.current) {
@@ -282,7 +285,9 @@ function Signup() {
 
   const validateCompanyEmail = () => {
     const emailDomain = formData.companyEmail.split('@')[1];
-    return emailDomain === companyDomain;
+    const isValid = emailDomain === companyDomain;
+    setIsDomainValid(isValid);
+    return isValid;
   };
 
   const handleNextStep = async () => {
@@ -346,7 +351,6 @@ function Signup() {
       setLoading(false);
     }
   };
-
 
   const renderAddressFields = (isEmployer = false) => (
     <div className="form-group">
@@ -537,7 +541,6 @@ function Signup() {
               <input
                 type="text"
                 id="firstName"
-
                 name="firstName"
                 value={formData.firstName}
                 onChange={handleInputChange}
@@ -549,7 +552,6 @@ function Signup() {
               <input
                 type="text"
                 id="lastName"
-
                 name="lastName"
                 value={formData.lastName}
                 onChange={handleInputChange}
@@ -558,7 +560,7 @@ function Signup() {
             </div>
           </div>
           <div className="horizontal-fields">
-          <div className="field-group">
+            <div className="field-group">
               <label htmlFor="companyDomain">Company Website (without www.)</label>
               <input
                 type="text"
@@ -576,47 +578,51 @@ function Signup() {
                 id="companyEmail"
                 name="companyEmail"
                 value={formData.companyEmail}
-                onChange={handleInputChange}
+                onChange={(e) => {
+                  handleInputChange(e);
+                  validateCompanyEmail();
+                }}
                 required
               />
+              {!isDomainValid && (
+                <Tooltip content="We need to confirm that your email is legitimate with your company to prevent fraud on our site.">
+                  <span className="check-mark error">✗ Domain does not match email</span>
+                </Tooltip>
+              )}
             </div>
           </div>
 
+          <label htmlFor="password">Password</label>
+          <div className="password-input-container">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              id="password"
+              name="password"
+              value={formData.password}
+              onChange={handleInputChange}
+              required
+            />
+            <button type="button" className="show-password-button" onClick={() => setShowPassword(!showPassword)}>
+              {showPassword ? 'Hide' : 'Show'}
+            </button>
+          </div>
 
-              <label htmlFor="password">Password</label>
-              <div className="password-input-container">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  id="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  required
-                />
-                <button type="button" className="show-password-button" onClick={() => setShowPassword(!showPassword)}>
-                  {showPassword ? 'Hide' : 'Show'}
-                </button>
-              </div>
-
-
-              {formData.password && !isPasswordValid && <span className="alert" style={{ color: 'red' }}>✗ Password must be at least 8 characters and include a number</span>}
-              {formData.password && isPasswordValid && <span className="alert" style={{ color: 'green' }}>✓ Valid password</span>}
-              <label htmlFor="confirmPassword">Confirm Password</label>
-              <div className="password-input-container">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              {formData.password && formData.confirmPassword && !isConfirmPasswordValid && <span className="alert" style={{ color: 'red' }}>✗ Passwords must match</span>}
-              {formData.password && formData.confirmPassword && isConfirmPasswordValid && <span className="alert" style={{ color: 'green' }}>✓ Passwords match</span>}
-            </div>
-
-
+          {formData.password && !isPasswordValid && <span className="alert" style={{ color: 'red' }}>✗ Password must be at least 8 characters and include a number</span>}
+          {formData.password && isPasswordValid && <span className="alert" style={{ color: 'green' }}>✓ Valid password</span>}
+          <label htmlFor="confirmPassword">Confirm Password</label>
+          <div className="password-input-container">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              id="confirmPassword"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+          {formData.password && formData.confirmPassword && !isConfirmPasswordValid && <span className="alert" style={{ color: 'red' }}>✗ Passwords must match</span>}
+          {formData.password && formData.confirmPassword && isConfirmPasswordValid && <span className="alert" style={{ color: 'green' }}>✓ Passwords match</span>}
+        </div>
       )}
       {step === 2 && (
         <div className="form-group">
@@ -742,7 +748,6 @@ function Signup() {
         <p className="login">
           Already have an account? <a href="/login">Login</a>
         </p>
-
       </div>
     </div>
   );
