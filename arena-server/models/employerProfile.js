@@ -1,8 +1,24 @@
-const { DataTypes } = require('sequelize')
+const { Model, DataTypes } = require('sequelize')
 
 module.exports = (sequelize) => {
-  const EmployerProfile = sequelize.define(
-    'EmployerProfile',
+  class EmployerProfile extends Model {
+    static associate(models) {
+      EmployerProfile.belongsTo(models.User, {
+        foreignKey: 'user_id',
+        as: 'owner'
+      })
+      EmployerProfile.hasMany(models.JobPosting, {
+        foreignKey: 'employer_profile_id',
+        as: 'jobPostings'
+      })
+      EmployerProfile.hasMany(models.EmployerMember, {
+        foreignKey: 'employer_id',
+        as: 'teamMembers'
+      })
+    }
+  }
+
+  EmployerProfile.init(
     {
       id: {
         type: DataTypes.INTEGER,
@@ -13,7 +29,7 @@ module.exports = (sequelize) => {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-          model: 'Users',
+          model: 'users',
           key: 'id'
         }
       },
@@ -73,31 +89,20 @@ module.exports = (sequelize) => {
           'premium',
           'enterprise',
           'paymentfail',
-          'frozen'
+          'frozen',
+          'msbc'
         ),
         defaultValue: 'freetrial'
       }
     },
     {
-      tableName: 'employer_profiles'
+      sequelize,
+      modelName: 'EmployerProfile',
+      tableName: 'employer_profiles',
+      underscored: true,
+      timestamps: true
     }
   )
-
-  EmployerProfile.associate = (models) => {
-    EmployerProfile.belongsTo(models.User, {
-      as: 'owner',
-      foreignKey: 'user_id'
-    })
-    EmployerProfile.hasMany(models.JobPosting, {
-      foreignKey: 'employer_profile_id'
-    })
-    EmployerProfile.belongsToMany(models.User, {
-      through: 'EmployerTeamMembers',
-      as: 'teamMembers',
-      foreignKey: 'employer_profile_id',
-      otherKey: 'user_id'
-    })
-  }
 
   return EmployerProfile
 }
