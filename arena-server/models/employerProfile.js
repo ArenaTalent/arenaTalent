@@ -49,10 +49,6 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false
       },
-      company_email: {
-        type: DataTypes.STRING,
-        allowNull: false
-      },
       intake_completed: {
         type: DataTypes.BOOLEAN,
         defaultValue: false
