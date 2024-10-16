@@ -18,8 +18,12 @@ const signupValidation = [
 /// Signup Route
 router.post('/signup', signupValidation, userController.signupWithEmail)
 
-// Login Route
-router.post('/login', userController.login)
+router.post('/login', (req, res, next) => {
+  console.log('Login route hit')
+  console.log('Request body:', req.body)
+  console.log('Request headers:', req.headers)
+  userController.login(req, res, next)
+})
 
 // Check Intake Status Route (Protected)
 router.get(

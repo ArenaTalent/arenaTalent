@@ -3,7 +3,7 @@ export const profiles = [
     id: 1,
     name: 'Atinuke Akindebe',
     email: 'aakindebe@gmail.com',
-    pronouns:'she/her',
+    pronouns: 'she/her',
     location: 'Jersey City, NJ, United States',
     currentEmployer: 'The Walt Disney Company',
     currentTitle: 'Addressable Account Manager',
@@ -53,7 +53,7 @@ May require some familiarization with specific sports industry protocols and pra
     id: 2,
     name: 'Meredith Corsillo',
     email: 'mjcorsillo@gmail.com',
-    pronouns:null,
+    pronouns: null,
     location: 'Boca Raton, FL, United States',
     currentEmployer: 'Diadem Sports',
     currentTitle: 'Director of Events',
@@ -78,9 +78,7 @@ May require some familiarization with specific sports industry protocols and pra
     personalURL: null,
     resumeLink: '/resumes/2.pdf',
     rating: 51,
-    ratingReasoning:
-
-`Extensive experience in sports event management and operations
+    ratingReasoning: `Extensive experience in sports event management and operations
 Strong background in player relations and stakeholder management
 Proven track record in managing high-profile sports events and tournaments
 Experience in marketing and social media strategy for sports organizations
@@ -92,14 +90,13 @@ Experience in cultivating partnerships with sponsors and brands
 
 Areas for consideration:
 Current experience level higher than typically expected for a coordinator role`,
-certificates: ['Quickbooks']
-
+    certificates: ['Quickbooks']
   },
   {
     id: 3,
     name: 'Kelley Martinez',
     email: 'kelleymartinez25@gmail.com',
-    pronouns:null,
+    pronouns: 'he/him',
     location: 'Brooklyn, NY, United States',
     currentEmployer: 'Ross inc.',
     currentTitle: 'Collections Specialist',
@@ -143,13 +140,13 @@ Proficiency in Microsoft Office suite and social media analysis
 Areas for consideration:
 
 Limited direct experience in premium client services`,
-certificates: null,
+    certificates: null
   },
   {
     id: 4,
     name: 'Hunter Carroll',
     email: 'huntercarroll.carroll@gmail.com',
-    pronouns:null,
+    pronouns: null,
     location: 'New York, NY, United States',
     currentEmployer: 'Heisman Trophy Trust',
     currentTitle: 'Graduate Intern',
@@ -198,7 +195,7 @@ Not willing to relocate to Eagan, MN`
     id: 5,
     name: 'Johnatan Rosillo',
     email: 'johnatanrosillo94@gmail.com',
-    pronouns:null,
+    pronouns: null,
     location: 'Dortmund, Germany',
     currentEmployer: 'Henkel',
     currentTitle: 'Purchasing Manager',
@@ -212,7 +209,7 @@ Not willing to relocate to Eagan, MN`
       university: 'Universidad Iberoamerica CDMX',
       graduationDate: '2018-07-01'
     },
-    education2:  {
+    education2: {
       degree: "Master's Degree",
       major: 'Football Business',
       university: 'Johan Cruyff Institute',
@@ -250,7 +247,7 @@ May be overqualified for a coordinator-level position`
     id: 6,
     name: 'Antonio Gutierrez',
     email: 'antoniotonygutierrez@gmail.com',
-    pronouns:null,
+    pronouns: null,
     location: 'Hanford, CA, United States',
     currentEmployer: 'AT&T',
     currentTitle: 'Business Analytics Intern',
@@ -264,7 +261,7 @@ May be overqualified for a coordinator-level position`
       university: 'California State Fresno',
       graduationDate: '2021-05-01'
     },
-    education2:  {
+    education2: {
       degree: "Master's Degree",
       major: 'Business Analytics',
       university: 'California Polytechnic State University San Luis Obispo',
@@ -296,7 +293,7 @@ Limited experience in people-facing roles`
     id: 7,
     name: 'Huong Nguyen-Valle',
     email: 'nguyen.h@gmail.com',
-    pronouns:null,
+    pronouns: null,
     location: 'Campbell, CA, United States',
     currentEmployer: 'Apeiron Life',
     currentTitle: 'Client Concierge and Facility Manager',
@@ -310,7 +307,7 @@ Limited experience in people-facing roles`
       university: 'San Jose State University',
       graduationDate: '2014-06-01'
     },
-    education2:  {
+    education2: {
       degree: "Master's Degree",
       major: 'Organizational Leadership in Human Resources',
       university: 'Southern New Hampshire University',
@@ -346,7 +343,7 @@ Is only looking for an HR role at this time`
     id: 8,
     name: 'Ed Urena',
     email: 'edurena045@gmail.com',
-    pronouns:null,
+    pronouns: 'he/him',
     location: 'Kissimmee, FL, United States',
     currentEmployer: 'Orlando Magic',
     currentTitle: 'Guest Experience Representative',
@@ -390,7 +387,7 @@ Relatively early in career, may need some guidance in a coordinator role`
     id: 9,
     name: 'Mark Martinez',
     email: 'mark.martinez1078@gmail.com',
-    pronouns:null,
+    pronouns: null,
     location: 'Vernon, TX, United States',
     currentEmployer: 'Lonestar Construction and Real Estate',
     currentTitle: 'Financial Manager',
@@ -404,7 +401,7 @@ Relatively early in career, may need some guidance in a coordinator role`
       university: 'Baylor University',
       graduationDate: '2020-12-01'
     },
-    education2:  {
+    education2: {
       degree: "Master's Degree",
       major: 'Sports Management',
       university: 'Texas A&M University',
@@ -436,7 +433,7 @@ Lack of specific experience in hospitality or venue operations`
     id: 10,
     name: 'Ajay Haridas',
     email: 'a.haridas@yahoo.com',
-    pronouns:null,
+    pronouns: null,
     location: 'Ontario, Canada',
     currentEmployer: 'TD Canada Trust',
     currentTitle: 'Capabilities Coach',
@@ -450,7 +447,7 @@ Lack of specific experience in hospitality or venue operations`
       university: 'University of Ottawa',
       graduationDate: '2018-06-01'
     },
-    education2:  {
+    education2: {
       degree: "Master's Degree",
       major: 'Sports Management',
       university: 'Geneva Business School',
@@ -480,7 +477,7 @@ Limited relevant experience in premium client services or sports industry operat
     id: 11,
     name: 'Isaiah Saint-Claur',
     email: 'isaiahsaintc@gmail.com',
-    pronouns:null,
+    pronouns: null,
     location: 'Hackensack, NJ, United States',
     currentEmployer: 'Penn Entertainment',
     currentTitle: 'Payments Analyst',
@@ -526,7 +523,7 @@ Prefers fully remote work, which may not align with this position's requirements
     id: 12,
     name: 'Atif Karim',
     email: 'iamatif.karim@gmail.com',
-    pronouns:null,
+    pronouns: 'he/him',
     location: 'Los Angeles, CA, United States',
     currentEmployer: 'T20 World Cup USA, Inc',
     currentTitle: 'Commercial Director',
@@ -540,8 +537,8 @@ Prefers fully remote work, which may not align with this position's requirements
       university: 'Stony Brook University',
       graduationDate: '2023-12-01'
     },
-    education2:  {
-      degree: "MBA",
+    education2: {
+      degree: 'MBA',
       major: 'Business Administration',
       university: 'IE Business School',
       graduationDate: '2015-12-01'
@@ -578,7 +575,7 @@ Salary expectations likely higher than the position's starting salary`
     id: 13,
     name: 'Mohana Holloway',
     email: 'mohanaholloway@gmail.com',
-    pronouns:'she/her',
+    pronouns: 'she/her',
     location: 'Phoenix, AZ, United States',
     currentEmployer: 'AZPreps365',
     currentTitle: 'Beat Reporter',
@@ -592,14 +589,20 @@ Salary expectations likely higher than the position's starting salary`
       university: 'Mount Royal University',
       graduationDate: '2023-04-01'
     },
-    education2:  {
+    education2: {
       degree: "Masters's Degree",
       major: 'Sports Journalism',
       university: 'Arizona State University',
       graduationDate: '2024-12-01'
     },
     education3: null,
-    certificates: ['HubSpot Inbound Marketing Certified', 'Spotify Digital Audio Advertising', 'Google Analytics', 'Google Ads Search', 'Google Ads Measurement and Google Ads Display Certified'],
+    certificates: [
+      'HubSpot Inbound Marketing Certified',
+      'Spotify Digital Audio Advertising',
+      'Google Analytics',
+      'Google Ads Search',
+      'Google Ads Measurement and Google Ads Display Certified'
+    ],
     workPreference: 'Hybrid (1-2 days in office)',
     strengths: 'Problem-Solving, Attention to Detail, Organization',
     willingToRelocate: true,
@@ -629,7 +632,7 @@ Prefers hybrid work, which may not align with role requirements`
     id: 14,
     name: 'Jonathan Wittig',
     email: 'jonnywittig@gmail.com',
-    pronouns:'he/him',
+    pronouns: 'he/him',
     location: 'Philadelphia, PA, United States',
     currentEmployer: 'Live! Casino & Hotel Philadelphia',
     currentTitle: 'Sportsbook Writer',
@@ -643,9 +646,12 @@ Prefers hybrid work, which may not align with role requirements`
       university: 'Temple University',
       graduationDate: '2022-12-01'
     },
-    education2:  null,
+    education2: null,
     education3: null,
-    certificates: ['Google Data Analytics Professional', 'Coursera Casino Gaming Workers/Card Dealer License'],
+    certificates: [
+      'Google Data Analytics Professional',
+      'Coursera Casino Gaming Workers/Card Dealer License'
+    ],
     workPreference:
       'In-Office (5 days/week), Hybrid (3-4 days in office), Hybrid (1-2 days in office)',
     strengths: 'Time Management, Adaptability, Critical Thinking',
@@ -667,13 +673,12 @@ Google Data Analytics Professional Certificate, potentially useful for data-driv
 Experience with social media content creation and engagement
 Areas for consideration:
 Limited experience specifically in premium client services within a traditional sports team setting`
-
   },
   {
     id: 15,
     name: 'Kerry Moynihan',
     email: 'kmoynihan@shaw.ca',
-    pronouns:null,
+    pronouns: null,
     location: 'Cochrane, Alberta, Canada',
     currentEmployer: 'Field Hockey Canada',
     currentTitle: 'Board of Directors',
@@ -688,7 +693,7 @@ Limited experience specifically in premium client services within a traditional 
       university: 'Laurentian',
       graduationDate: '1979-04-01'
     },
-    education2:null,
+    education2: null,
     education3: null,
     certificates: null,
     workPreference: 'Hybrid (3-4 days in office)',
@@ -718,7 +723,7 @@ Limited recent expertise in day-to-day operations or client services`
     id: 16,
     name: 'Katie Loyd',
     email: 'katiecameronloyd@gmail.com',
-    pronouns:'she/her',
+    pronouns: 'she/her',
     location: 'Greensboro, NC, United States',
     currentEmployer: 'Elon University',
     currentTitle: 'Graduate Apprentice for the Center for Design Thinking',
@@ -762,7 +767,7 @@ Current role and recent experience not directly related to sports or event manag
     id: 17,
     name: 'Olawunmi Igbinovia',
     email: 'olaigbinovia@gmail.com',
-    pronouns:'she/her',
+    pronouns: 'she/her',
     location: 'Lagos, Nigeria',
     currentEmployer: 'Meadowhall Group',
     currentTitle: 'Programme Officer',
@@ -776,7 +781,7 @@ Current role and recent experience not directly related to sports or event manag
       university: 'Univeristy of Lagos',
       graduationDate: '2015-02-01'
     },
-    education2:  {
+    education2: {
       degree: "Master's Degree",
       major: 'Sports Administration and Management',
       university: 'University of Lagos',
@@ -810,7 +815,7 @@ Current role not directly related to sports or premium experiences
     id: 18,
     name: 'Luciano Tommasini',
     email: 'ctommasini@outlook.com',
-    pronouns:'he/him',
+    pronouns: 'he/him',
     location: 'Orlando, FL, United States',
     currentEmployer: 'Universal Orlando Resort',
     currentTitle: 'Supervisor',
@@ -824,9 +829,9 @@ Current role not directly related to sports or premium experiences
       university: 'University of Central Florida',
       graduationDate: '2015-12-01'
     },
-    education2:  null,
+    education2: null,
     education3: null,
-    certificates: ['CPR/AED/FIRST AID', 'AHA Basic Water Safety','ARC'],
+    certificates: ['CPR/AED/FIRST AID', 'AHA Basic Water Safety', 'ARC'],
     workPreference:
       'In-Office (5 days/week), Hybrid (1-2 days in office), Fully Remote, Hybrid (3-4 days in office)',
     strengths: 'Communication, Adaptability, Problem-Solving',
@@ -849,14 +854,14 @@ Strong communication, adaptability, and problem-solving skills`
   },
   {
     id: 19,
-    name: 'Brady Hertl',
-    email: 'bradyhertl@gmail.com',
-    pronouns:null,
-    location: 'Pickerington, OH, United States',
-    currentEmployer: 'Octagon',
-    currentTitle: 'Capstone Intern',
+    name: 'Olivia Schwartz',
+    email: 'ocmooney@gmail.com',
+    pronouns: 'she/her',
+    location: 'Leesburg, VA',
+    currentEmployer: 'Arena',
+    currentTitle: 'Software Engineer',
     workExperience: '3-5 years',
-    currentLevel: 'Student',
+    currentLevel: 'Mid-Level',
 
     startDate: '2024-06-01',
     endDate: '2024-07-01',
@@ -866,7 +871,7 @@ Strong communication, adaptability, and problem-solving skills`
       university: 'St Johns University',
       graduationDate: '2023-05-01'
     },
-    education2:  {
+    education2: {
       degree: "Master's Degree",
       major: 'Sports Management',
       university: 'St Johns University',
@@ -900,7 +905,7 @@ Currently completing Master's degree, may have limited immediate availability
     id: 20,
     name: 'Jason Petriello',
     email: 'jason.petriello@gmail.com',
-    pronouns:null,
+    pronouns: null,
     location: 'South Plainfield, NJ, United States',
     currentEmployer: 'Amazon',
     currentTitle: 'Fulfillment Associate',
@@ -953,10 +958,10 @@ May require significant training in sports-specific operations and premium exper
     startDate: '2022-06-01',
     endDate: null,
     education1: {
-      degree: "High School",
+      degree: 'High School',
       major: null,
       university: null,
-      graduationDate: null,
+      graduationDate: null
     },
     education2: null,
     education3: null,
@@ -983,7 +988,7 @@ Work experience primarily focused on technical operations and content rather tha
     id: 22,
     name: 'Sophia Saldana',
     email: 'saldanassophia@gmail.com',
-    pronouns: null,
+    pronouns: 'she/her',
     location: 'San Diego, CA, United States',
     currentEmployer: 'Delaware North',
     currentTitle: 'Premium Services Supervisor',
@@ -995,7 +1000,7 @@ Work experience primarily focused on technical operations and content rather tha
       degree: "Bachelor's Degree",
       major: 'Business Administration',
       university: 'Columbia University',
-      graduationDate: '2021-12-01',
+      graduationDate: '2021-12-01'
     },
     education2: null,
     education3: null,

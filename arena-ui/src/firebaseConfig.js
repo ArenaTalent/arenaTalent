@@ -1,5 +1,6 @@
 import { initializeApp } from 'firebase/app'
 import { getAuth, GoogleAuthProvider } from 'firebase/auth'
+
 //Firebase configuration
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
@@ -10,10 +11,13 @@ const firebaseConfig = {
   appId: process.env.REACT_APP_FIREBASE_APP_ID,
   measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID
 }
+
 // Initialize Firebase
 const app = initializeApp(firebaseConfig)
+
 // Initialize Firebase Auth and other services
 export const auth = getAuth(app)
 export const googleProvider = new GoogleAuthProvider()
+
 // Export the app as the default export
 export default app

@@ -6,44 +6,39 @@ function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState(null);
-    const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
 
     const navigate = useNavigate();
-    const { login, currentUser } = useAuth();
+    const { login, user, loading } = useAuth();
 
     useEffect(() => {
-        if (currentUser) {
+        if (user) {
             console.log('User is already logged in, redirecting...');
             navigate('/jobseeker-intake');
         }
-    }, [currentUser, navigate]);
-
-    const handleSubmit = async (e) => {
+    }, [user, navigate]);
+ const handleSubmit = async (e) => {
         e.preventDefault();
         setError(null);
-        setLoading(true);
 
         try {
-            console.log('Attempting login...');
-            const result = await login(email, password);
+          console.log('Attempting login...');
+          const result = await login(email, password);
+          console.log('Login successful', result);
 
-            console.log('Login successful', result);
-
-            if (result.redirectPath) {
-                console.log('Redirecting to:', result.redirectPath);
-                navigate(result.redirectPath, { replace: true });
-            } else {
-                console.log('No redirect path provided, defaulting to /jobseeker-intake');
-                navigate('/jobseeker-intake', { replace: true });
-            }
+          if (result.redirectPath) {
+            console.log('Redirecting to:', result.redirectPath);
+            navigate(result.redirectPath, { replace: true });
+          } else {
+            console.log('No redirect path provided, defaulting to /jobseeker-dashboard');
+            navigate('/jobseeker-dashboard', { replace: true });
+          }
         } catch (error) {
-            console.error('Login error:', error);
-            setError('An error occurred during login. Please try again.');
-        } finally {
-            setLoading(false);
+          console.error('Login error:', error);
+          setError('An error occurred during login. Please try again.');
         }
-    };
+      };
+
 
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
@@ -57,7 +52,7 @@ function Login() {
             <div className="right">
                 <form onSubmit={handleSubmit} className="login-form">
                     <img src="/images/black-logo.png" alt="Arena Logo" className="white-logo-signup" />
-                    <h2 className="welcome-message" style={{color: 'black'}}>Welcome Back!</h2>
+                    <h2 className="welcome-message" style={{ color: 'black' }}>Welcome Back!</h2>
                     <div className="form-group">
                         <label htmlFor="email">Email:</label>
                         <input
@@ -86,6 +81,7 @@ function Login() {
                                 type="button"
                                 className="show-password-button"
                                 onClick={togglePasswordVisibility}
+                                aria-label={showPassword ? 'Hide password' : 'Show password'}
                                 disabled={loading}
                             >
                                 {showPassword ? 'Hide' : 'Show'}

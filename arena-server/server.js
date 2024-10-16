@@ -30,29 +30,21 @@ if (!admin.apps.length) {
   )
 }
 
-// CORS configuration
-const allowedOrigins = [
-  'https://arenatalent-d7a88.web.app',
-  'https://app.arenatalent.com',
-  process.env.FRONTEND_URL,
-  'http://localhost:3000'
-]
+const corsOptions = {
+  origin: [
+    'https://arenatalent-d7a88.web.app',
+    'https://app.arenatalent.com',
+    'http://localhost:3000',
+    'http://localhost:5002'
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+  optionsSuccessStatus: 204
+}
 
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-        callback(null, true)
-      } else {
-        callback(new Error('Not allowed by CORS'))
-      }
-    },
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true,
-    optionsSuccessStatus: 204
-  })
-)
+app.use(cors(corsOptions))
 
 // Middleware
 app.use(cookieParser())

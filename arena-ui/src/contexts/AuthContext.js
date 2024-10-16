@@ -1,6 +1,12 @@
 import React, { createContext, useState, useEffect, useContext } from 'react'
-import axios from 'axios'
-import firebase from '../firebaseConfig' // Assuming you have Firebase initialized in this file
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged
+} from 'firebase/auth'
+import axios from '../utils/axiosConfig'
+import firebaseApp from '../firebaseConfig'
 
 const AuthContext = createContext()
 
@@ -9,68 +15,83 @@ export const useAuth = () => useContext(AuthContext)
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
+  const auth = getAuth(firebaseApp)
 
   useEffect(() => {
-    checkUser() // Check if the user is logged in on page load
-  }, [])
-
-  // Check if the user is logged in
-  const checkUser = async () => {
-    const token = localStorage.getItem('authToken')
-    if (token) {
-      try {
-        const response = await axios.get('/api/users/check-intake', {
-          headers: { Authorization: `Bearer ${token}` }
-        })
-        setUser(response.data.user)
-      } catch (error) {
-        console.error('Failed to fetch user:', error)
-        localStorage.removeItem('authToken')
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      setLoading(true)
+      if (firebaseUser) {
+        try {
+          const idToken = await firebaseUser.getIdToken()
+          const response = await axios.get('/api/users/check-intake', {
+            headers: { Authorization: `Bearer ${idToken}` }
+          })
+          console.log('User data from check-intake:', response.data)
+          setUser(response.data.user)
+        } catch (error) {
+          console.error('Failed to fetch user:', error)
+          setUser(null)
+        }
+      } else {
+        setUser(null)
       }
-    }
-    setLoading(false)
-  }
+      setLoading(false)
+    })
 
-  // Handle login with Firebase
+    return () => unsubscribe()
+  }, [auth])
+
   const login = async (email, password) => {
+    setLoading(true)
     try {
-      // Sign in with Firebase
-      const userCredential = await firebase
-        .auth()
-        .signInWithEmailAndPassword(email, password)
-      const idToken = await userCredential.user.getIdToken() // Get Firebase ID token
+      // Firebase Authentication - sign in the user
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      )
+      const idToken = await userCredential.user.getIdToken() // Retrieve Firebase ID token
 
-      // Send Firebase ID token to your backend
+      // Send the token to your backend for verification
       const response = await axios.post(
         '/api/users/login',
         { idToken },
         {
-          headers: { Authorization: `Bearer ${idToken}` } // Send ID token as a Bearer token
+          headers: {
+            'Content-Type': 'application/json'
+          }
         }
       )
 
-      setUser(response.data.user) // Update the user state
-      localStorage.setItem('authToken', idToken) // Store token locally
-      return response.data // Return response data (redirectPath, etc.)
+      // Store the token in localStorage for future authenticated requests
+      localStorage.setItem('authToken', idToken)
+
+      // Store user data in your app's state (e.g., React Context or Redux)
+      setUser(response.data.user)
+
+      return response.data
     } catch (error) {
-      console.error('Login failed:', error)
+      console.error('Login error:', error)
       throw error
+    } finally {
+      setLoading(false)
     }
   }
 
-  // Logout the user
   const logout = async () => {
-    await firebase.auth().signOut() // Sign out from Firebase
-    setUser(null)
-    localStorage.removeItem('authToken')
+    try {
+      await signOut(auth)
+      setUser(null)
+    } catch (error) {
+      console.error('Logout error:', error)
+    }
   }
 
   const value = {
     user,
     loading,
     login,
-    logout,
-    checkUser
+    logout
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

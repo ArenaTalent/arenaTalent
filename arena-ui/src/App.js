@@ -38,7 +38,7 @@ function App() {
             <Route path="/signup" element={<Signup />} />
             <Route path="/reset-password" element={<PasswordReset />} />
             <Route path="/employer-profile" element={<EmployerProfile />} />
-            <Route path="/jobseeker-dashboard" element={<JobSeekerDash />} />
+
             <Route path="/jobseeker-profile" element={<JobSeekerProfile />} />
             <Route path="/search-companies" element={<CompanySearch />} />
             <Route path="/job-posting1" element={<JobPosting />} />
@@ -74,6 +74,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <JobSeekerIntakeForm />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/jobseeker-dashboard"
+              element={
+                <ProtectedRoute>
+                  <JobSeekerDash />
                 </ProtectedRoute>
               }
             />

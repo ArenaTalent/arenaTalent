@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
-import { Calendar, Mail, UserPlus, Briefcase, Users, PlusCircle, ChevronDown, BarChart2, Clock, Award } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import styled, { keyframes } from 'styled-components';
+
+import { Calendar, Mail, UserPlus, Briefcase, Users, PlusCircle, ChevronDown, BarChart2, Clock, Award, ExternalLink } from 'lucide-react';
 import EmployerNav from './EmployerNav';
+import JobPostModal from './JobPostModal';
+
 
 const softColors = {
   background: '#f0f4f8',
@@ -15,6 +18,9 @@ const softColors = {
   warning: '#f6ad55',
   danger: '#fc8181',
   info: '#63b3ed',
+  icons: '#12C2E8',
+  icontext: '#C859FF',
+  yellow: '#f6e05e',
 };
 
 const Container = styled.div`
@@ -65,21 +71,26 @@ const CardTitle = styled.h3`
 `;
 
 const Link = styled.a`
-  color: ${softColors.primary};
-  font-weight: 600;
+  color: white;
+  background-color: ${softColors.icontext};
+  font-weight: 500;
   text-decoration: none;
+  font-size: 14px;
   transition: color 0.2s;
+  border: 1px solid ${softColors.icontext};
+  width: auto;
+  padding: 10px;
+  border-radius: 5px;
 
   &:hover {
-    color: ${softColors.info};
-    text-decoration: underline;
+    background-color: white;
+    color: ${softColors.icontext};
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
 `;
 
 const StatCard = styled(Card)`
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  position: relative;
 `;
 
 const StatNumber = styled.p`
@@ -155,7 +166,7 @@ const TableRow = styled.tr`
 
   &:hover {
     box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.1);
-   background-color: ${softColors.background};
+    background-color: ${softColors.background};
   }
 `;
 
@@ -173,13 +184,6 @@ const TableCell = styled.td`
     border-top-right-radius: 0.5rem;
     border-bottom-right-radius: 0.5rem;
   }
-`;
-
-
-const MatchRating = styled.div`
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: ${softColors.success};
 `;
 
 const EventLink = styled.a`
@@ -206,30 +210,15 @@ const IconWrapper = styled.div`
 
 const OnboardingSection = styled(Card)`
   margin-bottom: 1.5rem;
+  height: auto;
 `;
 
 const SectionTitle = styled.h2`
   font-size: 1.25rem;
   font-weight: bold;
-  margin-bottom: 0.5rem;
+  margin-top: -0.5rem;
   color: ${softColors.text};
 `;
-
-const SectionProgressBar = styled(ProgressBarContainer)`
-  margin-bottom: 1rem;
-`;
-
-const SectionProgress = styled(ProgressBar)`
-  background-color: ${softColors.success};
-`;
-
-const SectionDescription = styled.p`
-  font-size: 0.875rem;
-  color: ${softColors.textLight};
-  margin-bottom: 1rem;
-  line-height: 1.5;
-`;
-
 
 const ApplicantInfo = styled.div`
   flex: 1;
@@ -253,6 +242,7 @@ const ApplicantCard = styled.div`
     background-color: ${softColors.background};
   }
 `;
+
 const ApplicantName = styled.h4`
   font-size: 1rem;
   font-weight: 600;
@@ -280,9 +270,14 @@ const FilterDropdown = styled(Select)`
   margin-bottom: 1rem;
 `;
 
-
-
-
+const rotateAnimation = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+`;
 
 const PieChartContainer = styled.div`
   position: relative;
@@ -290,58 +285,154 @@ const PieChartContainer = styled.div`
   height: 150px;
   margin: 0 auto 1rem;
   cursor: pointer;
+  animation: ${rotateAnimation} 0.5s ease-in-out;
 `;
 
 const PieChart = styled.svg`
-  width: 100%;
-  height: 100%;
+  width: 70%;
+  height: 50%;
   transform: rotate(-90deg);
   border-radius: 50%;
-  overflow: hidden;
+  overflow: visible;
+  margin-top: 30px;
 `;
 
 const PieChartSegment = styled.circle`
   fill: transparent;
   stroke-width: 32;
+  transition: opacity 0.3s;
+
+  &:hover {
+    opacity: 0.8;
+  }
 `;
 
-const PieChartLegend = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-start;
+const PieChartTooltip = styled.div`
+  background-color: ${softColors.card};
+  border: 1px solid ${softColors.border};
+  border-radius: 4px;
+  padding: 0.5rem;
+  font-size: 0.75rem;
+  color: ${softColors.text};
+  pointer-events: none;
+  opacity: ${props => props.visible ? 1 : 0};
+  transition: opacity 0.3s;
+  z-index: 10;
+`;
+
+const NavWrapper = styled.div`
+  flex: 0 0 auto;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+`;
+
+const PostJobButton = styled(Link)`
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+`;
+
+const ReviewButton = styled(Link)`
+  display: block;
+  width: 100%;
+  text-align: center;
   margin-top: 1rem;
+  padding: 0.5rem;
+  margin-left: -10px;
 `;
 
-const LegendItem = styled.div`
+const SectionHeader = styled.div`
   display: flex;
   align-items: center;
-  margin-right: 1rem;
-  margin-bottom: 0.5rem;
+  justify-content: space-between;
 `;
 
-const LegendColor = styled.div`
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
+const SectionIcon = styled.span`
   margin-right: 0.5rem;
 `;
 
-const LegendLabel = styled.span`
-  font-size: 0.75rem;
-  color: ${props => props.theme.text};
+const SectionProgressBar = styled(ProgressBarContainer)`
+  margin: 0.5rem 0;
+  position: relative;
 `;
 
+const SectionProgress = styled(ProgressBar)`
+  background-color: ${props => props.started ? softColors.success : softColors.danger};
+`;
+
+const SectionContent = styled.div`
+  max-height: ${props => props.isOpen ? '1000px' : '0'};
+  overflow: ${props => props.isOpen ? 'show' : 'hidden'};
+  transition: max-height 0.1s ease-in-out;
+`;
+
+const SectionDescription = styled.p`
+  font-size: 0.875rem;
+  color: ${softColors.textLight};
+  line-height: 1.5;
+`;
+
+const NewGrid = styled.div`
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(1, 1fr);
+  margin-top: 2rem;
+`;
+
+const NewCard = styled(Card)`
+  padding: 1.5rem;
+`;
+
+const NewLink = styled(Link)`
+  display: block;
+  margin-top: 1rem;
+  text-align: center;
+`;
+
+const CardHeader = styled.div`
+  margin-bottom: 1rem;
+`;
+
+const CardContent = styled.div`
+  font-size: 0.875rem;
+  color: ${softColors.textLight};
+`;
+
+const StatItem = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+`;
 
 const EmployerDash = () => {
   const [showIndustryData, setShowIndustryData] = useState(false);
   const [selectedRole, setSelectedRole] = useState('All Roles');
   const [hoveredSegment, setHoveredSegment] = useState(null);
+  const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+  const [openSections, setOpenSections] = useState({
+    profile: false,
+    postJob: false,
+    survey: false
+  });
+
+  const toggleSection = (section) => {
+    setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
+  };
+
   const applicants = [
-    { id: 19, name: 'Brady Hertl', role: 'Premium Experience Coordinator', applyDate: '9/23/24', match: 95 },
+    { id: 19, name: 'Olivia Schwartz', role: 'CTO', applyDate: '9/23/24', match: 95 },
     { id: 18, name: 'Luciano Tommasini', role: 'Premium Experience Coordinator', applyDate: '9/22/24', match: 91 },
     { id: 8, name: 'Ed Urena', role: 'Customer Service Representative', applyDate: '9/21/24', match: 92 },
     { id: 14, name: 'Jonathan Wittig', role: 'Marketing Specialist', applyDate: '9/20/24', match: 87 },
     { id: 1, name: 'Atinuke Akindebe', role: 'Data Analyst', applyDate: '9/19/24', match: 83 },
+  ];
+
+  const jobOverviews = [
+    { title: 'Premium Experience Coordinator', status: 'Active', views: 152, applications: 43, highMatches: 15 },
+    { title: 'Marketing Specialist', status: 'Active', views: 98, applications: 27, highMatches: 8 },
+    { title: 'Data Analyst', status: 'Draft', views: 0, applications: 0, highMatches: 0 },
   ];
 
   const applicantStages = [
@@ -358,9 +449,9 @@ const EmployerDash = () => {
         { label: 'Male', value: 60, color: '#4a90e2' },
         { label: 'Female', value: 35, color: '#68d391' },
         { label: 'Non-binary', value: 5, color: '#f6ad55' },
-        {label: 'Transgender Male', value: 0, color: '#fc8181' },
-        {label: 'Transgender Female', value: 0, color: '#63b3ed' },
-        {label: 'Prefer not to say', value: 0, color: '#f6e05e' }
+        { label: 'Transgender Male', value: 0, color: '#fc8181' },
+        { label: 'Transgender Female', value: 0, color: '#63b3ed' },
+        { label: 'Prefer not to say', value: 0, color: '#f6e05e' }
       ]
     },
     {
@@ -370,9 +461,9 @@ const EmployerDash = () => {
         { label: 'Black or African American', value: 20, color: '#68d391' },
         { label: 'Hispanic or Latino', value: 15, color: '#f6ad55' },
         { label: 'Asian', value: 10, color: '#fc8181' },
-        {label: 'Indigenous', value: 5, color: '#63b3ed' },
-        {label: 'Middle Eastern/Arab', value: 5, color: '#f6e05e' },
-        {label: 'Pacific Islander', value: 5, color: '#f6e05e' },
+        { label: 'Indigenous', value: 5, color: '#63b3ed' },
+        { label: 'Middle Eastern/Arab', value: 5, color: '#f6e05e' },
+        { label: 'Pacific Islander', value: 5, color: '#f6e05e' },
         { label: 'Other', value: 5, color: '#63b3ed' }
       ]
     },
@@ -380,12 +471,11 @@ const EmployerDash = () => {
       title: 'LGBTQIA+',
       data: [
         { label: 'Straight/Heterosexual', value: 85, color: '#4a90e2' },
-        {label: 'Gay', value: 10, color: '#f6ad55' },
-        {label: 'Lesbian', value: 5, color: '#fc8181' },
-        {label: 'Bisexual', value: 5, color: '#63b3ed' },
-        {label: 'Queer', value: 5, color: '#f6e05e' },
-        {label: 'Prefer not to say', value: 0, color: '#f6e05e' }
-
+        { label: 'Gay', value: 10, color: '#f6ad55' },
+        { label: 'Lesbian', value: 5, color: '#fc8181' },
+        { label: 'Bisexual', value: 5, color: '#63b3ed' },
+        { label: 'Queer', value: 5, color: '#f6e05e' },
+        { label: 'Prefer not to say', value: 0, color: '#f6e05e' }
       ]
     },
     {
@@ -393,7 +483,7 @@ const EmployerDash = () => {
       data: [
         { label: 'With Disability', value: 10, color: '#4a90e2' },
         { label: 'Without Disability', value: 90, color: '#68d391' },
-        {label: 'Prefer Not to Say', value: 0, color: '#f6ad55' }
+        { label: 'Prefer Not to Say', value: 0, color: '#f6ad55' }
       ]
     },
     {
@@ -401,7 +491,61 @@ const EmployerDash = () => {
       data: [
         { label: 'Veteran', value: 8, color: '#4a90e2' },
         { label: 'Non-Veteran', value: 92, color: '#68d391' },
-        {label: 'Prefer Not to Say', value: 0, color: '#f6ad55' }
+        { label: 'Prefer Not to Say', value: 0, color: '#f6ad55' }
+      ]
+    },
+  ];
+
+  const industryDemographicData = [
+    {
+      title: 'Gender',
+      data: [
+        { label: 'Male', value: 55, color: '#4a90e2' },
+        { label: 'Female', value: 40, color: '#68d391' },
+        { label: 'Non-binary', value: 3, color: '#f6ad55' },
+        { label: 'Transgender Male', value: 1, color: '#fc8181' },
+        { label: 'Transgender Female', value: 1, color: '#63b3ed' },
+        { label: 'Prefer not to say', value: 0, color: '#f6e05e' }
+      ]
+    },
+    {
+      title: 'Race/Ethnicity',
+      data: [
+        { label: 'White', value: 45, color: '#4a90e2' },
+        { label: 'Black or African American', value: 25, color: '#68d391' },
+        { label: 'Hispanic or Latino', value: 18, color: '#f6ad55' },
+        { label: 'Asian', value: 12, color: '#fc8181' },
+        { label: 'Indigenous', value: 2, color: '#63b3ed' },
+        { label: 'Middle Eastern/Arab', value: 3, color: '#f6e05e' },
+        { label: 'Pacific Islander', value: 1, color: '#f6e05e' },
+        { label: 'Other', value: 4, color: '#63b3ed' }
+      ]
+    },
+    {
+      title: 'LGBTQIA+',
+      data: [
+        { label: 'Straight/Heterosexual', value: 80, color: '#4a90e2' },
+        { label: 'Gay', value: 7, color: '#f6ad55' },
+        { label: 'Lesbian', value: 5, color: '#fc8181' },
+        { label: 'Bisexual', value: 4, color: '#63b3ed' },
+        { label: 'Queer', value: 3, color: '#f6e05e' },
+        { label: 'Prefer not to say', value: 1, color: '#f6e05e' }
+      ]
+    },
+    {
+      title: 'Disability',
+      data: [
+        { label: 'With Disability', value: 15, color: '#4a90e2' },
+        { label: 'Without Disability', value: 82, color: '#68d391' },
+        { label: 'Prefer Not to Say', value: 3, color: '#f6ad55' }
+      ]
+    },
+    {
+      title: 'Veteran Status',
+      data: [
+        { label: 'Veteran', value: 10, color: '#4a90e2' },
+        { label: 'Non-Veteran', value: 88, color: '#68d391' },
+        { label: 'Prefer Not to Say', value: 2, color: '#f6ad55' }
       ]
     },
   ];
@@ -412,125 +556,200 @@ const EmployerDash = () => {
     ? applicants
     : applicants.filter(applicant => applicant.role === selectedRole);
 
-  const renderPieChart = (data) => {
-    let total = data.reduce((sum, item) => sum + item.value, 0);
-    let accumulatedPercentage = 0;
+  const PieChartWithTooltip = ({ data, title }) => {
+    const [tooltipData, setTooltipData] = useState(null);
+    const chartRef = useRef(null);
+
+    const total = data.reduce((sum, item) => sum + item.value, 0);
+
+    const getAngleFromEvent = (event) => {
+      const rect = chartRef.current.getBoundingClientRect();
+      const x = event.clientX - rect.left - rect.width / 2;
+      const y = event.clientY - rect.top - rect.height / 2;
+      return Math.atan2(y, x) * (180 / Math.PI);
+    };
+
+    const getItemFromAngle = (angle) => {
+      let accumulatedPercentage = 0;
+      return data.find(item => {
+        accumulatedPercentage += (item.value / total) * 360;
+        return accumulatedPercentage > angle;
+      });
+    };
+
+    const handleMouseMove = (event) => {
+      const angle = (getAngleFromEvent(event) + 180) % 360;
+      const item = getItemFromAngle(angle);
+      if (item) {
+        setTooltipData({
+          item,
+          x: event.clientX,
+          y: event.clientY,
+        });
+      }
+    };
+
+    const handleMouseLeave = () => {
+      setTooltipData(null);
+    };
 
     return (
-      <PieChartContainer>
-        <PieChart viewBox="0 0 32 32">
-          {data.map((item, index) => {
-            const percentage = (item.value / total) * 100;
-            const strokeDasharray = `${percentage} ${100 - percentage}`;
-            const strokeDashoffset = -accumulatedPercentage;
-            accumulatedPercentage += percentage;
+      <Card>
+        <CardTitle>{title}</CardTitle>
+        <PieChartContainer ref={chartRef} onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave}>
+          <PieChart viewBox="0 0 32 32">
+            {data.map((item, index) => {
+              const percentage = (item.value / total) * 100;
+              const strokeDasharray = `${percentage} ${100 - percentage}`;
+              const strokeDashoffset = -data.slice(0, index).reduce((sum, d) => sum + (d.value / total) * 100, 0);
 
-            return (
-              <PieChartSegment
-                key={index}
-                cx="16"
-                cy="16"
-                r="15.9155"
-                stroke={item.color}
-                strokeDasharray={strokeDasharray}
-                strokeDashoffset={strokeDashoffset}
-              />
-            );
-          })}
-        </PieChart>
-      </PieChartContainer>
+              return (
+                <PieChartSegment
+                  key={index}
+                  cx="16"
+                  cy="16"
+                  r="15.9155"
+                  stroke={item.color}
+                  strokeDasharray={strokeDasharray}
+                  strokeDashoffset={`${strokeDashoffset}`}
+                />
+              );
+            })}
+          </PieChart>
+        </PieChartContainer>
+        {tooltipData && (
+          <PieChartTooltip
+            style={{
+              position: 'fixed',
+              left: tooltipData.x + 10,
+              top: tooltipData.y + 10,
+            }}
+          >
+            {tooltipData.item.label}: {tooltipData.item.value}%
+          </PieChartTooltip>
+        )}
+      </Card>
     );
   };
+
+
   return (
     <Container>
       <EmployerNav />
 
       <MainContent>
-        <WelcomeHeader>Welcome, Minnesota Vikings!</WelcomeHeader>
+      <WelcomeHeader>🏟 Welcome to Arena!</WelcomeHeader>
 
-        <Link  style={{ position: 'absolute', top: '2rem', right: '2rem' }}>
-          Add Team Members
+      <Link href="/add-team-members" style={{ position: 'absolute', top: '2rem', right: '2rem' }}>
+          + Add Team Members
         </Link>
 
-        <OnboardingSection>
-          <SectionTitle>🔥 Complete your profile to unlock access to your candidate matches</SectionTitle>
-          <SectionProgressBar><SectionProgress width="30%" /></SectionProgressBar>
-          <SectionDescription>
-            This information helps our AI personalize its talent matches to meet your top hiring goals.
-            Note: You will not see your talent matches until you complete your profile.
-          </SectionDescription>
-          <Link href="/edit-profile">Edit Profile</Link>
+        <OnboardingSection onClick={() => toggleSection('profile')}>
+          <SectionHeader>
+            <SectionTitle>
+              <SectionIcon>🔥</SectionIcon>
+              Complete your profile
+            </SectionTitle>
+            <ChevronDown size={20} style={{ transform: openSections.profile ? 'rotate(180deg)' : 'none', transition: 'transform 0.3s', cursor: 'pointer' }} />
+          </SectionHeader>
+          <SectionProgressBar>
+            <SectionProgress width="30%" started={true} />
+          </SectionProgressBar>
+          <SectionContent isOpen={openSections.profile}>
+            <SectionDescription>
+              This information helps our AI personalize its talent matches to meet your top hiring goals.
+              Note: You will not see your talent matches until you complete your profile.
+            </SectionDescription>
+            <Link href="/edit-profile">Edit Profile</Link>
+          </SectionContent>
         </OnboardingSection>
 
-        <OnboardingSection>
-          <SectionTitle>📝 Post a job</SectionTitle>
-          <SectionProgressBar><SectionProgress width="0%" /></SectionProgressBar>
-          <SectionDescription>
-            Post your first job to our curated talent community and receive top candidate matches instantly!
-          </SectionDescription>
-          <Link href="/post-job">Post a Job</Link>
+        <OnboardingSection onClick={() => toggleSection('postJob')}>
+          <SectionHeader>
+            <SectionTitle>
+              <SectionIcon>📝</SectionIcon>
+              Post a job
+            </SectionTitle>
+            <ChevronDown size={20} style={{ transform: openSections.postJob ? 'rotate(180deg)' : 'none', transition: 'transform 0.3s', cursor: 'pointer' }} />
+          </SectionHeader>
+          <SectionProgressBar>
+            <SectionProgress width="20%" started={false} />
+          </SectionProgressBar>
+          <SectionContent isOpen={openSections.postJob}>
+            <SectionDescription>
+              Post your first job to our curated talent community and receive top candidate matches instantly!
+            </SectionDescription>
+            <Link href="/post-job">Post a Job</Link>
+          </SectionContent>
         </OnboardingSection>
 
-        <OnboardingSection>
-          <SectionTitle>🔑 Get access to more talent</SectionTitle>
-          <SectionProgressBar><SectionProgress width="0%" /></SectionProgressBar>
-          <SectionDescription>
-            Complete this quick survey to increase your standing in our algorithm and get access to even more talent.
-            These responses are anonymous and are used to help us gather industry data on hiring trends and best practices.
-            It will be shared in reports, in responses to questions asked in our AI chatbot, and to benchmark your hiring goals and success metrics.
-            Your personal information will NEVER be shared publicly and will only be shared anonymously and in aggregate form.
-          </SectionDescription>
-          <Link href="/complete-survey">Complete Survey</Link>
+        <OnboardingSection onClick={() => toggleSection('survey')}>
+          <SectionHeader>
+            <SectionTitle>
+              <SectionIcon>🔑</SectionIcon>
+              Get access to more talent
+            </SectionTitle>
+            <ChevronDown size={20} style={{ transform: openSections.survey ? 'rotate(180deg)' : 'none', transition: 'transform 0.3s', cursor: 'pointer' }} />
+          </SectionHeader>
+          <SectionProgressBar>
+            <SectionProgress width="20%" started={false} />
+          </SectionProgressBar>
+          <SectionContent isOpen={openSections.survey}>
+            <SectionDescription>
+              Complete this quick survey to increase your standing in our algorithm and get access to even more talent.
+              These responses are anonymous and are used to help us gather industry data on hiring trends and best practices.
+              It will be shared in reports, in responses to questions asked in our AI chatbot, and to benchmark your hiring goals and success metrics.
+              Your personal information will NEVER be shared publicly and will only be shared anonymously and in aggregate form.
+            </SectionDescription>
+            <Link href="/complete-survey">Complete Survey</Link>
+          </SectionContent>
         </OnboardingSection>
 
         <Grid>
           <StatCard>
-            <IconWrapper bgColor={softColors.primary}>
-              <Briefcase size={20} />
-            </IconWrapper>
+            <div className="job-icon-div">
+              <div>
+                <IconWrapper bgColor={softColors.icons}>
+                  <Briefcase size={20} />
+                </IconWrapper>
+              </div>
+              <div>
+                <JobPostModal />
+              </div>
+            </div>
             <div>
-              <StatNumber color={softColors.primary}>5</StatNumber>
+              <StatNumber color={softColors.icontext}>1</StatNumber>
               <StatLabel>Open Positions</StatLabel>
             </div>
-            <Link href="/post-job" style={{ marginTop: '1rem', fontSize: '0.875rem' }}>Post a Job</Link>
+            <ReviewButton href="/review-recommendations">Review Recommendations</ReviewButton>
           </StatCard>
 
           <StatCard>
-            <IconWrapper bgColor={softColors.success}>
+            <IconWrapper bgColor={softColors.icons}>
               <Users size={20} />
             </IconWrapper>
             <div>
-              <StatNumber color={softColors.success}>67</StatNumber>
+              <StatNumber color={softColors.icontext}>65</StatNumber>
               <StatLabel>Total Applicants</StatLabel>
             </div>
-            <Select>
-              <option>All Jobs</option>
-              <option>Job 1</option>
-              <option>Job 2</option>
-            </Select>
           </StatCard>
 
           <StatCard>
-            <IconWrapper bgColor={softColors.info}>
+            <IconWrapper bgColor={softColors.icons}>
               <Calendar size={20} />
             </IconWrapper>
             <div>
-              <StatNumber color={softColors.info}>15</StatNumber>
+              <StatNumber color={softColors.icontext}>0</StatNumber>
               <StatLabel>Total Interviews</StatLabel>
             </div>
-            <Select>
-              <option>All Jobs</option>
-              <option>Job 1</option>
-              <option>Job 2</option>
-            </Select>
           </StatCard>
 
           <StatCard>
-            <IconWrapper bgColor={softColors.secondary}>
+            <IconWrapper bgColor={softColors.icons}>
               <Award size={20} />
             </IconWrapper>
             <div>
-              <StatNumber color={softColors.secondary}>8</StatNumber>
+            <StatNumber color={softColors.icontext}>0</StatNumber>
               <StatLabel>Total Hires</StatLabel>
             </div>
           </StatCard>
@@ -577,6 +796,44 @@ const EmployerDash = () => {
           </Card>
         </Grid>
 
+        <NewGrid>
+          <NewCard>
+            <CardHeader>
+              <CardTitle>Job Overview</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <thead>
+                  <tr>
+                    <TableHeader>Title</TableHeader>
+                    <TableHeader>Status</TableHeader>
+                    <TableHeader>Views</TableHeader>
+                    <TableHeader>Apps</TableHeader>
+                    <TableHeader>80%+</TableHeader>
+                  </tr>
+                </thead>
+                <tbody>
+                  {jobOverviews.map((job, index) => (
+                    <TableRow key={index}>
+                      <TableCell>{job.title}</TableCell>
+                      <TableCell style={{ color: job.status === 'Active' ? softColors.success : softColors.textLight }}>
+                        {job.status}
+                      </TableCell>
+                      <TableCell>{job.views}</TableCell>
+                      <TableCell>{job.applications}</TableCell>
+                      <TableCell>{job.highMatches}</TableCell>
+                    </TableRow>
+                  ))}
+                </tbody>
+              </Table>
+              <NewLink href="/all-jobs">
+                View All Jobs <ExternalLink size={14} style={{ verticalAlign: 'middle', marginLeft: '4px' }} />
+              </NewLink>
+            </CardContent>
+          </NewCard>
+        </NewGrid>
+
+
         <SectionTitle style={{ marginTop: '2rem', marginBottom: '1rem' }}>Demographics</SectionTitle>
         <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h3 style={{ fontSize: '1.25rem', fontWeight: 600, color: softColors.text }}> </h3>
@@ -591,19 +848,8 @@ const EmployerDash = () => {
           </label>
         </div>
         <Grid>
-          {demographicData.map((data, index) => (
-            <Card key={index}>
-              <CardTitle>{data.title}</CardTitle>
-              {renderPieChart(data.data)}
-              <PieChartLegend>
-                {data.data.map((item, i) => (
-                  <LegendItem key={i}>
-                    <LegendColor style={{ backgroundColor: item.color }} />
-                    <LegendLabel>{item.label}: {item.value}%</LegendLabel>
-                  </LegendItem>
-                ))}
-              </PieChartLegend>
-            </Card>
+          {(showIndustryData ? industryDemographicData : demographicData).map((data, index) => (
+            <PieChartWithTooltip key={index} data={data.data} title={data.title} />
           ))}
         </Grid>
 

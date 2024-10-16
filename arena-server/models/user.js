@@ -35,7 +35,11 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false
       },
-      company_name: DataTypes.STRING
+      company_name: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        comment: 'Only applicable for users with the "employer" role'
+      }
     },
     {
       tableName: 'users',

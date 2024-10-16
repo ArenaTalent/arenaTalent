@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react'
 import styled from 'styled-components'
-import { Mail, MapPin, Linkedin, Github, Flag, Globe, Clock, MapPinIcon, Video, VideotapeIcon, Instagram, TrophyIcon, ChevronLeft, ChevronRight, FileText} from 'lucide-react'
+import { Mail, MapPin, Box, Linkedin, Presentation, Github, Flag, Globe, Clock, MapPinIcon, Video, VideotapeIcon, Instagram, TrophyIcon, ChevronLeft, ChevronRight, FileText} from 'lucide-react'
 import EmployerNav from './EmployerNav'
 
 const PageWrapper = styled.div`
@@ -412,15 +412,15 @@ export default function Profile() {
                     </ProfileHeader>
                     <FlagContainer>
                       <Badge variant="success">
-                        <Flag size={12} color="white" />
-                        <FlagText>Open for Opportunities</FlagText>
+
+                        <FlagText>95% Match</FlagText>
                       </Badge>
                     </FlagContainer>
                     <SectionTitle>About Me</SectionTitle>
                     <p>{profile.about}</p>
                   </ProfileCard>
                   <ProfileCard>
-                    <SectionTitle>Work History</SectionTitle>
+                    <SectionTitle>Experience</SectionTitle>
                     {profile.workHistory.map((job, index) => (
                       <div key={index} style={{ marginBottom: '1rem' }}>
                         <DetailParagraph>
@@ -446,7 +446,7 @@ export default function Profile() {
                     ))}
                   </ProfileCard>
                   <ProfileCard>
-                    <SectionTitle>Portfolio</SectionTitle>
+                    <SectionTitle>My Portfolio</SectionTitle>
                     <PortfolioContainer>
                       <PortfolioScroller ref={portfolioRef}>
                         {portfolioItems.map((item, index) => (
@@ -467,7 +467,7 @@ export default function Profile() {
                     </PortfolioContainer>
                   </ProfileCard>
                   <ProfileCard>
-                    <SectionTitle>Video</SectionTitle>
+                    <SectionTitle>Introduction Video</SectionTitle>
                     {profile.video.url && (
                       <Link href={profile.video.url} target="_blank" rel="noopener noreferrer">
                         <Video size={24} />
@@ -481,7 +481,7 @@ export default function Profile() {
                 </MainContent>
                 <Sidebar>
                   <ProfileCard>
-                    <SectionTitle>Additional Details</SectionTitle>
+                    <SectionTitle>Contact Info</SectionTitle>
                     <DetailParagraph>
                       <IconContainer>
                         <Mail size={18} />
@@ -514,19 +514,19 @@ export default function Profile() {
                     </DetailParagraph>
                     <DetailParagraph>
                       <IconContainer>
-                        <Mail size={18} />
+                        <Box size={18} />
                       </IconContainer>
-                      {`Startup Experience: ${profile.startupExperience ? 'Yes' : 'No'}`}
+                      {`Willing To Relocate: ${profile.willingToRelocate ? 'Yes' : 'No'}`}
                     </DetailParagraph>
                     <DetailParagraph>
                       <IconContainer>
-                        <Mail size={18} />
+                        <Presentation size={18} />
                       </IconContainer>
                       {`Job Level: ${profile.jobLevel}`}
                     </DetailParagraph>
                   </ProfileCard>
                   <ProfileCard>
-                    <SectionTitle>Olivia's Links</SectionTitle>
+                    <SectionTitle>My Links</SectionTitle>
                     {profile.linkedin && (
                       <DetailParagraph>
                         <IconContainer>
@@ -569,10 +569,14 @@ export default function Profile() {
                     )}
                   </ProfileCard>
                   <ProfileCard>
-                    <SectionTitle>Belongs to</SectionTitle>
+                    <SectionTitle>Member Of</SectionTitle>
                     {profile.belongsTo.map((org, index) => (
                       <Badge key={index}>{org}</Badge>
                     ))}
+                  </ProfileCard>
+                  <ProfileCard>
+                    <SectionTitle>Honors & Achievements</SectionTitle>
+
                   </ProfileCard>
                 </Sidebar>
               </ProfileContent>

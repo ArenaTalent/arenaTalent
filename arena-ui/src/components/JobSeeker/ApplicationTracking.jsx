@@ -75,13 +75,6 @@ const CompanyLogoCell = styled(TableCell)`
   padding-right: 1.5rem;
 `
 
-const StatusBadge = styled.span`
-  background-color: #e0f2fe;
-  color: #0369a1;
-  padding: 0.25rem 0.5rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-`
 
 const MatchCell = styled(TableCell)`
   position: relative;
@@ -104,13 +97,43 @@ const MatchCell = styled(TableCell)`
   }
 `
 
+const StatusBadge = styled.span`
+  background-color: ${props => props.backgroundColor};
+  color: ${props => props.color};
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+`
+
 export default function ApplicationTracking() {
   const navigate = useNavigate();
 
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'Submitted':
+        return { backgroundColor: '#E0F2FE', color: '#0369A1' }; // Light blue
+      case 'In-Review':
+        return { backgroundColor: '#FEF3C7', color: '#92400E' }; // Light yellow
+      case 'Shortlisted':
+        return { backgroundColor: '#D1FAE5', color: '#047857' }; // Light green
+      case 'Interview':
+        return { backgroundColor: '#DBEAFE', color: '#1D4ED8' }; // Light indigo
+      case 'Declined':
+        return { backgroundColor: '#FEE2E2', color: '#B91C1C' }; // Light red
+      default:
+        return { backgroundColor: '#E5E7EB', color: '#374151' }; // Light gray (default)
+    }
+  };
+
   const appliedPositions = [
     { company: 'Arena', logo: '/images/black-logo.png', title: 'CTO', details: 'Remote • Full-time', match: 96, dateApplied: 'Sept 1st', status: 'In-Review' },
-    // Add more applied positions here as needed
+    { company: 'Minnesota Vikings', logo: '/images/black-logo.png', title: 'Data Analyst', details: 'Minneapolis, MN • Full-time', match: 92, dateApplied: 'Aug 28th', status: 'Submitted' },
+    { company: 'ESPN', logo: '/images/black-logo.png',  title: 'Software Engineer', details: 'Bristol, CT • Full-time', match: 88, dateApplied: 'Aug 25th', status: 'Shortlisted' },
+    { company: 'NBA', logo: '/images/black-logo.png',  title: 'Product Manager', details: 'New York, NY • Full-time', match: 85, dateApplied: 'Aug 20th', status: 'Interview' },
+    { company: 'Under Armour', logo: '/images/black-logo.png',  title: 'Marketing Specialist', details: 'Baltimore, MD • Full-time', match: 82, dateApplied: 'Aug 15th', status: 'Declined' },
+    { company: 'Fanatics', logo: '/images/black-logo.png',  title: 'UX Designer', details: 'Remote • Contract', match: 79, dateApplied: 'Aug 10th', status: 'In-Review' },
   ];
+
 
   return (
     <PageWrapper>
@@ -148,7 +171,9 @@ export default function ApplicationTracking() {
                   <MatchCell>{position.match}%</MatchCell>
                   <TableCell>{position.dateApplied}</TableCell>
                   <TableCell>
-                    <StatusBadge>{position.status}</StatusBadge>
+                    <StatusBadge {...getStatusColor(position.status)}>
+                      {position.status}
+                    </StatusBadge>
                   </TableCell>
                 </tr>
               ))}

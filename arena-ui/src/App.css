@@ -329,3 +329,9 @@ margin-bottom: 10px;
   color: grey;
   border: none;
 }
+
+.job-icon-div{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
