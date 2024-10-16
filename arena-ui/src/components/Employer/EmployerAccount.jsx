@@ -22,7 +22,7 @@ const NavbarWrapper = styled.div`
 
 const PageContainer = styled.div`
   flex-grow: 1;
-  background-color: #f3f4f6;
+  background-color: #f8f9fa;
   overflow-y: auto;
 `
 
@@ -67,6 +67,7 @@ const Card = styled.div`
   position: relative;
 
   transition: all 0.3s ease;
+  flex: 1;
 
   &:hover {
     box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
@@ -82,7 +83,7 @@ const CardDescription = styled.p`
 const CardPrice = styled.p`
   font-size: 28px; 
   font-weight: 600; 
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 `
 const CardButton = styled.button`
   background-color: #6b46c1; 
@@ -92,7 +93,6 @@ const CardButton = styled.button`
   border-radius: 8px; 
   border: none; 
   cursor: pointer;
-  margin-bottom: 10px; 
   position: relative;
 `
 const BulletContainerTitle = styled.h3`
@@ -199,6 +199,9 @@ const TabButton = ({ active, onClick, children }) => (
       setNewPassword('');
     };
 
+    const handleOpenUpgradeLink = () => {
+      window.open('https://meetings.hubspot.com/parul-khosla/schedule-a-demo'); 
+    };
 
   return (
     <PageWrapper>
@@ -211,7 +214,7 @@ const TabButton = ({ active, onClick, children }) => (
       <h1 style={{ fontSize: '24px', marginBottom: '10px' }}>Account Settings</h1>
       <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '20px' }}>Manage your employer account preferences</p>
 
-      <div style={{ display: 'flex', borderBottom: '1px solid #e5e7eb', marginBottom: '20px' }}>
+      <div style={{ display: 'flex', borderBottom: '1px solid #e5e7eb', marginBottom: '2rem' }}>
         <TabButton active={activeTab === 'login'} onClick={() => setActiveTab('login')}>Login Settings</TabButton>
         <TabButton active={activeTab === 'billing'} onClick={() => setActiveTab('billing')}>Billing</TabButton>
         <TabButton active={activeTab === 'notifications'} onClick={() => setActiveTab('notifications')}>Notifications</TabButton>
@@ -243,34 +246,19 @@ const TabButton = ({ active, onClick, children }) => (
         </div>
       )} */}
 {activeTab === 'billing' && (
-  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', textAlign: 'center'}}>
-    {/* Starter Plan */}
-    <Card onClick={() => handlePlanClick('starter')}>
-      <TableTitle>Starter</TableTitle>
-      <CardDescription>Try Arena free for 14 days</CardDescription>
-      <CardPrice>$0 <span style={{ fontSize: '14px' }}>(Start trial)</span></CardPrice>
-      <CardButton>Start Trial</CardButton>
-
-      <BulletPointContainer>  
-        <BulletContainerTitle>Includes:</BulletContainerTitle>      
-        <BulletPoint><FontAwesomeIcon icon={faCheckCircle} /> 1 recruiter seat</BulletPoint>
-        <BulletPoint><FontAwesomeIcon icon={faCheckCircle} /> 1 unique job slot</BulletPoint>
-        <BulletPoint><FontAwesomeIcon icon={faCheckCircle} /> Employer profile</BulletPoint>
-        <BulletPoint><FontAwesomeIcon icon={faCheckCircle} /> AI applicant matches</BulletPoint>
-        <BulletPoint><FontAwesomeIcon icon={faCheckCircle} /> AI candidate sourcing tool (limited)</BulletPoint>
-        <BulletPoint><FontAwesomeIcon icon={faCheckCircle} /> Real-time candidate insights</BulletPoint>
-        <BulletPoint><FontAwesomeIcon icon={faCheckCircle} /> Direct messaging (10 max)</BulletPoint>
-        <BulletPoint><FontAwesomeIcon icon={faCheckCircle} /> Applicant tracking</BulletPoint>
-      </BulletPointContainer>
-    </Card>
-
+  <div style={{ 
+    fontFamily: 'Arial, sans-serif' 
+  }}>
+   <div style={{ display: 'flex', gap:'2rem', textAlign: 'center', justifyContent: 'center'}}>
+    
     {/* Premium Plan */}
     <Card onClick={() => handlePlanClick('premium')}>
 
       <TableTitle>Premium</TableTitle>
       <CardDescription>For smaller companies & nonprofits</CardDescription>
       <CardPrice>$750<span style={{ fontSize: '16px' }}>/month</span></CardPrice>
-      <CardButton>Book a demo</CardButton>
+      <CardButton onClick={() => handleOpenUpgradeLink()}>Upgrade</CardButton>
+      <CardButton style={{display: 'none'}}>Chat with Us</CardButton> 
 
       <BulletPointContainer>
         <BulletContainerTitle>Includes:</BulletContainerTitle>
@@ -292,9 +280,9 @@ const TabButton = ({ active, onClick, children }) => (
       <TableTitle>Enterprise</TableTitle>
       <CardDescription>Schedule a demo to learn about our flexible pricing plans</CardDescription>
       <CardPrice>Custom</CardPrice>
-      <CardButton>Book a demo</CardButton>
+      <CardButton onClick={() => handleOpenUpgradeLink()}>Upgrade</CardButton>
+      <CardButton style={{display: 'none'}}>Chat with Us</CardButton> 
 
-      
       <BulletPointContainer>
         <BulletContainerTitle>Includes:</BulletContainerTitle>
         <BulletPoint><FontAwesomeIcon icon={faCheckCircle} /> Unlimited recruiter seats</BulletPoint>
@@ -312,6 +300,7 @@ const TabButton = ({ active, onClick, children }) => (
         <BulletPoint><FontAwesomeIcon icon={faCheckCircle} /> Access to recruiting events</BulletPoint>
       </BulletPointContainer>
     </Card>
+  </div>
   </div>
 )}
 
