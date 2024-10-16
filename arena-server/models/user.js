@@ -39,6 +39,11 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
         comment: 'Only applicable for users with the "employer" role'
+      },
+      subscription_end_date: {
+        type: DataTypes.DATE,
+        allowNull: true,
+        comment: "The date when the user's subscription ends"
       }
     },
     {

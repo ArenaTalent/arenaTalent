@@ -10,8 +10,11 @@ exports.signupWithEmail = async (req, res) => {
     lastName,
     email,
     password,
+    eventCode,
     ...profileData
   } = req.body
+
+  const transaction = await sequelize.transaction()
 
   try {
     // Validate role
@@ -25,41 +28,77 @@ exports.signupWithEmail = async (req, res) => {
       return res.status(400).json({ error: 'User already exists' })
     }
 
+    let subscriptionEndDate = null
+
+    // Process event code if provided
+    if (eventCode) {
+      const validEventCode = await EventCode.findOne({
+        where: {
+          code: eventCode,
+          is_active: true,
+          expiration_date: {
+            [sequelize.Op.or]: [null, { [sequelize.Op.gte]: new Date() }]
+          }
+        }
+      })
+
+      if (validEventCode) {
+        subscriptionEndDate = validEventCode.access_end_date
+      } else {
+        return res.status(400).json({ error: 'Invalid or expired event code' })
+      }
+    }
+
     // Create the User record
-    const user = await User.create({
-      firebase_uid,
-      first_name: firstName,
-      last_name: lastName,
-      email,
-      password, // Hash the password if needed (though Firebase Auth handles passwords)
-      role
-    })
+    const user = await User.create(
+      {
+        firebase_uid,
+        first_name: firstName,
+        last_name: lastName,
+        email,
+        password, // Hash the password if needed (though Firebase Auth handles passwords)
+        role,
+        subscription_end_date: subscriptionEndDate
+      },
+      { transaction }
+    )
 
     // Based on role, create either an EmployerProfile or JobseekerProfile
     if (role === 'employer') {
-      await EmployerProfile.create({
-        user_id: user.id,
-        company_name: profileData.companyName,
-        company_website: profileData.companyWebsite, // Add this line
-        company_address: profileData.companyAddress,
-        company_phone: profileData.companyPhone,
-        company_email: profileData.companyEmail,
-        company_size: profileData.companySize,
-        domain_verified: profileData.domain_verified // Add this line if you're using it
-      })
+      await EmployerProfile.create(
+        {
+          user_id: user.id,
+          company_name: profileData.companyName,
+          company_website: profileData.companyWebsite,
+          company_address: profileData.companyAddress,
+          company_phone: profileData.companyPhone,
+          company_email: profileData.email,
+          company_size: profileData.companySize,
+          domain_verified: profileData.domain_verified
+        },
+        { transaction }
+      )
     } else if (role === 'jobseeker') {
-      await JobseekerProfile.create({
-        user_id: user.id,
-        date_of_birth: profileData.dateOfBirth,
-        street_address: profileData.address,
-        phone: profileData.phone
-        // Add more jobseeker fields as needed
-      })
+      await JobseekerProfile.create(
+        {
+          user_id: user.id,
+          date_of_birth: profileData.dateOfBirth,
+          street_address: profileData.address,
+          phone: profileData.phone
+          // Add more jobseeker fields as needed
+        },
+        { transaction }
+      )
     }
+
+    // Commit the transaction
+    await transaction.commit()
 
     // Send a success response
     res.status(201).json({ message: 'User registered successfully' })
   } catch (error) {
+    // Rollback the transaction in case of error
+    await transaction.rollback()
     console.error('Error in signup:', error)
     res.status(500).json({ error: 'Server error', details: error.message })
   }
