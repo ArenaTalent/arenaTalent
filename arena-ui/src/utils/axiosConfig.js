@@ -8,8 +8,8 @@ const instance = axios.create({
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json'
-  },
-  maxRedirects: 0 // Prevent following redirects
+  }
+  // maxRedirects: 0 // Prevent following redirects
 })
 
 // Add a response interceptor

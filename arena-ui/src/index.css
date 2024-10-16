@@ -243,3 +243,16 @@ body, html {
 #job_search_challenge{
   z-index: 1;
 }
+
+.required {
+  color: red;
+  margin-left: 3px;
+}
+
+.required-fields-note{
+  color: red;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 12px;
+  margin-bottom: -10px;
+  text-align: center;
+}

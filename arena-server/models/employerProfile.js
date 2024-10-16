@@ -49,11 +49,11 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false
       },
-      intake_completed: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false
-      },
       company_description: DataTypes.TEXT,
+      website: DataTypes.STRING,
+      location: DataTypes.STRING,
+      work_from_home_policy: DataTypes.STRING,
+      top_ranking: DataTypes.STRING,
       linkedin: DataTypes.STRING,
       industry: DataTypes.STRING,
       number_of_open_jobs: DataTypes.INTEGER,
@@ -62,40 +62,20 @@ module.exports = (sequelize) => {
       benefits: DataTypes.ARRAY(DataTypes.TEXT),
       recent_news: DataTypes.TEXT,
       team: DataTypes.TEXT,
-      logo: {
-        type: DataTypes.STRING,
-        allowNull: true
-      },
+      profile_picture_url: DataTypes.STRING,
+      cover_photo_url: DataTypes.STRING,
+      logo: DataTypes.STRING,
       photos: {
         type: DataTypes.ARRAY(DataTypes.STRING),
         defaultValue: []
       },
-      video: {
-        type: DataTypes.STRING,
-        allowNull: true
-      },
-      domain_verified: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false
-      },
-      plan: {
-        type: DataTypes.ENUM(
-          '30daytrial',
-          'freetrial',
-          'premium',
-          'enterprise',
-          'paymentfail',
-          'frozen',
-          'msbc'
-        ),
-        defaultValue: 'freetrial'
-      }
+      video: DataTypes.STRING
     },
     {
       sequelize,
       modelName: 'EmployerProfile',
       tableName: 'employer_profiles',
-      underscored: true,
+      underscored: false, // Change this to false
       timestamps: true
     }
   )

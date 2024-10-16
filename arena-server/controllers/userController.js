@@ -40,11 +40,12 @@ exports.signupWithEmail = async (req, res) => {
       await EmployerProfile.create({
         user_id: user.id,
         company_name: profileData.companyName,
+        company_website: profileData.companyWebsite, // Add this line
         company_address: profileData.companyAddress,
         company_phone: profileData.companyPhone,
         company_email: profileData.companyEmail,
-        company_size: profileData.companySize
-        // Add more employer fields as needed
+        company_size: profileData.companySize,
+        domain_verified: profileData.domain_verified // Add this line if you're using it
       })
     } else if (role === 'jobseeker') {
       await JobseekerProfile.create({
@@ -60,7 +61,7 @@ exports.signupWithEmail = async (req, res) => {
     res.status(201).json({ message: 'User registered successfully' })
   } catch (error) {
     console.error('Error in signup:', error)
-    res.status(500).json({ error: 'Server error' })
+    res.status(500).json({ error: 'Server error', details: error.message })
   }
 }
 
