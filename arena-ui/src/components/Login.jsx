@@ -1,19 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { signInWithEmailAndPassword, getIdToken } from 'firebase/auth';
-import { auth } from '../firebaseConfig';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
 
 function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState(null);
-    const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
 
     const navigate = useNavigate();
-    const { login, user } = useAuth();
+    const { login, user, loading } = useAuth();
 
     useEffect(() => {
         if (user) {
@@ -21,63 +17,28 @@ function Login() {
             navigate('/jobseeker-intake');
         }
     }, [user, navigate]);
-
-    const handleSubmit = async (e) => {
+ const handleSubmit = async (e) => {
         e.preventDefault();
         setError(null);
-        setLoading(true);
+
         try {
-            console.log('Attempting Firebase authentication...');
-            const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            const idToken = await getIdToken(userCredential.user);
-            console.log('Firebase authentication successful');
+          console.log('Attempting login...');
+          const result = await login(email, password);
+          console.log('Login successful', result);
 
-            console.log('Attempting login with AuthContext...');
-            await login(idToken);
-            console.log('AuthContext login successful');
-
-            console.log('Sending request to check-intake');
-            const response = await axios.get('/api/users/check-intake', {
-                headers: {
-                    'Authorization': `Bearer ${idToken}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            console.log('Response status:', response.status);
-            console.log('Response data:', response.data);
-
-            if (response.data.redirectPath) {
-                console.log('Attempting to redirect to:', response.data.redirectPath);
-                navigate(response.data.redirectPath, { replace: true });
-                console.log('Navigation function called');
-            } else {
-                throw new Error('Invalid response from server');
-            }
+          if (result.redirectPath) {
+            console.log('Redirecting to:', result.redirectPath);
+            navigate(result.redirectPath, { replace: true });
+          } else {
+            console.log('No redirect path provided, defaulting to /jobseeker-dashboard');
+            navigate('/jobseeker-dashboard', { replace: true });
+          }
         } catch (error) {
-            console.error("Login error:", error);
-            if (error.code) {
-                // Firebase Auth error
-                switch (error.code) {
-                    case 'auth/user-not-found':
-                    case 'auth/wrong-password':
-                        setError('Invalid email or password. Please try again.');
-                        break;
-                    case 'auth/too-many-requests':
-                        setError('Too many failed login attempts. Please try again later.');
-                        break;
-                    default:
-                        setError('An error occurred during login. Please try again.');
-                }
-            } else if (axios.isAxiosError(error)) {
-                setError(error.response?.data?.error || 'An error occurred during login. Please try again.');
-            } else {
-                setError('An unexpected error occurred. Please try again.');
-            }
-        } finally {
-            setLoading(false);
+          console.error('Login error:', error);
+          setError('An error occurred during login. Please try again.');
         }
-    };
+      };
+
 
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
@@ -91,8 +52,7 @@ function Login() {
             <div className="right">
                 <form onSubmit={handleSubmit} className="login-form">
                     <img src="/images/black-logo.png" alt="Arena Logo" className="white-logo-signup" />
-                    <h2 className="welcome-message" style={{color: 'black'}}
-                    >Welcome Back!</h2>
+                    <h2 className="welcome-message" style={{ color: 'black' }}>Welcome Back!</h2>
                     <div className="form-group">
                         <label htmlFor="email">Email:</label>
                         <input
@@ -121,6 +81,7 @@ function Login() {
                                 type="button"
                                 className="show-password-button"
                                 onClick={togglePasswordVisibility}
+                                aria-label={showPassword ? 'Hide password' : 'Show password'}
                                 disabled={loading}
                             >
                                 {showPassword ? 'Hide' : 'Show'}

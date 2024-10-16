@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
-import { Search, Save, ChevronDown, ChevronUp, ArrowUpDown, X, User } from 'lucide-react'
+import { Search, Save, ChevronDown, ChevronUp, ArrowUpDown, X, User, Heart, Plus } from 'lucide-react'
 import {  useNavigate } from 'react-router-dom'
 import EmployerNav from './EmployerNav'
 import { profiles } from '../../data/profiles'
@@ -113,55 +113,12 @@ const JobSeekerList = styled.div`
   gap: 1rem;
 `
 
-const JobSeekerCard = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  position: relative;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
 
-  &:hover {
-    background-color: #f0f0f0;
-  }
-`
-
-const JobSeekerInfo = styled.div`
-  flex-grow: 1;
-  margin-left: 1rem;
-`
-
-const JobSeekerName = styled.h3`
-  font-size: 1.2rem;
-  font-weight: bold;
-  margin-bottom: 0.25rem;
-`
-
-const JobSeekerDetails = styled.p`
-  font-size: 0.9rem;
-  color: #666;
-  margin-bottom: 0.25rem;
-`
-
-const TagList = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-`
-
-const Tag = styled.span`
-  background-color: #e0e0e0;
-  padding: 0.25rem 0.5rem;
-  border-radius: 9999px;
-  font-size: 0.8rem;
-`
 
 const MatchPercentage = styled.div`
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
+  // position: absolute;
+  // top: 1rem;
+  // right: 1rem;
   background-color: ${props => props.color};
   color: white;
   font-size: 0.75rem;
@@ -171,6 +128,46 @@ const MatchPercentage = styled.div`
   display: flex;
   align-items: center;
   gap: 0.25rem;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+`
+
+const TooltipContent = styled.div`
+  visibility: hidden;
+  width: 200px;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -100px;
+  opacity: 0;
+  transition: opacity 0.3s;
+
+  ${MatchPercentage}:hover & {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  &::after {
+    content: "";
+    // position: absolute;
+    top: 100%;
+    left: 50%;
+    width: 600px;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #555 transparent transparent transparent;
+  }
 `
 
 const SortContainer = styled.div`
@@ -191,35 +188,6 @@ const SortButton = styled(Button)`
   }
 `
 
-const PopupOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-`
-
-const PopupContent = styled.div`
-  background-color: white;
-  padding: 2rem;
-  border-radius: 8px;
-  width: 400px;
-`
-
-const PopupTitle = styled.h2`
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
-`
-
-const PopupDescription = styled.p`
-  margin-bottom: 1rem;
-`
-
 const NavWrapper = styled.div`
   flex: 0 0 auto;
   height: 100vh;
@@ -232,10 +200,9 @@ const FilterSearchInput = styled(SearchInput)`
   margin-bottom: 0.5rem;
 `
 
-const NestedFilterContent = styled(FilterContent)`
+const NestedFilterContent = styled.div`
   padding-left: 1rem;
-`
-
+`;
 const ClearButton = styled.button`
   background: none;
   border: none;
@@ -255,6 +222,83 @@ const ButtonGroup = styled.div`
   justify-content: space-evenly;
   margin-top: 4rem;
 `
+const JobSeekerCard = styled.div`
+  display: flex;
+  align-items: flex-start;
+  padding: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: #f0f0f0;
+  }
+`;
+const JobSeekerInfo = styled.div`
+  flex-grow: 1;
+  margin-left: 1rem;
+`
+
+const JobSeekerNameWrapper = styled.div`
+  display: flex;
+  align-items: baseline;
+`
+
+const JobSeekerName = styled.h3`
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+  margin-right: 0.5rem;
+`
+
+const Pronouns = styled.span`
+  font-size: 0.8rem;
+  color: #666;
+`
+
+const JobSeekerDetails = styled.p`
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 0.25rem;
+`
+
+const TagList = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+`
+
+const Tag = styled.span`
+  background-color: #CAAAE1;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+`
+const IconContainer = styled.div`
+  display: flex;
+  align-items: center;
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+`;
+
+const IconButton = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  margin-left: 0.5rem;
+  color: #666;
+
+  &:hover {
+    color: #333;
+  }
+`;
+
 
 export default function CandidateSourcing() {
   const navigate = useNavigate();
@@ -285,9 +329,11 @@ export default function CandidateSourcing() {
   const [filteredProfiles, setFilteredProfiles] = useState(profiles)
   const [openFilters, setOpenFilters] = useState({})
   const [sortOrder, setSortOrder] = useState('desc')
-  const [isPopupOpen, setIsPopupOpen] = useState(true)
-  const [selectedJob, setSelectedJob] = useState(null)
   const [showMatchPercentage, setShowMatchPercentage] = useState(true)
+  const [openDemographicFilters, setOpenDemographicFilters] = useState({});
+  const [favorites, setFavorites] = useState(new Set());
+  const [pipeline, setPipeline] = useState(new Set());
+
 
   useEffect(() => {
     filterProfiles()
@@ -331,15 +377,14 @@ export default function CandidateSourcing() {
     setOpenFilters(prev => ({ ...prev, [filterName]: !prev[filterName] }))
   }
 
+  const toggleDemographicFilter = (filterName) => {
+    setOpenDemographicFilters(prev => ({ ...prev, [filterName]: !prev[filterName] }));
+    setOpenFilters(prev => ({ ...prev, demographics: true }));
+  };
+
   const toggleSort = () => {
     setSortOrder(prevOrder => prevOrder === 'desc' ? 'asc' : 'desc')
     setFilteredProfiles(prev => [...prev].sort((a, b) => sortOrder === 'asc' ? b.rating - a.rating : a.rating - b.rating))
-  }
-
-  const handleJobSelection = (job) => {
-    setSelectedJob(job)
-    setShowMatchPercentage(true)
-    setIsPopupOpen(false)
   }
 
   const getMatchColor = (percentage) => {
@@ -348,6 +393,32 @@ export default function CandidateSourcing() {
     if (percentage >= 40) return '#ecc94b'
     return '#f56565'
   }
+
+  const toggleFavorite = (e, profileId) => {
+    e.stopPropagation();
+    setFavorites(prev => {
+      const newFavorites = new Set(prev);
+      if (newFavorites.has(profileId)) {
+        newFavorites.delete(profileId);
+      } else {
+        newFavorites.add(profileId);
+      }
+      return newFavorites;
+    });
+  };
+
+  const togglePipeline = (e, profileId) => {
+    e.stopPropagation();
+    setPipeline(prev => {
+      const newPipeline = new Set(prev);
+      if (newPipeline.has(profileId)) {
+        newPipeline.delete(profileId);
+      } else {
+        newPipeline.add(profileId);
+      }
+      return newPipeline;
+    });
+  };
 
   const renderFilterOptions = (options, selected, setSelected, searchTerm = '') => {
     const filteredOptions = searchTerm
@@ -374,9 +445,7 @@ export default function CandidateSourcing() {
             </ClearButton>
           </CheckboxLabel>
         ))}
-        {unselectedOptions.map((option) =>
-
- (
+        {unselectedOptions.map((option) => (
           <CheckboxLabel key={option}>
             <Checkbox
               type="checkbox"
@@ -411,6 +480,7 @@ export default function CandidateSourcing() {
     setSelectedAthleteStatus([])
     setSelectedVeteranStatus([])
     setOpenFilters({})
+    setOpenDemographicFilters({})
   }
 
   const languageOptions = [
@@ -442,6 +512,10 @@ export default function CandidateSourcing() {
     navigate(`/profile`)
   }
 
+  const getMatchDescription = (rating) => {
+     return "3+ Years in Tech Start Up. Strengths - History as a software engineer in the sports tech industry. Weaknesses - No experience in a CTO role";
+  };
+
   return (
     <PageWrapper>
       <NavWrapper>
@@ -465,27 +539,60 @@ export default function CandidateSourcing() {
         <ContentWrapper>
           <Sidebar>
             <FilterSection>
-                <h1>Filters</h1>
-              <FilterTitle onClick={() => toggleFilter('gender')}>
-                Gender
-                {openFilters.gender ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+              <h1>Filters</h1>
+
+              <FilterSection>
+              <FilterTitle onClick={() => toggleFilter('currentTitle')}>
+                Current Title
+                {openFilters.currentTitle ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
               </FilterTitle>
-              <FilterContent isOpen={openFilters.gender}>
-                {renderFilterOptions(genderOptions, selectedGenders, setSelectedGenders)}
+              <FilterContent isOpen={openFilters.currentTitle}>
+                <FilterSearchInput
+                  type="text"
+                  placeholder="Search current titles"
+                  value={currentTitleSearch}
+                  onChange={(e) => setCurrentTitleSearch(e.target.value)}
+                />
+                {renderFilterOptions(Array.from(new Set(profiles.map(p => p.currentTitle))), selectedCurrentTitles, setSelectedCurrentTitles, currentTitleSearch)}
               </FilterContent>
             </FilterSection>
 
             <FilterSection>
-              <FilterTitle onClick={() => toggleFilter('race')}>
-                Race
-                {openFilters.race ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+              <FilterTitle onClick={() => toggleFilter('currentLevel')}>
+                Current Level
+                {openFilters.currentLevel ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
               </FilterTitle>
-              <FilterContent isOpen={openFilters.race}>
-                {renderFilterOptions(raceOptions, selectedRaces, setSelectedRaces)}
+              <FilterContent isOpen={openFilters.currentLevel}>
+                {renderFilterOptions(['Student', 'Assistant/Coordinator', 'Specialist', 'Manager', 'Director', 'SVP/Head of Department'], selectedCurrentLevel, setSelectedCurrentLevel)}
               </FilterContent>
             </FilterSection>
 
             <FilterSection>
+              <FilterTitle onClick={() => toggleFilter('workExperience')}>
+                Work Experience
+                {openFilters.workExperience ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+              </FilterTitle>
+              <FilterContent isOpen={openFilters.workExperience}>
+                {renderFilterOptions(['1-2 years', '3-5 years', '6-10 years', '11-15 years', '16+ years'], selectedWorkExperience, setSelectedWorkExperience)}
+              </FilterContent>
+            </FilterSection>
+
+            <FilterSection>
+              <FilterTitle onClick={() => toggleFilter('currentEmployer')}>
+                Current Employer
+                {openFilters.currentEmployer ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+              </FilterTitle>
+              <FilterContent isOpen={openFilters.currentEmployer}>
+                <FilterSearchInput
+                  type="text"
+                  placeholder="Search current employers"
+                  value={currentEmployerSearch}
+                  onChange={(e) => setCurrentEmployerSearch(e.target.value)}
+                />
+                {renderFilterOptions(Array.from(new Set(profiles.map(p => p.currentEmployer))), selectedCurrentEmployers, setSelectedCurrentEmployers, currentEmployerSearch)}
+              </FilterContent>
+            </FilterSection>
+
               <FilterTitle onClick={() => toggleFilter('location')}>
                 Location
                 {openFilters.location ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
@@ -506,87 +613,18 @@ export default function CandidateSourcing() {
               </FilterContent>
             </FilterSection>
 
-            <FilterSection>
-              <FilterTitle onClick={() => toggleFilter('currentEmployer')}>
-                Current Employer
-                {openFilters.currentEmployer ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-              </FilterTitle>
-              <FilterContent isOpen={openFilters.currentEmployer}>
-                <FilterSearchInput
-                  type="text"
-                  placeholder="Search current employers"
-                  value={currentEmployerSearch}
-                  onChange={(e) => setCurrentEmployerSearch(e.target.value)}
-                />
-                {renderFilterOptions(Array.from(new Set(profiles.map(p => p.currentEmployer))), selectedCurrentEmployers, setSelectedCurrentEmployers, currentEmployerSearch)}
-              </FilterContent>
-            </FilterSection>
 
-            <FilterSection>
-              <FilterTitle onClick={() => toggleFilter('currentTitle')}>
-                Current Title
-                {openFilters.currentTitle ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-              </FilterTitle>
-              <FilterContent isOpen={openFilters.currentTitle}>
-                <FilterSearchInput
-                  type="text"
-                  placeholder="Search current titles"
-                  value={currentTitleSearch}
-                  onChange={(e) => setCurrentTitleSearch(e.target.value)}
-                />
-                {renderFilterOptions(Array.from(new Set(profiles.map(p => p.currentTitle))), selectedCurrentTitles, setSelectedCurrentTitles, currentTitleSearch)}
-              </FilterContent>
-            </FilterSection>
 
-            <FilterSection>
-              <FilterTitle onClick={() => toggleFilter('workExperience')}>
-                Work Experience
-                {openFilters.workExperience ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-              </FilterTitle>
-              <FilterContent isOpen={openFilters.workExperience}>
-                {renderFilterOptions(['1-2 years', '3-5 years', '6-10 years', '11-15 years', '16+ years'], selectedWorkExperience, setSelectedWorkExperience)}
-              </FilterContent>
-            </FilterSection>
 
-            <FilterSection>
-              <FilterTitle onClick={() => toggleFilter('currentLevel')}>
-                Current Level
-                {openFilters.currentLevel ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-              </FilterTitle>
-              <FilterContent isOpen={openFilters.currentLevel}>
-                {renderFilterOptions(['Student', 'Assistant/Coordinator', 'Specialist', 'Manager', 'Director', 'SVP/Head of Department'], selectedCurrentLevel, setSelectedCurrentLevel)}
-              </FilterContent>
-            </FilterSection>
 
-            <FilterSection>
-              <FilterTitle onClick={() => toggleFilter('highestDegree')}>
-                Highest Degree
-                {openFilters.highestDegree ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-              </FilterTitle>
-              <FilterContent isOpen={openFilters.highestDegree}>
-                {renderFilterOptions(["Associate's Degree", "Bachelor's Degree", "Master's Degree", "MBA", "Ph.D."], selectedHighestDegree, setSelectedHighestDegree)}
-              </FilterContent>
-            </FilterSection>
 
-            <FilterSection>
-              <FilterTitle onClick={() => toggleFilter('majors')}>
-                Majors
-                {openFilters.majors ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-              </FilterTitle>
-              <FilterContent isOpen={openFilters.majors}>
-                <FilterSearchInput
-                  type="text"
-                  placeholder="Search majors"
-                  value={majorSearch}
-                  onChange={(e) => setMajorSearch(e.target.value)}
-                />
-                {renderFilterOptions(Array.from(new Set(profiles.flatMap(p => [p.education1?.major, p.education2?.major, p.education3?.major].filter(Boolean)))), selectedMajors, setSelectedMajors, majorSearch)}
-              </FilterContent>
-            </FilterSection>
+
+
+
 
             <FilterSection>
               <FilterTitle onClick={() => toggleFilter('universities')}>
-                Universities
+                College/University
                 {openFilters.universities ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
               </FilterTitle>
               <FilterContent isOpen={openFilters.universities}>
@@ -614,6 +652,17 @@ export default function CandidateSourcing() {
                 </NestedFilterContent>
               </FilterContent>
             </FilterSection>
+
+            <FilterSection>
+              <FilterTitle onClick={() => toggleFilter('highestDegree')}>
+                Highest Degree
+                {openFilters.highestDegree ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+              </FilterTitle>
+              <FilterContent isOpen={openFilters.highestDegree}>
+                {renderFilterOptions(["Associate's Degree", "Bachelor's Degree", "Master's Degree", "MBA", "Ph.D."], selectedHighestDegree, setSelectedHighestDegree)}
+              </FilterContent>
+            </FilterSection>
+
 
             <FilterSection>
               <FilterTitle onClick={() => toggleFilter('strengths')}>
@@ -712,22 +761,50 @@ export default function CandidateSourcing() {
             </FilterSection>
 
             <FilterSection>
-              <FilterTitle onClick={() => toggleFilter('athleteStatus')}>
-                Athlete Status
-                {openFilters.athleteStatus ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+              <FilterTitle onClick={() => toggleFilter('demographics')}>
+                Demographics
+                {openFilters.demographics ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
               </FilterTitle>
-              <FilterContent isOpen={openFilters.athleteStatus}>
-                {renderFilterOptions(athleteStatusOptions, selectedAthleteStatus, setSelectedAthleteStatus)}
-              </FilterContent>
-            </FilterSection>
+              <FilterContent isOpen={openFilters.demographics}>
+                <NestedFilterContent>
+                  <FilterTitle onClick={() => toggleDemographicFilter('gender')}>
+                    Gender
+                    {openDemographicFilters.gender ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                  </FilterTitle>
+                  <FilterContent isOpen={openDemographicFilters.gender}>
+                    {renderFilterOptions(genderOptions, selectedGenders, setSelectedGenders)}
+                  </FilterContent>
+                </NestedFilterContent>
 
-            <FilterSection>
-              <FilterTitle onClick={() => toggleFilter('veteranStatus')}>
-                Veteran Status
-                {openFilters.veteranStatus ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-              </FilterTitle>
-              <FilterContent isOpen={openFilters.veteranStatus}>
-                {renderFilterOptions(veteranStatusOptions, selectedVeteranStatus, setSelectedVeteranStatus)}
+                <NestedFilterContent>
+                  <FilterTitle onClick={() => toggleDemographicFilter('race')}>
+                  Race/Ethnicity
+                    {openDemographicFilters.race ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                  </FilterTitle>
+                  <FilterContent isOpen={openDemographicFilters.race}>
+                    {renderFilterOptions(raceOptions, selectedRaces, setSelectedRaces)}
+                  </FilterContent>
+                </NestedFilterContent>
+
+                <NestedFilterContent>
+                  <FilterTitle onClick={() => toggleDemographicFilter('athleteStatus')}>
+                    Athlete Status
+                    {openDemographicFilters.athleteStatus ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                  </FilterTitle>
+                  <FilterContent isOpen={openDemographicFilters.athleteStatus}>
+                    {renderFilterOptions(athleteStatusOptions, selectedAthleteStatus, setSelectedAthleteStatus)}
+                  </FilterContent>
+                </NestedFilterContent>
+
+                <NestedFilterContent>
+                  <FilterTitle onClick={() => toggleDemographicFilter('veteranStatus')}>
+                    Veteran Status
+                    {openDemographicFilters.veteranStatus ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                  </FilterTitle>
+                  <FilterContent isOpen={openDemographicFilters.veteranStatus}>
+                    {renderFilterOptions(veteranStatusOptions, selectedVeteranStatus, setSelectedVeteranStatus)}
+                  </FilterContent>
+                </NestedFilterContent>
               </FilterContent>
             </FilterSection>
 
@@ -750,30 +827,50 @@ export default function CandidateSourcing() {
               </SortButton>
             </SortContainer>
             <JobSeekerList>
-              <h2>All Job Seekers ({filteredProfiles.length})</h2>
-              {filteredProfiles.map((profile) => (
-                <JobSeekerCard key={profile.id} onClick={() => handleProfileClick(profile.id)}>
-                  <User size={24} />
-                  <JobSeekerInfo>
-                    <JobSeekerName>{profile.name}</JobSeekerName>
-                    <JobSeekerDetails>{profile.currentTitle} at {profile.currentEmployer}</JobSeekerDetails>
-                    <JobSeekerDetails>{profile.location} • {profile.workExperience} • {profile.currentLevel}</JobSeekerDetails>
-                    <TagList>
-                      {profile.education1 && (
-                        <Tag>{profile.education1.degree} in {profile.education1.major}</Tag>
-                      )}
-                      <Tag>{profile.workPreference}</Tag>
-                      {profile.willingToRelocate && <Tag>Willing to Relocate</Tag>}
-                    </TagList>
-                  </JobSeekerInfo>
-                  {showMatchPercentage && (
-                    <MatchPercentage color={getMatchColor(profile.rating)}>
-                      {profile.rating}% Match
-                    </MatchPercentage>
-                  )}
-                </JobSeekerCard>
-              ))}
-            </JobSeekerList>
+            <h2>All Job Seekers ({filteredProfiles.length})</h2>
+      {filteredProfiles.map((profile) => (
+     <JobSeekerCard key={profile.id} onClick={() => handleProfileClick(profile.id)}>
+     <User size={24} />
+     <JobSeekerInfo>
+       <JobSeekerNameWrapper>
+         <JobSeekerName>{profile.name}</JobSeekerName>
+         <Pronouns>({profile.pronouns || 'N/A'})</Pronouns>
+       </JobSeekerNameWrapper>
+       <JobSeekerDetails>{profile.currentTitle} at {profile.currentEmployer}</JobSeekerDetails>
+       <JobSeekerDetails>
+         {profile.currentLevel} • {profile.workExperience} experience • {profile.location}
+         {profile.willingToRelocate ? ' • Willing to Relocate' : ' • Not Willing to Relocate'}
+       </JobSeekerDetails>
+       <TagList>
+         {profile.strengths
+           ? profile.strengths.split(', ').slice(0, 3).map((strength, index) => (
+               <Tag key={index}>{strength}</Tag>
+             ))
+           : <Tag>No strengths listed</Tag>
+         }
+       </TagList>
+     </JobSeekerInfo>
+     <IconContainer>
+       <IconButton onClick={(e) => toggleFavorite(e, profile.id)}>
+         <Heart size={18} fill={favorites.has(profile.id) ? "#CAAAE1" : "none"} />
+       </IconButton>
+       <IconButton onClick={(e) => togglePipeline(e, profile.id)}>
+         <Plus size={18} color={pipeline.has(profile.id) ? "#CAAAE1" : "#666"} />
+       </IconButton>
+       {showMatchPercentage && (
+         <MatchPercentage color={getMatchColor(profile.rating)}>
+           {profile.rating}% Match
+           <TooltipContent>
+             {getMatchDescription(profile)}
+           </TooltipContent>
+         </MatchPercentage>
+       )}
+     </IconContainer>
+   </JobSeekerCard>
+
+
+      ))}
+    </JobSeekerList>
           </div>
         </ContentWrapper>
       </MainContent>

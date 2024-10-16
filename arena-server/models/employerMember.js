@@ -1,43 +1,64 @@
-// models/User.js
-module.exports = (sequelize, DataTypes) => {
-  const User = sequelize.define(
-    'User',
+const { Model, DataTypes } = require('sequelize')
+
+module.exports = (sequelize) => {
+  class EmployerMember extends Model {
+    static associate(models) {
+      // Define association here
+      EmployerMember.belongsTo(models.User, {
+        foreignKey: 'employer_id',
+        as: 'employer'
+      })
+    }
+  }
+
+  EmployerMember.init(
     {
       id: {
         type: DataTypes.INTEGER,
-        autoIncrement: true,
-        primaryKey: true
+        primaryKey: true,
+        autoIncrement: true
       },
-      email: {
-        type: DataTypes.STRING,
+      employer_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+          model: 'users',
+          key: 'id'
+        }
+      },
+      member_email: {
+        type: DataTypes.STRING(255),
         allowNull: false,
         unique: true
       },
-      password: {
-        type: DataTypes.STRING,
-        allowNull: false
-      },
       role: {
-        type: DataTypes.ENUM('jobseeker', 'employer'),
-        allowNull: false
+        type: DataTypes.STRING(50),
+        allowNull: true
       },
-      first_name: {
-        type: DataTypes.STRING,
-        allowNull: false
+      status: {
+        type: DataTypes.STRING(20),
+        allowNull: true,
+        validate: {
+          isIn: [['invited', 'active', 'inactive']]
+        }
       },
-      last_name: {
-        type: DataTypes.STRING,
-        allowNull: false
+      profile_picture_url: {
+        type: DataTypes.STRING(255),
+        allowNull: true
       },
-      company_name: {
-        type: DataTypes.STRING,
+      cover_photo_url: {
+        type: DataTypes.STRING(255),
         allowNull: true
       }
     },
     {
-      timestamps: true // This adds the `createdAt` and `updatedAt` fields
+      sequelize,
+      modelName: 'EmployerMember',
+      tableName: 'employer_members',
+      underscored: true, // This will use snake_case for the fields in the database
+      timestamps: true // This will use created_at and updated_at
     }
   )
 
-  return User
+  return EmployerMember
 }

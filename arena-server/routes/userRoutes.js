@@ -18,8 +18,12 @@ const signupValidation = [
 /// Signup Route
 router.post('/signup', signupValidation, userController.signupWithEmail)
 
-// Login Route
-router.post('/login', userController.login)
+router.post('/login', (req, res, next) => {
+  console.log('Login route hit')
+  console.log('Request body:', req.body)
+  console.log('Request headers:', req.headers)
+  userController.login(req, res, next)
+})
 
 // Check Intake Status Route (Protected)
 router.get(
@@ -45,4 +49,8 @@ router.put(
 // Get All Users (Admin Only, if needed)
 router.get('/', authMiddleware.authenticateToken, userController.getAllUsers)
 
+router.get('/test', (req, res) => {
+  // Your logic for checking intake, e.g., fetching user info from the DB
+  res.json({ message: 'Intake data here' }) // Replace with your actual data
+})
 module.exports = router

@@ -4,7 +4,6 @@ import { auth } from '../firebaseConfig';
 import { useNavigate } from 'react-router-dom';
 import useGoogleMapsScript from '../hooks/useGoogleMapsScript';
 
-// List of common free email providers
 const freeEmailProviders = [
   'gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'aol.com',
   'icloud.com', 'mail.com', 'protonmail.com', 'zoho.com', 'yandex.com'
@@ -30,7 +29,7 @@ async function isValidDomain(email) {
   return hasMXRecord;
 }
 
-function Signup() {
+export default function Signup() {
   const [step, setStep] = useState(1);
   const [isEmployer, setIsEmployer] = useState(false);
   const [formData, setFormData] = useState({
@@ -43,8 +42,8 @@ function Signup() {
     address: '',
     phone: '',
     eventCode: '',
-    companyEmail: '',
-    personalEmail: '',
+    companyName: '',
+    companyWebsite: '',
     title: '',
     companyAddress: '',
     companyPhone: '',
@@ -72,6 +71,7 @@ function Signup() {
     postal_code: '',
     country: '',
   });
+  const [websiteDoesNotMatch, setWebsiteDoesNotMatch] = useState(false);
 
   const navigate = useNavigate();
   const jobSeekerAddressInputRef = useRef(null);
@@ -94,8 +94,8 @@ function Signup() {
       address: '',
       phone: '',
       eventCode: '',
-      companyEmail: '',
-      personalEmail: '',
+      companyName: '',
+      companyWebsite: '',
       title: '',
       companyAddress: '',
       companyPhone: '',
@@ -123,8 +123,8 @@ function Signup() {
       postal_code: '',
       country: '',
     });
+    setWebsiteDoesNotMatch(false);
 
-    // Reset autocomplete refs
     if (jobSeekerAutocompleteRef.current) {
       window.google.maps.event.clearInstanceListeners(jobSeekerAutocompleteRef.current);
       jobSeekerAutocompleteRef.current = null;
@@ -136,62 +136,46 @@ function Signup() {
   }, []);
 
   useEffect(() => {
-    // Function to handle page refresh
     const handleBeforeUnload = () => {
       resetState();
     };
 
-    // Add event listener
     window.addEventListener('beforeunload', handleBeforeUnload);
 
-    // Cleanup function
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, [resetState]);
 
   const handleJobSeekerPlaceSelect = useCallback(() => {
-    console.log('handleJobSeekerPlaceSelect called');
     if (jobSeekerAutocompleteRef.current) {
       const place = jobSeekerAutocompleteRef.current.getPlace();
-      console.log('Job seeker place:', place);
       updateAddressComponents(place, setAddressComponents);
       setFormData(prev => ({
         ...prev,
         address: jobSeekerAddressInputRef.current.value,
       }));
-    } else {
-      console.log('jobSeekerAutocompleteRef is not initialized');
     }
   }, []);
 
   const handleEmployerPlaceSelect = useCallback(() => {
-    console.log('handleEmployerPlaceSelect called');
     if (employerAutocompleteRef.current) {
       const place = employerAutocompleteRef.current.getPlace();
-      console.log('Employer place:', place);
       updateAddressComponents(place, setCompanyAddressComponents);
       setFormData(prev => ({
         ...prev,
         companyAddress: employerAddressInputRef.current.value,
       }));
-    } else {
-      console.log('employerAutocompleteRef is not initialized');
     }
   }, []);
 
   const initializeAutocomplete = useCallback(() => {
-    console.log("Initializing autocomplete");
-    console.log("jobSeekerAddressInputRef:", jobSeekerAddressInputRef.current);
-    console.log("employerAddressInputRef:", employerAddressInputRef.current);
-
     if (jobSeekerAddressInputRef.current && !jobSeekerAutocompleteRef.current) {
       jobSeekerAutocompleteRef.current = new window.google.maps.places.Autocomplete(
         jobSeekerAddressInputRef.current,
         { types: ['address'] }
       );
       jobSeekerAutocompleteRef.current.addListener('place_changed', handleJobSeekerPlaceSelect);
-      console.log("Job seeker autocomplete initialized");
     }
 
     if (employerAddressInputRef.current && !employerAutocompleteRef.current) {
@@ -200,23 +184,16 @@ function Signup() {
         { types: ['address'] }
       );
       employerAutocompleteRef.current.addListener('place_changed', handleEmployerPlaceSelect);
-      console.log("Employer autocomplete initialized");
     }
   }, [handleJobSeekerPlaceSelect, handleEmployerPlaceSelect]);
 
   useEffect(() => {
-    console.log("useEffect for initializeAutocomplete running");
-    console.log("isLoaded:", isLoaded);
-    console.log("loadError:", loadError);
-
     if (isLoaded && !loadError) {
-      console.log("Google Maps API loaded successfully");
       initializeAutocomplete();
     }
   }, [isLoaded, loadError, initializeAutocomplete, step, isEmployer]);
 
   useEffect(() => {
-    console.log('useEffect for loadError');
     if (loadError) {
       console.error('Load error:', loadError);
       setError('Unable to load address autocomplete. Please enter your address manually.');
@@ -225,20 +202,33 @@ function Signup() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    console.log('handleInputChange:', name, value);
     setFormData(prevData => ({ ...prevData, [name]: value }));
   };
 
   const handleCompanyDomainChange = (e) => {
-    console.log('handleCompanyDomainChange:', e.target.value);
-    setCompanyDomain(e.target.value);
+    const newDomain = e.target.value;
+    setCompanyDomain(newDomain);
+    setFormData(prevData => ({ ...prevData, companyWebsite: newDomain }));
+    checkWebsiteMatch(newDomain, formData.email);
+  };
+
+  const handleCompanyEmailChange = (e) => {
+    const newEmail = e.target.value;
+    setFormData(prevData => ({ ...prevData, email: newEmail }));
+    checkWebsiteMatch(companyDomain, newEmail);
+  };
+
+  const checkWebsiteMatch = (domain, email) => {
+    if (domain && email) {
+      const emailDomain = email.split('@')[1];
+      setWebsiteDoesNotMatch(emailDomain !== domain);
+    } else {
+      setWebsiteDoesNotMatch(false);
+    }
   };
 
   const updateAddressComponents = (place, setComponents) => {
-    console.log('updateAddressComponents called');
-    console.log('place:', place);
     if (!place.address_components) {
-      console.log('No address components found');
       return;
     }
 
@@ -258,7 +248,6 @@ function Signup() {
       }
     });
 
-    console.log('Updated components:', components);
     setComponents(components);
   };
 
@@ -278,10 +267,10 @@ function Signup() {
 
   useEffect(() => {
     setError(null);
-  }, [formData.companyEmail, companyDomain, formData.password, formData.confirmPassword]);
+  }, [formData.email, companyDomain, formData.password, formData.confirmPassword]);
 
   const validateCompanyEmail = () => {
-    const emailDomain = formData.companyEmail.split('@')[1];
+    const emailDomain = formData.email.split('@')[1];
     return emailDomain === companyDomain;
   };
 
@@ -297,7 +286,7 @@ function Signup() {
           return;
         }
         setLoading(true);
-        const isValid = await isValidDomain(formData.companyEmail);
+        const isValid = await isValidDomain(formData.email);
         setLoading(false);
         if (!isValid) {
           setError('Please use a valid company email address. Free email providers are not allowed.');
@@ -318,11 +307,12 @@ function Signup() {
     setError(null);
 
     try {
-      const email = isEmployer ? formData.companyEmail : formData.email;
-      const userCredential = await createUserWithEmailAndPassword(auth, email, formData.password);
+      const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
       await sendEmailVerification(userCredential.user);
 
-      const response = await fetch('/api/users/signup', {
+      const apiUrl = `${process.env.REACT_APP_BACKEND_URL}/api/users/signup`;
+
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -331,6 +321,7 @@ function Signup() {
           ...formData,
           role: isEmployer ? 'employer' : 'jobseeker',
           firebase_uid: userCredential.user.uid,
+          domain_verified: isEmployer ? !websiteDoesNotMatch : undefined,
         }),
       });
 
@@ -350,7 +341,7 @@ function Signup() {
   const renderAddressFields = (isEmployer = false) => (
     <div className="form-group">
       <label htmlFor={isEmployer ? "companyAddress" : "address"}>
-        {isEmployer ? "Company Address" : "Address"}
+        {isEmployer ? "Company Address" : "Address"}<span className="required">*</span>
       </label>
       <input
         type="text"
@@ -419,7 +410,7 @@ function Signup() {
         <div className="form-group">
           <div className="horizontal-fields">
             <div className="field-group">
-              <label htmlFor="firstName">First Name</label>
+              <label htmlFor="firstName">First Name<span className="required">*</span></label>
               <input
                 type="text"
                 id="firstName"
@@ -430,7 +421,7 @@ function Signup() {
               />
             </div>
             <div className="field-group">
-              <label htmlFor="lastName">Last Name</label>
+              <label htmlFor="lastName">Last Name<span className="required">*</span></label>
               <input
                 type="text"
                 id="lastName"
@@ -441,7 +432,7 @@ function Signup() {
               />
             </div>
           </div>
-          <label htmlFor="email">Email</label>
+          <label htmlFor="email">Email<span className="required">*</span></label>
           <input
             type="email"
             id="email"
@@ -451,7 +442,7 @@ function Signup() {
             required
           />
 
-          <label htmlFor="password">Password</label>
+          <label htmlFor="password">Password<span className="required">*</span></label>
           <div className="password-input-container">
             <input
               type={showPassword ? 'text' : 'password'}
@@ -466,9 +457,7 @@ function Signup() {
             </button>
           </div>
 
-          {formData.password && !isPasswordValid && <span className="alert" style={{ color: 'red' }}>✗ Password must be at least 8 characters and include a number</span>}
-          {formData.password && isPasswordValid && <span className="alert" style={{ color: 'green' }}>✓ Valid password</span>}
-          <label htmlFor="confirmPassword">Confirm Password</label>
+          <label htmlFor="confirmPassword">Confirm Password<span className="required">*</span></label>
           <div className="password-input-container">
             <input
               type={showPassword ? 'text' : 'password'}
@@ -479,6 +468,9 @@ function Signup() {
               required
             />
           </div>
+
+          {formData.password && !isPasswordValid && <span className="alert" style={{ color: 'red' }}>✗ Password must be at least 8 characters and include a number</span>}
+          {formData.password && isPasswordValid && <span className="alert" style={{ color: 'green' }}>✓ Valid password</span>}
           {formData.password && formData.confirmPassword && !isConfirmPasswordValid && <span className="alert" style={{ color: 'red' }}>✗ Passwords must match</span>}
           {formData.password && formData.confirmPassword && isConfirmPasswordValid && <span className="alert" style={{ color: 'green' }}>✓ Passwords match</span>}
         </div>
@@ -486,7 +478,7 @@ function Signup() {
       {step === 2 && (
         <div className="form-group">
           <div className="label-with-info">
-            <label htmlFor="dateOfBirth">Date of Birth</label>
+            <label htmlFor="dateOfBirth">Date of Birth<span className="required">*</span></label>
           </div>
           <input
             type="date"
@@ -500,7 +492,7 @@ function Signup() {
           {renderAddressFields(false)}
           <div className="horizontal-fields">
             <div className="field-group">
-              <label htmlFor="phone">Phone Number</label>
+              <label htmlFor="phone">Phone Number<span className="required">*</span></label>
               <input
                 type="tel"
                 id="phone"
@@ -532,11 +524,10 @@ function Signup() {
         <div className="form-group">
           <div className="horizontal-fields">
             <div className="field-group">
-              <label htmlFor="firstName">First Name</label>
+              <label htmlFor="firstName">First Name<span className="required">*</span></label>
               <input
                 type="text"
                 id="firstName"
-
                 name="firstName"
                 value={formData.firstName}
                 onChange={handleInputChange}
@@ -544,11 +535,10 @@ function Signup() {
               />
             </div>
             <div className="field-group">
-              <label htmlFor="lastName">Last Name</label>
+              <label htmlFor="lastName">Last Name<span className="required">*</span></label>
               <input
                 type="text"
                 id="lastName"
-
                 name="lastName"
                 value={formData.lastName}
                 onChange={handleInputChange}
@@ -556,73 +546,81 @@ function Signup() {
               />
             </div>
           </div>
-          <div className="horizontal-fields">
           <div className="field-group">
-              <label htmlFor="companyDomain">Company Website (without www.)</label>
+            <label htmlFor="companyName">Company Name<span className="required">*</span></label>
+            <input
+              type="text"
+              id="companyName"
+              name="companyName"
+              value={formData.companyName}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+          <div className="horizontal-fields">
+            <div className="field-group">
+              <label htmlFor="companyWebsite">Company Website (without www.)<span className="required">*</span></label>
               <input
                 type="text"
-                id="companyDomain"
-                name="companyDomain"
-                value={companyDomain}
+                id="companyWebsite"
+                name="companyWebsite"
+                value={formData.companyWebsite}
                 onChange={handleCompanyDomainChange}
                 required
               />
             </div>
             <div className="field-group">
-              <label htmlFor="companyEmail">Company Email</label>
+              <label htmlFor="email">Company Email<span className="required">*</span></label>
               <input
                 type="email"
-                id="companyEmail"
-                name="companyEmail"
-                value={formData.companyEmail}
-                onChange={handleInputChange}
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleCompanyEmailChange}
                 required
               />
             </div>
           </div>
 
+          <label htmlFor="password">Password<span className="required">*</span></label>
+          <div className="password-input-container">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              id="password"
+              name="password"
+              value={formData.password}
+              onChange={handleInputChange}
+              required
+            />
+            <button type="button" className="show-password-button" onClick={() => setShowPassword(!showPassword)}>
+              {showPassword ? 'Hide' : 'Show'}
+            </button>
+          </div>
 
-              <label htmlFor="password">Password</label>
-              <div className="password-input-container">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  id="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  required
-                />
-                <button type="button" className="show-password-button" onClick={() => setShowPassword(!showPassword)}>
-                  {showPassword ? 'Hide' : 'Show'}
-                </button>
-              </div>
+          <label htmlFor="confirmPassword">Confirm Password<span className="required">*</span></label>
+          <div className="password-input-container">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              id="confirmPassword"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
 
-
-              {formData.password && !isPasswordValid && <span className="alert" style={{ color: 'red' }}>✗ Password must be at least 8 characters and include a number</span>}
-              {formData.password && isPasswordValid && <span className="alert" style={{ color: 'green' }}>✓ Valid password</span>}
-              <label htmlFor="confirmPassword">Confirm Password</label>
-              <div className="password-input-container">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              {formData.password && formData.confirmPassword && !isConfirmPasswordValid && <span className="alert" style={{ color: 'red' }}>✗ Passwords must match</span>}
-              {formData.password && formData.confirmPassword && isConfirmPasswordValid && <span className="alert" style={{ color: 'green' }}>✓ Passwords match</span>}
-            </div>
-
-
+          {formData.password && !isPasswordValid && <span className="alert" style={{ color: 'red' }}>✗ Password must be at least 8 characters and include a number</span>}
+          {formData.password && isPasswordValid && <span className="alert" style={{ color: 'green' }}>✓ Valid password</span>}
+          {formData.password && formData.confirmPassword && !isConfirmPasswordValid && <span className="alert" style={{ color: 'red', marginLeft:'5px'}}>✗ Passwords must match</span>}
+          {formData.password && formData.confirmPassword && isConfirmPasswordValid && <span className="alert" style={{ color: 'green', marginLeft:'5px' }}>✓ Passwords match</span>}
+        </div>
       )}
       {step === 2 && (
         <div className="form-group">
           {renderAddressFields(true)}
           <div className="horizontal-fields">
             <div className="field-group">
-              <label htmlFor="title">Contact Title</label>
+              <label htmlFor="title">Contact Title<span className="required">*</span></label>
               <input
                 type="text"
                 id="title"
@@ -634,21 +632,7 @@ function Signup() {
               />
             </div>
             <div className="field-group">
-              <label htmlFor="personalEmail">Personal Email</label>
-              <input
-                type="email"
-                id="personalEmail"
-                name="personalEmail"
-                placeholder='email@gmail.com'
-                value={formData.personalEmail}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-          </div>
-          <div className="horizontal-fields">
-            <div className="field-group">
-              <label htmlFor="companySize">Company Size</label>
+              <label htmlFor="companySize">Company Size<span className="required">*</span></label>
               <select
                 id="companySize"
                 name="companySize"
@@ -665,17 +649,17 @@ function Signup() {
                 <option value="501+">501+ employees</option>
               </select>
             </div>
-            <div className="field-group">
-              <label htmlFor="companyPhone">Company Phone</label>
-              <input
-                type="tel"
-                id="companyPhone"
-                name="companyPhone"
-                value={formData.companyPhone}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
+          </div>
+          <div className="field-group">
+            <label htmlFor="companyPhone">Company Phone<span className="required">*</span></label>
+            <input
+              type="tel"
+              id="companyPhone"
+              name="companyPhone"
+              value={formData.companyPhone}
+              onChange={handleInputChange}
+              required
+            />
           </div>
           <div className="field-group">
             <label htmlFor="eventCode">Event Code (Optional)</label>
@@ -718,7 +702,7 @@ function Signup() {
 
           {isEmployer ? renderEmployerForm() : renderJobSeekerForm()}
 
-          {error && <div className="error-message">Email Already Exists! <a href="/login">Login</a></div>}
+          {error && <div className="error-message">{error}</div>}
 
           {step === 1 ? (
             <button
@@ -734,17 +718,18 @@ function Signup() {
               {loading ? 'Signing up...' : 'Sign Up'}
             </button>
           )}
+
+          <p className="required-fields-note"><span className="required">*</span> Required</p>
         </form>
         <p className="terms">
-          By signing up, you acknowledge that you have read and accept the <a href="/terms">Terms of Service</a> and <a href="/privacy-policy">Privacy Policy</a>.
-        </p>
+  By signing up, you acknowledge that you have read and accept the{' '}
+  <a href="https://www.arenatalent.com/terms-of-service" target="_blank" rel="noopener noreferrer">Terms of Service</a> and{' '}
+  <a href="https://www.arenatalent.com/privacy-policy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
+</p>
         <p className="login">
           Already have an account? <a href="/login">Login</a>
         </p>
-
       </div>
     </div>
   );
 }
-
-export default Signup;

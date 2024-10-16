@@ -3,65 +3,84 @@ const admin = require('firebase-admin')
 const jwt = require('jsonwebtoken')
 
 exports.signupWithEmail = async (req, res) => {
-  try {
-    const {
-      email,
-      firstName,
-      lastName,
-      role,
-      companyName,
-      companyEmail,
-      companyWebsite,
-      companyPhone,
-      companyAddress,
-      firebase_uid
-    } = req.body
+  const {
+    firebase_uid,
+    role,
+    firstName,
+    lastName,
+    email,
+    password,
+    ...profileData
+  } = req.body
 
-    const newUser = await User.create({
-      email,
+  try {
+    // Validate role
+    if (!['jobseeker', 'employer'].includes(role)) {
+      return res.status(400).json({ error: 'Invalid role' })
+    }
+
+    // Check if the user already exists
+    const existingUser = await User.findOne({ where: { email } })
+    if (existingUser) {
+      return res.status(400).json({ error: 'User already exists' })
+    }
+
+    // Create the User record
+    const user = await User.create({
+      firebase_uid,
       first_name: firstName,
       last_name: lastName,
-      role,
-      firebase_uid
+      email,
+      password, // Hash the password if needed (though Firebase Auth handles passwords)
+      role
     })
 
+    // Based on role, create either an EmployerProfile or JobseekerProfile
     if (role === 'employer') {
       await EmployerProfile.create({
-        user_id: newUser.id,
-        company_name: companyName,
-        company_email: companyEmail,
-        company_website: companyWebsite,
-        company_phone: companyPhone,
-        company_address: companyAddress
+        user_id: user.id,
+        company_name: profileData.companyName,
+        company_website: profileData.companyWebsite, // Add this line
+        company_address: profileData.companyAddress,
+        company_phone: profileData.companyPhone,
+        company_email: profileData.companyEmail,
+        company_size: profileData.companySize,
+        domain_verified: profileData.domain_verified // Add this line if you're using it
       })
     } else if (role === 'jobseeker') {
       await JobseekerProfile.create({
-        user_id: newUser.id
+        user_id: user.id,
+        date_of_birth: profileData.dateOfBirth,
+        street_address: profileData.address,
+        phone: profileData.phone
+        // Add more jobseeker fields as needed
       })
     }
 
-    res
-      .status(201)
-      .json({ message: 'User registered successfully', user: newUser })
+    // Send a success response
+    res.status(201).json({ message: 'User registered successfully' })
   } catch (error) {
-    console.error('Error registering new user:', error)
-    res
-      .status(500)
-      .json({ error: 'Error registering new user: ' + error.message })
+    console.error('Error in signup:', error)
+    res.status(500).json({ error: 'Server error', details: error.message })
   }
 }
 
 exports.login = async (req, res) => {
   try {
+    console.log('Login controller reached')
+
     const { idToken } = req.body
 
     if (!idToken) {
+      console.log('No ID token provided')
       return res.status(400).json({ error: 'No ID token provided' })
     }
 
+    console.log('Verifying ID token')
     const decodedToken = await admin.auth().verifyIdToken(idToken)
     const { uid, email } = decodedToken
 
+    console.log('Token verified, fetching user from database')
     let user = await User.findOne({
       where: { firebase_uid: uid },
       include: [
@@ -71,41 +90,17 @@ exports.login = async (req, res) => {
     })
 
     if (!user) {
-      user = await User.create({
-        email,
-        firebase_uid: uid,
-        role: 'jobseeker',
-        first_name: decodedToken.name ? decodedToken.name.split(' ')[0] : '',
-        last_name: decodedToken.name ? decodedToken.name.split(' ')[1] : ''
-      })
-
-      await JobseekerProfile.create({
-        user_id: user.id
-      })
-
-      user = await User.findOne({
-        where: { id: user.id },
-        include: [{ model: JobseekerProfile, as: 'JobseekerProfile' }]
-      })
+      console.log('User not found in database, creating new user')
+      // ... (rest of the user creation logic)
     }
 
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET)
-
-    let redirectPath = ''
-    if (user.role === 'employer') {
-      redirectPath = user.EmployerProfile?.intake_completed
-        ? '/employer-dash'
-        : '/employer-intake'
-    } else if (user.role === 'jobseeker') {
-      redirectPath = user.JobseekerProfile?.intake_completed
-        ? '/jobseeker-dash'
-        : '/jobseeker-intake'
-    }
-
+    console.log('Sending login response')
     res.status(200).json({
       message: 'Login successful',
-      token,
-      redirectPath,
+      redirectPath:
+        user.role === 'employer'
+          ? '/employer-dashboard'
+          : '/jobseeker-dashboard',
       user: {
         id: user.id,
         email: user.email,
@@ -116,15 +111,19 @@ exports.login = async (req, res) => {
     })
   } catch (error) {
     console.error('Error during login:', error)
-    res.status(500).json({ error: 'Internal server error' })
+    res
+      .status(500)
+      .json({ error: 'Internal server error', details: error.message })
   }
 }
 
 exports.checkIntakeStatus = async (req, res) => {
   try {
-    const userId = req.user.id
+    const userId = req.user.id // Change this line
+    console.log('Checking intake status for user:', userId)
+
     const user = await User.findOne({
-      where: { id: userId },
+      where: { id: userId }, // Change this line
       include: [
         { model: EmployerProfile, as: 'EmployerProfile' },
         { model: JobseekerProfile, as: 'JobseekerProfile' }
@@ -132,6 +131,7 @@ exports.checkIntakeStatus = async (req, res) => {
     })
 
     if (!user) {
+      console.log('User not found in the database')
       return res.status(404).json({ error: 'User not found' })
     }
 
@@ -146,6 +146,7 @@ exports.checkIntakeStatus = async (req, res) => {
       redirectPath = intakeCompleted ? '/jobseeker-dash' : '/jobseeker-intake'
     }
 
+    console.log('Intake status:', { intakeCompleted, redirectPath })
     res.status(200).json({ intakeCompleted, redirectPath })
   } catch (error) {
     console.error('Error in checkIntakeStatus:', error)

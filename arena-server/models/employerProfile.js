@@ -1,8 +1,24 @@
-const { DataTypes } = require('sequelize')
+const { Model, DataTypes } = require('sequelize')
 
 module.exports = (sequelize) => {
-  const EmployerProfile = sequelize.define(
-    'EmployerProfile',
+  class EmployerProfile extends Model {
+    static associate(models) {
+      EmployerProfile.belongsTo(models.User, {
+        foreignKey: 'user_id',
+        as: 'owner'
+      })
+      EmployerProfile.hasMany(models.JobPosting, {
+        foreignKey: 'employer_profile_id',
+        as: 'jobPostings'
+      })
+      EmployerProfile.hasMany(models.EmployerMember, {
+        foreignKey: 'employer_id',
+        as: 'teamMembers'
+      })
+    }
+  }
+
+  EmployerProfile.init(
     {
       id: {
         type: DataTypes.INTEGER,
@@ -13,7 +29,7 @@ module.exports = (sequelize) => {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-          model: 'Users', // Use the table name 'users' instead of the model name 'User'
+          model: 'users',
           key: 'id'
         }
       },
@@ -33,15 +49,11 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false
       },
-      company_email: {
-        type: DataTypes.STRING,
-        allowNull: false
-      },
-      intake_completed: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false
-      },
       company_description: DataTypes.TEXT,
+      website: DataTypes.STRING,
+      location: DataTypes.STRING,
+      work_from_home_policy: DataTypes.STRING,
+      top_ranking: DataTypes.STRING,
       linkedin: DataTypes.STRING,
       industry: DataTypes.STRING,
       number_of_open_jobs: DataTypes.INTEGER,
@@ -50,28 +62,23 @@ module.exports = (sequelize) => {
       benefits: DataTypes.ARRAY(DataTypes.TEXT),
       recent_news: DataTypes.TEXT,
       team: DataTypes.TEXT,
-      logo: {
-        type: DataTypes.STRING,
-        allowNull: true
-      },
+      profile_picture_url: DataTypes.STRING,
+      cover_photo_url: DataTypes.STRING,
+      logo: DataTypes.STRING,
       photos: {
         type: DataTypes.ARRAY(DataTypes.STRING),
         defaultValue: []
       },
-      video: {
-        type: DataTypes.STRING,
-        allowNull: true
-      }
+      video: DataTypes.STRING
     },
-
     {
-      tableName: 'employer_profiles'
+      sequelize,
+      modelName: 'EmployerProfile',
+      tableName: 'employer_profiles',
+      underscored: false, // Change this to false
+      timestamps: true
     }
   )
-
-  EmployerProfile.associate = (models) => {
-    EmployerProfile.belongsTo(models.User, { foreignKey: 'user_id' })
-  }
 
   return EmployerProfile
 }

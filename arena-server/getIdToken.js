@@ -18,8 +18,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig)
 
 // Replace these values with the email and password of an existing user
-const email = 'ocmschwartz@gmail.com'
-const password = 'Zoegirl33!'
+const email = 'ocmooney@gmail.com'
+const password = 'Ocmlax33!'
 
 async function getIdToken() {
   try {

@@ -13,21 +13,97 @@ const PageWrapper = styled.div`
 `
 
 const NavbarWrapper = styled.div`
-  width: 250px;
-  background-color: #f3f4f6;
+  flex: 0 0 auto;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 `
 
 const PageContainer = styled.div`
   flex-grow: 1;
-  background-color: #f3f4f6;
+  background-color: #f8f9fa;
   overflow-y: auto;
 `
 
 const ContentContainer = styled.div`
-  max-width: 1200px;
-  margin: 30px auto;
-  padding: 2rem;
+  flex: 1;
+  padding: 1rem 3rem;
+  overflow-y: auto;
+`
+const BulletPoint = styled.div`
+  display: flex; 
+  align-items: center; 
+  line-height: 1.6;
+  font-size: 9pt;
+
+  svg {
+    margin-right: 10px;
+  }
+`
+const TableTitle = styled.h2`
+  font-size: 24px;
+  font-weight: bold; 
+  margin-bottom: 8px;
+`
+const MostPopularTag = styled.span`
+  position: absolute; 
+  border-radius: 0px 0px 0px 8px; 
+  top: 0px ; 
+  right: 0px ; 
+  background-color: #6b46c1; 
+  color: #ffffff; 
+  padding: 8px 12px; 
+  font-size: 12px; 
+  font-weight: bold;
+  width: 5rem;
+`
+const Card = styled.div`
+  max-width: 300px;
+  padding: 1rem;
+  border-radius: 8px;
+  background-color: #ffffff;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   position: relative;
+
+  transition: all 0.3s ease;
+  flex: 1;
+
+  &:hover {
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+  }
+`
+const CardDescription = styled.p`
+  font-size: 14px; 
+  color: #6b46c1; 
+  margin-bottom: 16px;
+  height: 30px;
+`
+const CardPrice = styled.p`
+  font-size: 28px; 
+  font-weight: 600; 
+  margin-bottom: 10px;
+`
+const CardButton = styled.button`
+  background-color: #6b46c1; 
+  color: #ffffff; 
+  font-weight: bold; 
+  padding: 12px 16px; 
+  border-radius: 8px; 
+  border: none; 
+  cursor: pointer;
+  position: relative;
+`
+const BulletContainerTitle = styled.h3`
+  text-align: left; 
+  font-size: 18px; 
+  font-weight: bold; 
+  margin-bottom: 8px; 
+`
+const BulletPointContainer = styled.div`
+  text-align: left; 
+  padding: 10px;
 `
 
 const TabButton = ({ active, onClick, children }) => (
@@ -123,6 +199,9 @@ const TabButton = ({ active, onClick, children }) => (
       setNewPassword('');
     };
 
+    const handleOpenUpgradeLink = () => {
+      window.open('https://meetings.hubspot.com/parul-khosla/schedule-a-demo'); 
+    };
 
   return (
     <PageWrapper>
@@ -131,11 +210,11 @@ const TabButton = ({ active, onClick, children }) => (
     </NavbarWrapper>
     <PageContainer>
       <ContentContainer>
-    <div style={{ maxWidth: '600px', margin: '0 auto', padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+    <div style={{padding: '20px', fontFamily: 'Arial, sans-serif' }}>
       <h1 style={{ fontSize: '24px', marginBottom: '10px' }}>Account Settings</h1>
       <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '20px' }}>Manage your employer account preferences</p>
 
-      <div style={{ display: 'flex', borderBottom: '1px solid #e5e7eb', marginBottom: '20px' }}>
+      <div style={{ display: 'flex', borderBottom: '1px solid #e5e7eb', marginBottom: '2rem' }}>
         <TabButton active={activeTab === 'login'} onClick={() => setActiveTab('login')}>Login Settings</TabButton>
         <TabButton active={activeTab === 'billing'} onClick={() => setActiveTab('billing')}>Billing</TabButton>
         <TabButton active={activeTab === 'notifications'} onClick={() => setActiveTab('notifications')}>Notifications</TabButton>
@@ -167,148 +246,61 @@ const TabButton = ({ active, onClick, children }) => (
         </div>
       )} */}
 {activeTab === 'billing' && (
-  <div
-    style={{
-      display: 'grid',
-      gridTemplateColumns: 'repeat(3, 1fr)',
-      gap: '100px', 
-      marginTop: '32px',
-      width: '100%',
-      // maxWidth: '1400px',
-      margin: '0 auto',
-    }}
-  >
-    {/* Starter Plan */}
-    <div
-      style={{
-        padding: '40px',
-        backgroundColor: selectedPlan === 'starter' ? '#E6D6F1' : '#f3f4f6',
-        borderRadius: '8px',
-        boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        width: '100%',
-        maxWidth: '350px', 
-        flex: '1', 
-        transform: selectedPlan === 'starter' ? 'scale(1.05) translateY(-10px)' : 'scale(1)',
-        transition: 'transform 0.3s ease',
-      }}
-      onClick={() => handlePlanClick('starter')}
-    >
-      <div>
-        <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '8px' }}>Starter</h2>
-        <p style={{ fontSize: '14px', color: '#6b46c1', marginBottom: '16px' }}>
-          Try Arena free for 14 days
-        </p>
-        <p style={{ fontSize: '28px', fontWeight: '600', marginBottom: '16px' }}>
-          $0 <span style={{ fontSize: '14px' }}>(Start trial)</span>
-        </p>
-        <button style={{ backgroundColor: '#6b46c1', color: '#ffffff', fontWeight: 'bold', padding: '12px 16px', borderRadius: '8px', border: 'none', cursor: 'pointer', marginBottom: '24px' }}>
-          Start Trial
-        </button>
-        <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '16px' }}>This Includes:</h3>
-        <ul style={{ marginBottom: '24px', padding: '0', listStyleType: 'none' }}>
-          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> 1 recruiter seat</li>
-          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> 1 unique job slot</li>
-          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> Employer profile</li>
-          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> AI applicant matches</li>
-          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> AI candidate sourcing tool (limited)</li>
-          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> Real-time candidate insights</li>
-          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> Direct messaging (10 max)</li>
-          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> Applicant tracking</li>
-        </ul>
-      </div>
-    </div>
-
+  <div style={{ 
+    fontFamily: 'Arial, sans-serif' 
+  }}>
+   <div style={{ display: 'flex', gap:'2rem', textAlign: 'center', justifyContent: 'center'}}>
+    
     {/* Premium Plan */}
-    <div
-      style={{
-        padding: '40px',
-        backgroundColor: selectedPlan === 'premium' ? '#E6D6F1' : '#f3f4f6',
-        borderRadius: '8px',
-        boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        width: '100%', 
-        maxWidth: '350px', 
-        flex: '1', 
-        transform: selectedPlan === 'premium' ? 'scale(1.05) translateY(-10px)' : 'scale(1)',
-        transition: 'transform 0.3s ease',
-      }}
-      onClick={() => handlePlanClick('premium')}
-    >
-      <div>
-        <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '8px' }}>Premium</h2>
-        <p style={{ fontSize: '14px', color: '#6b46c1', marginBottom: '16px' }}>
-          For smaller companies & nonprofits
-        </p>
-        <p style={{ fontSize: '28px', fontWeight: '600', marginBottom: '16px' }}>$750/month</p>
-        <button style={{ backgroundColor: '#6b46c1', color: '#ffffff', fontWeight: 'bold', padding: '12px 16px', borderRadius: '8px', border: 'none', cursor: 'pointer', marginBottom: '24px' }}>
-          Book a demo
-        </button>
-        <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '16px' }}>This Includes:</h3>
-        <ul style={{ marginBottom: '24px', padding: '0', listStyleType: 'none' }}>
-          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> 2 recruiter seats</li>
-          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> 5 rotating job slots</li>
-          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> Employer profile</li>
-          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> AI applicant matches</li>
-          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> AI candidate sourcing tool</li>
-          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> Real-time candidate insights</li>
-          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> Direct messaging</li>
-          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> Applicant tracking</li>
-          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> Dedicated account support</li>
-        </ul>
-      </div>
-    </div>
+    <Card onClick={() => handlePlanClick('premium')}>
+
+      <TableTitle>Premium</TableTitle>
+      <CardDescription>For smaller companies & nonprofits</CardDescription>
+      <CardPrice>$750<span style={{ fontSize: '16px' }}>/month</span></CardPrice>
+      <CardButton onClick={() => handleOpenUpgradeLink()}>Upgrade</CardButton>
+      <CardButton style={{display: 'none'}}>Chat with Us</CardButton> 
+
+      <BulletPointContainer>
+        <BulletContainerTitle>Includes:</BulletContainerTitle>
+        <BulletPoint><FontAwesomeIcon icon={faCheckCircle} /> 2 recruiter seats</BulletPoint>
+        <BulletPoint><FontAwesomeIcon icon={faCheckCircle} /> 5 rotating job slots</BulletPoint>
+        <BulletPoint><FontAwesomeIcon icon={faCheckCircle} /> Employer profile</BulletPoint>
+        <BulletPoint><FontAwesomeIcon icon={faCheckCircle} /> AI applicant matches</BulletPoint>
+        <BulletPoint><FontAwesomeIcon icon={faCheckCircle} /> AI candidate sourcing tool</BulletPoint>
+        <BulletPoint><FontAwesomeIcon icon={faCheckCircle} /> Real-time candidate insights</BulletPoint>
+        <BulletPoint><FontAwesomeIcon icon={faCheckCircle} /> Direct messaging</BulletPoint>
+        <BulletPoint><FontAwesomeIcon icon={faCheckCircle} /> Applicant tracking</BulletPoint>
+        <BulletPoint><FontAwesomeIcon icon={faCheckCircle} /> Dedicated account support</BulletPoint>
+      </BulletPointContainer>
+    </Card>
 
     {/* Enterprise Plan */}
-    <div
-      style={{
-        padding: '40px',
-        backgroundColor: selectedPlan === 'enterprise' ? '#E6D6F1' : '#f3f4f6',
-        borderRadius: '8px',
-        boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-        border: '2px solid #6b46c1',
-        position: 'relative',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        width: '100%', 
-        maxWidth: '350px', 
-        flex: '1', 
-        transform: selectedPlan === 'enterprise' ? 'scale(1.05) translateY(-10px)' : 'scale(1)',
-        transition: 'transform 0.3s ease',
-      }}
-      onClick={() => handlePlanClick('enterprise')}
-    >
-      <span style={{ position: 'absolute', top: '0', right: '0', backgroundColor: '#6b46c1', color: '#ffffff', padding: '8px 12px', fontSize: '12px', fontWeight: 'bold' }}>
-        Most Popular
-      </span>
-      <div>
-        <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '8px' }}>Enterprise</h2>
-        <p style={{ fontSize: '14px', color: '#6b46c1', marginBottom: '16px' }}>
-          Schedule a demo about our flexible pricing plans
-        </p>
-        <p style={{ fontSize: '28px', fontWeight: '600', marginBottom: '16px' }}>Custom</p>
-        <button style={{ backgroundColor: '#6b46c1', color: '#ffffff', fontWeight: 'bold', padding: '12px 16px', borderRadius: '8px', border: 'none', cursor: 'pointer', marginBottom: '24px' }}>
-          Schedule a demo
-        </button>
-        <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '16px' }}>This Includes:</h3>
-        <ul style={{ marginBottom: '24px', padding: '0', listStyleType: 'none' }}>
-          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> Unlimited recruiter seats</li>
-          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> Unlimited job slots</li>
-          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> Employer profile</li>
-          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> AI applicant matches</li>
-          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> AI candidate sourcing tool</li>
-          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> Real-time candidate insights</li>
-          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> Direct messaging</li>
-          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> Applicant tracking</li>
-          <li style={{ lineHeight: '1.6' }}><FontAwesomeIcon icon={faCheckCircle} /> Dedicated account support</li>
-        </ul>
-      </div>
-    </div>
+    <Card style ={{border: '2px solid #6b46c1'}} onClick={() => handlePlanClick('enterprise')}>
+      <MostPopularTag>Most Popular</MostPopularTag>
+      <TableTitle>Enterprise</TableTitle>
+      <CardDescription>Schedule a demo to learn about our flexible pricing plans</CardDescription>
+      <CardPrice>Custom</CardPrice>
+      <CardButton onClick={() => handleOpenUpgradeLink()}>Upgrade</CardButton>
+      <CardButton style={{display: 'none'}}>Chat with Us</CardButton> 
+
+      <BulletPointContainer>
+        <BulletContainerTitle>Includes:</BulletContainerTitle>
+        <BulletPoint><FontAwesomeIcon icon={faCheckCircle} /> Unlimited recruiter seats</BulletPoint>
+        <BulletPoint><FontAwesomeIcon icon={faCheckCircle} /> Unlimited job slots</BulletPoint>
+        <BulletPoint><FontAwesomeIcon icon={faCheckCircle} /> Employer profile</BulletPoint>
+        <BulletPoint><FontAwesomeIcon icon={faCheckCircle} /> AI applicant matches</BulletPoint>
+        <BulletPoint><FontAwesomeIcon icon={faCheckCircle} /> AI candidate sourcing tool</BulletPoint>
+        <BulletPoint><FontAwesomeIcon icon={faCheckCircle} /> Real-time candidate insights</BulletPoint>
+        <BulletPoint><FontAwesomeIcon icon={faCheckCircle} /> Direct messaging</BulletPoint>
+        <BulletPoint><FontAwesomeIcon icon={faCheckCircle} /> Applicant tracking</BulletPoint>
+        <BulletPoint><FontAwesomeIcon icon={faCheckCircle} /> Dedicated account support</BulletPoint>
+        <BulletPoint><FontAwesomeIcon icon={faCheckCircle} /> Custom ATS Integration</BulletPoint>
+        <BulletPoint><FontAwesomeIcon icon={faCheckCircle} /> Featured jobs on platform</BulletPoint>
+        <BulletPoint><FontAwesomeIcon icon={faCheckCircle} /> Featured jobs on social</BulletPoint>
+        <BulletPoint><FontAwesomeIcon icon={faCheckCircle} /> Access to recruiting events</BulletPoint>
+      </BulletPointContainer>
+    </Card>
+  </div>
   </div>
 )}
 
