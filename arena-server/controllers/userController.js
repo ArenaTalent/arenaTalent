@@ -1,22 +1,33 @@
 const { User, EmployerProfile, JobseekerProfile } = require('../models')
 const admin = require('firebase-admin')
 const jwt = require('jsonwebtoken')
+const { sequelize } = require('../models') // Adjust the path as necessary
+
+const {
+  User,
+  EmployerProfile,
+  JobseekerProfile,
+  EventCode,
+  Coupon
+} = require('../models')
+const { sequelize } = require('../models')
 
 exports.signupWithEmail = async (req, res) => {
-  const {
-    firebase_uid,
-    role,
-    firstName,
-    lastName,
-    email,
-    password,
-    eventCode,
-    ...profileData
-  } = req.body
-
   const transaction = await sequelize.transaction()
 
   try {
+    const {
+      firebase_uid,
+      role,
+      firstName,
+      lastName,
+      email,
+      password,
+      eventCode,
+      couponCode,
+      ...profileData
+    } = req.body
+
     // Validate role
     if (!['jobseeker', 'employer'].includes(role)) {
       return res.status(400).json({ error: 'Invalid role' })
@@ -29,6 +40,7 @@ exports.signupWithEmail = async (req, res) => {
     }
 
     let subscriptionEndDate = null
+    let couponId = null
 
     // Process event code if provided
     if (eventCode) {
@@ -39,13 +51,42 @@ exports.signupWithEmail = async (req, res) => {
           expiration_date: {
             [sequelize.Op.or]: [null, { [sequelize.Op.gte]: new Date() }]
           }
-        }
+        },
+        transaction
       })
 
       if (validEventCode) {
         subscriptionEndDate = validEventCode.access_end_date
       } else {
         return res.status(400).json({ error: 'Invalid or expired event code' })
+      }
+    }
+
+    // Process coupon code if provided
+    if (couponCode) {
+      const validCoupon = await Coupon.findOne({
+        where: {
+          code: couponCode,
+          is_active: true,
+          expiration_date: {
+            [sequelize.Op.or]: [null, { [sequelize.Op.gte]: new Date() }]
+          }
+        },
+        transaction
+      })
+
+      if (validCoupon) {
+        const couponDuration = validCoupon.duration
+        const currentDate = new Date()
+        subscriptionEndDate = new Date(
+          currentDate.setDate(currentDate.getDate() + couponDuration)
+        )
+        couponId = validCoupon.id
+
+        // Update coupon usage count
+        await validCoupon.increment('usage_count', { transaction })
+      } else {
+        return res.status(400).json({ error: 'Invalid or expired coupon code' })
       }
     }
 
@@ -56,14 +97,17 @@ exports.signupWithEmail = async (req, res) => {
         first_name: firstName,
         last_name: lastName,
         email,
-        password, // Hash the password if needed (though Firebase Auth handles passwords)
+        password,
         role,
-        subscription_end_date: subscriptionEndDate
+        subscription_end_date: subscriptionEndDate,
+        event_code: eventCode,
+        coupon_code: couponCode,
+        coupon_id: couponId
       },
       { transaction }
     )
 
-    // Based on role, create either an EmployerProfile or JobseekerProfile
+    // Create profile based on role
     if (role === 'employer') {
       await EmployerProfile.create(
         {
@@ -78,26 +122,21 @@ exports.signupWithEmail = async (req, res) => {
         },
         { transaction }
       )
-    } else if (role === 'jobseeker') {
+    } else {
       await JobseekerProfile.create(
         {
           user_id: user.id,
           date_of_birth: profileData.dateOfBirth,
           street_address: profileData.address,
           phone: profileData.phone
-          // Add more jobseeker fields as needed
         },
         { transaction }
       )
     }
 
-    // Commit the transaction
     await transaction.commit()
-
-    // Send a success response
     res.status(201).json({ message: 'User registered successfully' })
   } catch (error) {
-    // Rollback the transaction in case of error
     await transaction.rollback()
     console.error('Error in signup:', error)
     res.status(500).json({ error: 'Server error', details: error.message })

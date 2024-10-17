@@ -1,6 +1,4 @@
-const { DataTypes } = require('sequelize')
-
-module.exports = (sequelize) => {
+module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define(
     'User',
     {
@@ -44,6 +42,25 @@ module.exports = (sequelize) => {
         type: DataTypes.DATE,
         allowNull: true,
         comment: "The date when the user's subscription ends"
+      },
+      event_code: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        comment: 'The event code used during signup'
+      },
+      coupon_code: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        comment: 'The coupon code used during signup'
+      },
+      coupon_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+          model: 'coupons',
+          key: 'id'
+        },
+        comment: 'The ID of the coupon used during signup'
       }
     },
     {
@@ -60,6 +77,10 @@ module.exports = (sequelize) => {
     User.hasOne(models.JobseekerProfile, {
       foreignKey: 'user_id',
       as: 'JobseekerProfile'
+    })
+    User.belongsTo(models.Coupon, {
+      foreignKey: 'coupon_id',
+      as: 'Coupon'
     })
   }
 

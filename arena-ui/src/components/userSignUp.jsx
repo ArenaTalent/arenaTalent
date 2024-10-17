@@ -42,6 +42,7 @@ export default function Signup() {
     address: '',
     phone: '',
     eventCode: '',
+    couponCode: '',
     companyName: '',
     companyWebsite: '',
     title: '',
@@ -94,6 +95,7 @@ export default function Signup() {
       address: '',
       phone: '',
       eventCode: '',
+      couponCode: '',
       companyName: '',
       companyWebsite: '',
       title: '',
@@ -147,27 +149,16 @@ export default function Signup() {
     };
   }, [resetState]);
 
-  const handleJobSeekerPlaceSelect = useCallback(() => {
-    if (jobSeekerAutocompleteRef.current) {
-      const place = jobSeekerAutocompleteRef.current.getPlace();
-      updateAddressComponents(place, setAddressComponents);
+  const handlePlaceSelect = useCallback((addressInputRef, setComponents) => {
+    if (addressInputRef.current) {
+      const place = addressInputRef.current.getPlace();
+      updateAddressComponents(place, setComponents);
       setFormData(prev => ({
         ...prev,
-        address: jobSeekerAddressInputRef.current.value,
+        [isEmployer ? 'companyAddress' : 'address']: addressInputRef.current.value,
       }));
     }
-  }, []);
-
-  const handleEmployerPlaceSelect = useCallback(() => {
-    if (employerAutocompleteRef.current) {
-      const place = employerAutocompleteRef.current.getPlace();
-      updateAddressComponents(place, setCompanyAddressComponents);
-      setFormData(prev => ({
-        ...prev,
-        companyAddress: employerAddressInputRef.current.value,
-      }));
-    }
-  }, []);
+  }, [isEmployer]);
 
   const initializeAutocomplete = useCallback(() => {
     if (jobSeekerAddressInputRef.current && !jobSeekerAutocompleteRef.current) {
@@ -175,7 +166,7 @@ export default function Signup() {
         jobSeekerAddressInputRef.current,
         { types: ['address'] }
       );
-      jobSeekerAutocompleteRef.current.addListener('place_changed', handleJobSeekerPlaceSelect);
+      jobSeekerAutocompleteRef.current.addListener('place_changed', () => handlePlaceSelect(jobSeekerAddressInputRef, setAddressComponents));
     }
 
     if (employerAddressInputRef.current && !employerAutocompleteRef.current) {
@@ -183,9 +174,9 @@ export default function Signup() {
         employerAddressInputRef.current,
         { types: ['address'] }
       );
-      employerAutocompleteRef.current.addListener('place_changed', handleEmployerPlaceSelect);
+      employerAutocompleteRef.current.addListener('place_changed', () => handlePlaceSelect(employerAddressInputRef, setCompanyAddressComponents));
     }
-  }, [handleJobSeekerPlaceSelect, handleEmployerPlaceSelect]);
+  }, [handlePlaceSelect]);
 
   useEffect(() => {
     if (isLoaded && !loadError) {
@@ -353,54 +344,6 @@ export default function Signup() {
         placeholder={isLoaded ? `Enter ${isEmployer ? 'company ' : ''}address` : `Enter ${isEmployer ? 'company ' : ''}address (autocomplete unavailable)`}
         required
       />
-      <input
-        type="text"
-        id={isEmployer ? "company-apt-suite" : "apt-suite"}
-        name={isEmployer ? "companyAptSuite" : "aptSuite"}
-        value={isEmployer ? formData.companyAptSuite : formData.aptSuite}
-        onChange={handleInputChange}
-        placeholder="Apt, Suite, etc (optional)"
-      />
-      <div className="horizontal-fields">
-        <input
-          type="text"
-          id={isEmployer ? "companyCity" : "city"}
-          name={isEmployer ? "companyCity" : "city"}
-          value={isEmployer ? companyAddressComponents.locality : addressComponents.locality}
-          onChange={handleInputChange}
-          placeholder="City"
-          readOnly
-        />
-        <input
-          type="text"
-          id={isEmployer ? "companyState" : "state"}
-          name={isEmployer ? "companyState" : "state"}
-          value={isEmployer ? companyAddressComponents.administrative_area_level_1 : addressComponents.administrative_area_level_1}
-          onChange={handleInputChange}
-          placeholder="State/Province"
-          readOnly
-        />
-      </div>
-      <div className="horizontal-fields">
-        <input
-          type="text"
-          id={isEmployer ? "companyZipCode" : "zipCode"}
-          name={isEmployer ? "companyZipCode" : "zipCode"}
-          value={isEmployer ? companyAddressComponents.postal_code : addressComponents.postal_code}
-          onChange={handleInputChange}
-          placeholder="Zip/Postal code"
-          readOnly
-        />
-        <input
-          type="text"
-          id={isEmployer ? "companyCountry" : "country"}
-          name={isEmployer ? "companyCountry" : "country"}
-          value={isEmployer ? companyAddressComponents.country : addressComponents.country}
-          onChange={handleInputChange}
-          placeholder="Country"
-          readOnly
-        />
-      </div>
     </div>
   );
 
@@ -469,10 +412,20 @@ export default function Signup() {
             />
           </div>
 
-          {formData.password && !isPasswordValid && <span className="alert" style={{ color: 'red' }}>✗ Password must be at least 8 characters and include a number</span>}
-          {formData.password && isPasswordValid && <span className="alert" style={{ color: 'green' }}>✓ Valid password</span>}
-          {formData.password && formData.confirmPassword && !isConfirmPasswordValid && <span className="alert" style={{ color: 'red' }}>✗ Passwords must match</span>}
-          {formData.password && formData.confirmPassword && isConfirmPasswordValid && <span className="alert" style={{ color: 'green' }}>✓ Passwords match</span>}
+          {formData.password && (
+            <div>
+              <span className="alert" style={{ color: isPasswordValid ? 'green' : 'red' }}>
+                {isPasswordValid ? '✓' : '✗'} Password must be at least 8 characters and include a number
+              </span>
+            </div>
+          )}
+          {formData.password && formData.confirmPassword && (
+            <div>
+              <span className="alert" style={{ color: isConfirmPasswordValid ? 'green' : 'red' }}>
+              {isConfirmPasswordValid ? '✓' : '✗'} Passwords must match
+              </span>
+            </div>
+          )}
         </div>
       )}
       {step === 2 && (
@@ -512,6 +465,16 @@ export default function Signup() {
                 onChange={handleInputChange}
               />
             </div>
+          </div>
+          <div className="field-group">
+            <label htmlFor="couponCode">Coupon Code (Optional)</label>
+            <input
+              type="text"
+              id="couponCode"
+              name="couponCode"
+              value={formData.couponCode}
+              onChange={handleInputChange}
+            />
           </div>
         </div>
       )}
@@ -609,10 +572,20 @@ export default function Signup() {
             />
           </div>
 
-          {formData.password && !isPasswordValid && <span className="alert" style={{ color: 'red' }}>✗ Password must be at least 8 characters and include a number</span>}
-          {formData.password && isPasswordValid && <span className="alert" style={{ color: 'green' }}>✓ Valid password</span>}
-          {formData.password && formData.confirmPassword && !isConfirmPasswordValid && <span className="alert" style={{ color: 'red', marginLeft:'5px'}}>✗ Passwords must match</span>}
-          {formData.password && formData.confirmPassword && isConfirmPasswordValid && <span className="alert" style={{ color: 'green', marginLeft:'5px' }}>✓ Passwords match</span>}
+          {formData.password && (
+            <div>
+              <span className="alert" style={{ color: isPasswordValid ? 'green' : 'red' }}>
+                {isPasswordValid ? '✓' : '✗'} Password must be at least 8 characters and include a number
+              </span>
+            </div>
+          )}
+          {formData.password && formData.confirmPassword && (
+            <div>
+              <span className="alert" style={{ color: isConfirmPasswordValid ? 'green' : 'red' }}>
+                {isConfirmPasswordValid ? '✓' : '✗'} Passwords must match
+              </span>
+            </div>
+          )}
         </div>
       )}
       {step === 2 && (
@@ -671,6 +644,16 @@ export default function Signup() {
               onChange={handleInputChange}
             />
           </div>
+          <div className="field-group">
+            <label htmlFor="couponCode">Coupon Code (Optional)</label>
+            <input
+              type="text"
+              id="couponCode"
+              name="couponCode"
+              value={formData.couponCode}
+              onChange={handleInputChange}
+            />
+          </div>
         </div>
       )}
     </>
@@ -722,10 +705,10 @@ export default function Signup() {
           <p className="required-fields-note"><span className="required">*</span> Required</p>
         </form>
         <p className="terms">
-  By signing up, you acknowledge that you have read and accept the{' '}
-  <a href="https://www.arenatalent.com/terms-of-service" target="_blank" rel="noopener noreferrer">Terms of Service</a> and{' '}
-  <a href="https://www.arenatalent.com/privacy-policy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
-</p>
+          By signing up, you acknowledge that you have read and accept the{' '}
+          <a href="https://www.arenatalent.com/terms-of-service" target="_blank" rel="noopener noreferrer">Terms of Service</a> and{' '}
+          <a href="https://www.arenatalent.com/privacy-policy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
+        </p>
         <p className="login">
           Already have an account? <a href="/login">Login</a>
         </p>

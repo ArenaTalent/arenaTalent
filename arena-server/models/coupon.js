@@ -4,7 +4,10 @@ const { Model } = require('sequelize')
 module.exports = (sequelize, DataTypes) => {
   class Coupon extends Model {
     static associate(models) {
-      // define association here if needed
+      Coupon.hasMany(models.User, {
+        foreignKey: 'coupon_id',
+        as: 'Users'
+      })
     }
   }
 
@@ -25,6 +28,10 @@ module.exports = (sequelize, DataTypes) => {
       },
       expiration_date: {
         type: DataTypes.DATE
+      },
+      usage_count: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0
       }
     },
     {

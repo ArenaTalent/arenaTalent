@@ -26,7 +26,7 @@ import JobSeekerAccount from './components/JobSeeker/JobSeekerAccount'
 import EmployerAccount from './components/Employer/EmployerAccount'
 import Profile from './components/Employer/profile'
 import EmployerSurvey from './components/Employer/ProfileCompletion'
-
+import SplashPage from './components/SplashPage'
 function App() {
   console.log('App component rendered')
   return (
@@ -34,6 +34,7 @@ function App() {
       <Router>
         <div className="App">
           <Routes>
+            <Route path="/" element={<SplashPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/reset-password" element={<PasswordReset />} />

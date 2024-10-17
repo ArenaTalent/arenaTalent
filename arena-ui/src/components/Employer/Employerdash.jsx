@@ -8,7 +8,7 @@ import JobPostModal from './JobPostModal';
 
 
 //MINE
-import { Modal, ModalContent, ModalCloseButton } from './Modal'; 
+import { Modal, ModalContent, ModalCloseButton } from './Modal';
 import { useNavigate } from 'react-router-dom';
 
 
@@ -426,7 +426,7 @@ const StatItem = styled.div`
 
 
 const EmployerDash = () => {
-  
+
 
   //MINE
   const navigate = useNavigate();
@@ -436,7 +436,7 @@ const EmployerDash = () => {
   const [employeeEmail, setEmployeeEmail] = useState('');
   const [additionalFields, setAdditionalFields] = useState([]); // State for additional fields
 
- 
+
   const handleOpenModal = () => {
     setModalOpen(true);
   };
@@ -464,38 +464,38 @@ const EmployerDash = () => {
     console.log('Additional Members:', additionalFields);
 
     setEmployeeName('');
-  setEmployeeEmail(''); 
-  setAdditionalFields([]); 
-  setNewModalOpen(false); 
+  setEmployeeEmail('');
+  setAdditionalFields([]);
+  setNewModalOpen(false);
   };
 
   const handleManageMembers = () => {
     console.log("Managing team members");
 
 
-    navigate('/employer-account'); 
+    navigate('/employer-account');
   };
 
   const handleAddMembers = () => {
     console.log("Adding team members");
-    handleOpenNewModal(); 
+    handleOpenNewModal();
   };
 
   // Function to add additional member fields
   const handleAddAdditional = () => {
     setAdditionalFields((prevFields) => [
       ...prevFields,
-      { name: '', email: '' }, 
+      { name: '', email: '' },
     ]);
-    setEmployeeName(''); 
-  setEmployeeEmail(''); 
+    setEmployeeName('');
+  setEmployeeEmail('');
   };
 
 
-  
 
 
- 
+
+
 
 
 
@@ -734,7 +734,7 @@ const EmployerDash = () => {
       <WelcomeHeader>🏟 Welcome to Arena!</WelcomeHeader>
 
 
-       
+
 
         <Link
             as="button"
@@ -744,27 +744,28 @@ const EmployerDash = () => {
                 top: '2rem',
                 right: '2rem',
                 padding: '8px',
-                backgroundColor: '#6F42C1', 
-                color: 'white', 
-                border: 'none', 
-                borderRadius: '5px', 
-                cursor: 'pointer', 
-                textAlign: 'center', 
+                backgroundColor: '#6F42C1',
+                color: 'white',
+                border: 'none',
+                borderRadius: '5px',
+                cursor: 'pointer',
+                textAlign: 'center',
                 textDecoration: 'none',
-                fontSize: '16px', 
-                transition: 'background-color 0.3s, transform 0.2s', 
-                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', 
+                fontSize: '16px',
+                transition: 'background-color 0.3s, transform 0.2s',
+                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
             }}
             onMouseEnter={(e) => {
-                e.target.style.backgroundColor = '#5A2D8C'; 
-                e.target.style.transform = 'scale(1.05)'; 
+                e.target.style.backgroundColor = '#5A2D8C';
+                e.target.style.transform = 'scale(1.05)';
             }}
             onMouseLeave={(e) => {
-                e.target.style.backgroundColor = '#6F42C1'; 
-                e.target.style.transform = 'scale(1)'; 
+                e.target.style.backgroundColor = '#6F42C1';
+                e.target.style.transform = 'scale(1)';
             }}
         >
             Add Team Members
+            </Link>
       <Link href="/add-team-members" style={{ position: 'absolute', top: '2rem', right: '2rem' }}>
           + Add Team Members
         </Link>
@@ -798,24 +799,24 @@ const EmployerDash = () => {
                     cursor: 'pointer',
                     fontSize: '16px',
                   }}
-                  onClick={handleAddMembers} 
+                  onClick={handleAddMembers}
                 >
                   Add Team Members
                 </button>
               </div>
 
-             
+
               <ModalCloseButton onClick={handleCloseModal}>Close</ModalCloseButton>
             </ModalContent>
           </Modal>
         )}
 
-      
+
         {isNewModalOpen && (
   <Modal>
     <ModalContent>
   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-  
+
     <button
       type="button"
       onClick={handleCloseNewModal}
@@ -834,7 +835,7 @@ const EmployerDash = () => {
 
     <h2 style={{ margin: '0' }}>Add Member</h2>
 
- 
+
     <button
       type="submit"
       style={{
@@ -867,7 +868,7 @@ const EmployerDash = () => {
           border: '1px solid #ccc',
           borderRadius: '5px',
           fontSize: '16px',
-          boxSizing: 'border-box', 
+          boxSizing: 'border-box',
         }}
       />
     </div>
@@ -886,12 +887,12 @@ const EmployerDash = () => {
           border: '1px solid #ccc',
           borderRadius: '5px',
           fontSize: '16px',
-          boxSizing: 'border-box', 
+          boxSizing: 'border-box',
         }}
       />
     </div>
 
- 
+
     <button
       type="button"
       onClick={handleAddAdditional}
