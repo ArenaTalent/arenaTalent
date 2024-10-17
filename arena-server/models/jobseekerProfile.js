@@ -208,6 +208,11 @@ module.exports = (sequelize) => {
       videos: {
         type: DataTypes.ARRAY(DataTypes.STRING),
         defaultValue: []
+      },
+      plan_type: {
+        type: DataTypes.ENUM('freetrial', 'free', 'paid'),
+        allowNull: false,
+        defaultValue: 'freetrial'
       }
     },
     {
