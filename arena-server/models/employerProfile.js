@@ -33,6 +33,18 @@ module.exports = (sequelize) => {
           key: 'id'
         }
       },
+      plan_type: {
+        type: DataTypes.ENUM(
+          'hidden',
+          'frozen',
+          'freetrial',
+          'premium',
+          'enterprise',
+          'paymentfail'
+        ),
+        allowNull: false,
+        defaultValue: 'freetrial'
+      },
       company_name: {
         type: DataTypes.STRING,
         allowNull: false
@@ -75,7 +87,7 @@ module.exports = (sequelize) => {
       sequelize,
       modelName: 'EmployerProfile',
       tableName: 'employer_profiles',
-      underscored: false, // Change this to false
+      underscored: false,
       timestamps: true
     }
   )
