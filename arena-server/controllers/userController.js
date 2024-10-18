@@ -1,16 +1,6 @@
-const { User, EmployerProfile, JobseekerProfile } = require('../models')
 const admin = require('firebase-admin')
 const jwt = require('jsonwebtoken')
-const { sequelize } = require('../models') // Adjust the path as necessary
 
-const {
-  User,
-  EmployerProfile,
-  JobseekerProfile,
-  EventCode,
-  Coupon
-} = require('../models')
-const { sequelize } = require('../models')
 const {
   User,
   EmployerProfile,
@@ -34,7 +24,6 @@ exports.signupWithEmail = async (req, res) => {
       eventCode,
       couponCode,
       addressComponents,
-      domain_verified,
       ...profileData
     } = req.body
 
@@ -116,6 +105,10 @@ exports.signupWithEmail = async (req, res) => {
 
     // Create profile based on role
     if (role === 'employer') {
+      const emailDomain = email.split('@')[1]
+      const companyDomain = profileData.companyWebsite.replace(/^www\./, '')
+      const domain_verified = emailDomain === companyDomain
+
       // Set plan type based on domain verification
       planType = domain_verified ? 'freetrial' : 'hidden'
 
@@ -170,6 +163,7 @@ exports.signupWithEmail = async (req, res) => {
     res.status(500).json({ error: 'Server error', details: error.message })
   }
 }
+
 exports.login = async (req, res) => {
   try {
     console.log('Login controller reached')
