@@ -1,5 +1,6 @@
 const admin = require('firebase-admin')
 const jwt = require('jsonwebtoken')
+const bcrypt = require('bcrypt')
 
 const {
   User,
@@ -8,14 +9,14 @@ const {
   EventCode,
   Coupon
 } = require('../models')
-const { sequelize } = require('../models')
+const { sequelize, Sequelize } = require('../models')
+const Op = Sequelize.Op // Import Sequelize operators
 
 exports.signupWithEmail = async (req, res) => {
   const transaction = await sequelize.transaction()
 
   try {
     const {
-      firebase_uid,
       role,
       firstName,
       lastName,
@@ -27,15 +28,21 @@ exports.signupWithEmail = async (req, res) => {
       ...profileData
     } = req.body
 
-    // Validate role
-    if (!['jobseeker', 'employer'].includes(role)) {
-      return res.status(400).json({ error: 'Invalid role' })
-    }
-
     // Check if the user already exists
     const existingUser = await User.findOne({ where: { email }, transaction })
     if (existingUser) {
-      return res.status(400).json({ error: 'User already exists' })
+      return res.status(400).json({
+        error: 'Email already exists',
+        action: {
+          type: 'redirect',
+          path: '/login'
+        }
+      })
+    }
+
+    // Validate role
+    if (!['jobseeker', 'employer'].includes(role)) {
+      return res.status(400).json({ error: 'Invalid role' })
     }
 
     let subscriptionEndDate = null
@@ -49,15 +56,26 @@ exports.signupWithEmail = async (req, res) => {
           code: eventCode,
           is_active: true,
           expiration_date: {
-            [sequelize.Op.or]: [null, { [sequelize.Op.gte]: new Date() }]
+            [Op.or]: [null, { [Op.gte]: new Date() }]
           }
         },
         transaction
       })
 
-      if (validEventCode) {
-        subscriptionEndDate = validEventCode.access_end_date
+      if (!validEventCode) {
+        return res.status(400).json({
+          error:
+            validEventCode === null
+              ? 'Event code not recognized'
+              : 'This event code is expired',
+          action: {
+            type: 'contact',
+            email: 'support@arenatalent.com'
+          }
+        })
       }
+
+      subscriptionEndDate = validEventCode.access_end_date
     }
 
     // Process coupon code if provided
@@ -67,33 +85,47 @@ exports.signupWithEmail = async (req, res) => {
           code: couponCode,
           is_active: true,
           expiration_date: {
-            [sequelize.Op.or]: [null, { [sequelize.Op.gte]: new Date() }]
+            [Op.or]: [null, { [Op.gte]: new Date() }]
           }
         },
         transaction
       })
 
-      if (validCoupon) {
-        const couponDuration = validCoupon.duration
-        const currentDate = new Date()
-        subscriptionEndDate = new Date(
-          currentDate.setDate(currentDate.getDate() + couponDuration)
-        )
-        couponId = validCoupon.id
-
-        // Update coupon usage count
-        await validCoupon.increment('usage_count', { transaction })
+      if (!validCoupon) {
+        return res.status(400).json({
+          error:
+            validCoupon === null
+              ? 'Coupon not recognized'
+              : 'This coupon is expired',
+          action: {
+            type: 'contact',
+            email: 'support@arenatalent.com'
+          }
+        })
       }
+
+      const couponDuration = validCoupon.duration
+      const currentDate = new Date()
+      subscriptionEndDate = new Date(
+        currentDate.setDate(currentDate.getDate() + couponDuration)
+      )
+      couponId = validCoupon.id
+
+      // Update coupon usage count
+      await validCoupon.increment('usage_count', { transaction })
     }
+
+    // Hash the password
+    const saltRounds = 10
+    const hashedPassword = await bcrypt.hash(password, saltRounds)
 
     // Create the User record
     const user = await User.create(
       {
-        firebase_uid,
         first_name: firstName,
         last_name: lastName,
         email,
-        password, // Note: Ensure this is hashed before storing
+        password: hashedPassword,
         role,
         subscription_end_date: subscriptionEndDate,
         event_code: eventCode,
@@ -117,13 +149,13 @@ exports.signupWithEmail = async (req, res) => {
           user_id: user.id,
           company_name: profileData.companyName,
           company_website: profileData.companyWebsite,
-          company_address: addressComponents.formatted_address,
+          company_address:
+            profileData.company_address || addressComponents.formatted_address,
           company_phone: profileData.companyPhone,
           company_email: email,
           company_size: profileData.companySize,
           domain_verified: domain_verified,
           plan_type: planType,
-          // Parse other address components as needed
           city: addressComponents.locality,
           state: addressComponents.administrative_area_level_1,
           zip_code: addressComponents.postal_code,
@@ -139,7 +171,6 @@ exports.signupWithEmail = async (req, res) => {
           street_address: addressComponents.formatted_address,
           phone: profileData.phone,
           plan_type: planType,
-          // Parse other address components as needed
           city: addressComponents.locality,
           state: addressComponents.administrative_area_level_1,
           zip_code: addressComponents.postal_code,
@@ -151,19 +182,52 @@ exports.signupWithEmail = async (req, res) => {
 
     await transaction.commit()
 
-    res.status(201).json({
-      message: 'User registered successfully',
-      userId: user.id,
-      role: user.role,
-      planType: planType
-    })
+    // Create Firebase user after successful database insertion
+    try {
+      const firebaseUser = await admin.auth().createUser({
+        email: email,
+        password: password,
+        displayName: `${firstName} ${lastName}`
+      })
+
+      // Update user with Firebase UID
+      await User.update(
+        { firebase_uid: firebaseUser.uid },
+        { where: { id: user.id } }
+      )
+
+      // Send email verification
+      await admin.auth().generateEmailVerificationLink(email)
+
+      res.status(201).json({
+        message: 'User registered successfully',
+        userId: user.id,
+        role: user.role,
+        planType: planType
+      })
+    } catch (firebaseError) {
+      console.error('Error creating Firebase user:', firebaseError)
+      // Here you might want to implement a retry mechanism or manual intervention
+      res.status(201).json({
+        message:
+          'User registered successfully, but there was an issue with Firebase account creation. Please contact support.',
+        userId: user.id,
+        role: user.role,
+        planType: planType
+      })
+    }
   } catch (error) {
     await transaction.rollback()
     console.error('Error in signup:', error)
-    res.status(500).json({ error: 'Server error', details: error.message })
+    res.status(500).json({
+      error: 'Hm. Something went wrong please try again.',
+      action: {
+        type: 'contact',
+        email: 'support@arenatalent.com'
+      }
+    })
   }
 }
-
 exports.login = async (req, res) => {
   try {
     console.log('Login controller reached')

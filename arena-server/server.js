@@ -13,6 +13,7 @@ require('dotenv').config()
 const multer = require('multer')
 const upload = multer({ storage: multer.memoryStorage() })
 const admin = require('firebase-admin') // Add this line
+const { retryFirebaseUserCreation } = require('./utils/firebaseRetry')
 
 const app = express()
 const port = process.env.PORT || 5002
@@ -29,6 +30,9 @@ if (!admin.apps.length) {
     process.env.REACT_APP_FIREBASE_PROJECT_ID
   )
 }
+
+// Run every hour
+setInterval(retryFirebaseUserCreation, 60 * 60 * 1000)
 
 const corsOptions = {
   origin: [

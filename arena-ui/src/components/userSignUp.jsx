@@ -236,7 +236,6 @@ const initializeAutocomplete = useCallback(() => {
       setStep(2);
     }
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isEmployer && !isOver18(formData.dateOfBirth)) {
@@ -247,10 +246,10 @@ const initializeAutocomplete = useCallback(() => {
     setError(null);
 
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
-      await sendEmailVerification(userCredential.user);
-
       const apiUrl = `${process.env.REACT_APP_BACKEND_URL}/api/users/signup`;
+
+      console.log('Form Data before submission:', formData);
+      console.log('Address Components:', isEmployer ? companyAddressComponents : addressComponents);
 
       const response = await fetch(apiUrl, {
         method: 'POST',
@@ -260,26 +259,33 @@ const initializeAutocomplete = useCallback(() => {
         body: JSON.stringify({
           ...formData,
           role: isEmployer ? 'employer' : 'jobseeker',
-          firebase_uid: userCredential.user.uid,
-          domain_verified: isEmployer ? !websiteDoesNotMatch : undefined,
           addressComponents: isEmployer ? companyAddressComponents : addressComponents,
+          company_address: isEmployer ? formData.companyAddress : undefined,
         }),
       });
 
-      if (response.ok) {
-        navigate('/verify-email');
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (data.action) {
+          if (data.action.type === 'redirect') {
+            navigate(data.action.path);
+          } else if (data.action.type === 'contact') {
+            setError(`${data.error}. Think this is a mistake? Email us at ${data.action.email}`);
+          }
+        } else {
+          setError(data.error || 'Signup failed. Please try again.');
+        }
       } else {
-        const data = await response.json();
-        setError(data.error || 'Signup failed. Please try again.');
+        navigate('/verify-email');
       }
     } catch (error) {
-      setError(error.message);
+      console.error('Signup error:', error);
+      setError('An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);
     }
   };
-
-
   const renderAddressFields = (isEmployer = false) => (
     <div className="form-group">
       <label htmlFor={isEmployer ? "companyAddress" : "address"}>
