@@ -11,6 +11,14 @@ const {
   Coupon
 } = require('../models')
 const { sequelize } = require('../models')
+const {
+  User,
+  EmployerProfile,
+  JobseekerProfile,
+  EventCode,
+  Coupon
+} = require('../models')
+const { sequelize } = require('../models')
 
 exports.signupWithEmail = async (req, res) => {
   const transaction = await sequelize.transaction()
@@ -25,6 +33,8 @@ exports.signupWithEmail = async (req, res) => {
       password,
       eventCode,
       couponCode,
+      addressComponents,
+      domain_verified,
       ...profileData
     } = req.body
 
@@ -34,13 +44,14 @@ exports.signupWithEmail = async (req, res) => {
     }
 
     // Check if the user already exists
-    const existingUser = await User.findOne({ where: { email } })
+    const existingUser = await User.findOne({ where: { email }, transaction })
     if (existingUser) {
       return res.status(400).json({ error: 'User already exists' })
     }
 
     let subscriptionEndDate = null
     let couponId = null
+    let planType = 'freetrial'
 
     // Process event code if provided
     if (eventCode) {
@@ -57,8 +68,6 @@ exports.signupWithEmail = async (req, res) => {
 
       if (validEventCode) {
         subscriptionEndDate = validEventCode.access_end_date
-      } else {
-        return res.status(400).json({ error: 'Invalid or expired event code' })
       }
     }
 
@@ -85,8 +94,6 @@ exports.signupWithEmail = async (req, res) => {
 
         // Update coupon usage count
         await validCoupon.increment('usage_count', { transaction })
-      } else {
-        return res.status(400).json({ error: 'Invalid or expired coupon code' })
       }
     }
 
@@ -97,7 +104,7 @@ exports.signupWithEmail = async (req, res) => {
         first_name: firstName,
         last_name: lastName,
         email,
-        password,
+        password, // Note: Ensure this is hashed before storing
         role,
         subscription_end_date: subscriptionEndDate,
         event_code: eventCode,
@@ -109,16 +116,25 @@ exports.signupWithEmail = async (req, res) => {
 
     // Create profile based on role
     if (role === 'employer') {
+      // Set plan type based on domain verification
+      planType = domain_verified ? 'freetrial' : 'hidden'
+
       await EmployerProfile.create(
         {
           user_id: user.id,
           company_name: profileData.companyName,
           company_website: profileData.companyWebsite,
-          company_address: profileData.companyAddress,
+          company_address: addressComponents.formatted_address,
           company_phone: profileData.companyPhone,
-          company_email: profileData.email,
+          company_email: email,
           company_size: profileData.companySize,
-          domain_verified: profileData.domain_verified
+          domain_verified: domain_verified,
+          plan_type: planType,
+          // Parse other address components as needed
+          city: addressComponents.locality,
+          state: addressComponents.administrative_area_level_1,
+          zip_code: addressComponents.postal_code,
+          country: addressComponents.country
         },
         { transaction }
       )
@@ -127,22 +143,33 @@ exports.signupWithEmail = async (req, res) => {
         {
           user_id: user.id,
           date_of_birth: profileData.dateOfBirth,
-          street_address: profileData.address,
-          phone: profileData.phone
+          street_address: addressComponents.formatted_address,
+          phone: profileData.phone,
+          plan_type: planType,
+          // Parse other address components as needed
+          city: addressComponents.locality,
+          state: addressComponents.administrative_area_level_1,
+          zip_code: addressComponents.postal_code,
+          country: addressComponents.country
         },
         { transaction }
       )
     }
 
     await transaction.commit()
-    res.status(201).json({ message: 'User registered successfully' })
+
+    res.status(201).json({
+      message: 'User registered successfully',
+      userId: user.id,
+      role: user.role,
+      planType: planType
+    })
   } catch (error) {
     await transaction.rollback()
     console.error('Error in signup:', error)
     res.status(500).json({ error: 'Server error', details: error.message })
   }
 }
-
 exports.login = async (req, res) => {
   try {
     console.log('Login controller reached')

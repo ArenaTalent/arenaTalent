@@ -49,29 +49,12 @@ export default function Signup() {
     companyAddress: '',
     companyPhone: '',
     companySize: '',
-    aptSuite: '',
-    companyAptSuite: '',
   });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [addressComponents, setAddressComponents] = useState({
-    street_number: '',
-    route: '',
-    locality: '',
-    administrative_area_level_1: '',
-    postal_code: '',
-    country: '',
-  });
-  const [companyDomain, setCompanyDomain] = useState('');
-  const [companyAddressComponents, setCompanyAddressComponents] = useState({
-    street_number: '',
-    route: '',
-    locality: '',
-    administrative_area_level_1: '',
-    postal_code: '',
-    country: '',
-  });
+  const [addressComponents, setAddressComponents] = useState({});
+  const [companyAddressComponents, setCompanyAddressComponents] = useState({});
   const [websiteDoesNotMatch, setWebsiteDoesNotMatch] = useState(false);
 
   const navigate = useNavigate();
@@ -102,29 +85,12 @@ export default function Signup() {
       companyAddress: '',
       companyPhone: '',
       companySize: '',
-      aptSuite: '',
-      companyAptSuite: '',
     });
     setError(null);
     setLoading(false);
     setShowPassword(false);
-    setAddressComponents({
-      street_number: '',
-      route: '',
-      locality: '',
-      administrative_area_level_1: '',
-      postal_code: '',
-      country: '',
-    });
-    setCompanyDomain('');
-    setCompanyAddressComponents({
-      street_number: '',
-      route: '',
-      locality: '',
-      administrative_area_level_1: '',
-      postal_code: '',
-      country: '',
-    });
+    setAddressComponents({});
+    setCompanyAddressComponents({});
     setWebsiteDoesNotMatch(false);
 
     if (jobSeekerAutocompleteRef.current) {
@@ -149,34 +115,41 @@ export default function Signup() {
     };
   }, [resetState]);
 
-  const handlePlaceSelect = useCallback((addressInputRef, setComponents) => {
-    if (addressInputRef.current) {
-      const place = addressInputRef.current.getPlace();
-      updateAddressComponents(place, setComponents);
-      setFormData(prev => ({
-        ...prev,
-        [isEmployer ? 'companyAddress' : 'address']: addressInputRef.current.value,
-      }));
-    }
-  }, [isEmployer]);
+// Updated handlePlaceSelect function
+const handlePlaceSelect = useCallback((autocompleteRef, setComponents) => {
+  if (autocompleteRef.current) {
+    const place = autocompleteRef.current.getPlace();
+    const components = {};
+    place.address_components.forEach((component) => {
+      const type = component.types[0];
+      components[type] = component.long_name;
+    });
+    setComponents(components);
+    setFormData(prev => ({
+      ...prev,
+      [isEmployer ? 'companyAddress' : 'address']: place.formatted_address,
+    }));
+  }
+}, [isEmployer]);
 
-  const initializeAutocomplete = useCallback(() => {
-    if (jobSeekerAddressInputRef.current && !jobSeekerAutocompleteRef.current) {
-      jobSeekerAutocompleteRef.current = new window.google.maps.places.Autocomplete(
-        jobSeekerAddressInputRef.current,
-        { types: ['address'] }
-      );
-      jobSeekerAutocompleteRef.current.addListener('place_changed', () => handlePlaceSelect(jobSeekerAddressInputRef, setAddressComponents));
-    }
+// Updated initializeAutocomplete function
+const initializeAutocomplete = useCallback(() => {
+  if (jobSeekerAddressInputRef.current && !jobSeekerAutocompleteRef.current) {
+    jobSeekerAutocompleteRef.current = new window.google.maps.places.Autocomplete(
+      jobSeekerAddressInputRef.current,
+      { types: ['address'] }
+    );
+    jobSeekerAutocompleteRef.current.addListener('place_changed', () => handlePlaceSelect(jobSeekerAutocompleteRef, setAddressComponents));
+  }
 
-    if (employerAddressInputRef.current && !employerAutocompleteRef.current) {
-      employerAutocompleteRef.current = new window.google.maps.places.Autocomplete(
-        employerAddressInputRef.current,
-        { types: ['address'] }
-      );
-      employerAutocompleteRef.current.addListener('place_changed', () => handlePlaceSelect(employerAddressInputRef, setCompanyAddressComponents));
-    }
-  }, [handlePlaceSelect]);
+  if (employerAddressInputRef.current && !employerAutocompleteRef.current) {
+    employerAutocompleteRef.current = new window.google.maps.places.Autocomplete(
+      employerAddressInputRef.current,
+      { types: ['address'] }
+    );
+    employerAutocompleteRef.current.addListener('place_changed', () => handlePlaceSelect(employerAutocompleteRef, setCompanyAddressComponents));
+  }
+}, [handlePlaceSelect]);
 
   useEffect(() => {
     if (isLoaded && !loadError) {
@@ -198,7 +171,6 @@ export default function Signup() {
 
   const handleCompanyDomainChange = (e) => {
     const newDomain = e.target.value;
-    setCompanyDomain(newDomain);
     setFormData(prevData => ({ ...prevData, companyWebsite: newDomain }));
     checkWebsiteMatch(newDomain, formData.email);
   };
@@ -206,8 +178,9 @@ export default function Signup() {
   const handleCompanyEmailChange = (e) => {
     const newEmail = e.target.value;
     setFormData(prevData => ({ ...prevData, email: newEmail }));
-    checkWebsiteMatch(companyDomain, newEmail);
+    checkWebsiteMatch(formData.companyWebsite, newEmail);
   };
+
 
   const checkWebsiteMatch = (domain, email) => {
     if (domain && email) {
@@ -216,30 +189,6 @@ export default function Signup() {
     } else {
       setWebsiteDoesNotMatch(false);
     }
-  };
-
-  const updateAddressComponents = (place, setComponents) => {
-    if (!place.address_components) {
-      return;
-    }
-
-    const components = {
-      street_number: '',
-      route: '',
-      locality: '',
-      administrative_area_level_1: '',
-      postal_code: '',
-      country: '',
-    };
-
-    place.address_components.forEach(component => {
-      const type = component.types[0];
-      if (components.hasOwnProperty(type)) {
-        components[type] = component.long_name;
-      }
-    });
-
-    setComponents(components);
   };
 
   const isPasswordValid = formData.password.length >= 8 && /\d/.test(formData.password);
@@ -258,11 +207,11 @@ export default function Signup() {
 
   useEffect(() => {
     setError(null);
-  }, [formData.email, companyDomain, formData.password, formData.confirmPassword]);
+  }, [formData.email, formData.companyWebsite, formData.password, formData.confirmPassword]);
 
   const validateCompanyEmail = () => {
     const emailDomain = formData.email.split('@')[1];
-    return emailDomain === companyDomain;
+    return emailDomain === formData.companyWebsite;
   };
 
   const handleNextStep = async () => {
@@ -271,19 +220,19 @@ export default function Signup() {
         setError('Please fix the password errors before continuing.');
         return;
       }
-      if (isEmployer) {
-        if (!validateCompanyEmail()) {
-          setError('Company email domain must match the provided company domain.');
-          return;
-        }
-        setLoading(true);
-        const isValid = await isValidDomain(formData.email);
-        setLoading(false);
-        if (!isValid) {
-          setError('Please use a valid company email address. Free email providers are not allowed.');
-          return;
-        }
-      }
+      // if (isEmployer) {
+      //   if (!validateCompanyEmail()) {
+      //     setError('Company email domain must match the provided company domain.');
+      //     return;
+      //   }
+      //   setLoading(true);
+      //   const isValid = await isValidDomain(formData.email);
+      //   setLoading(false);
+      //   if (!isValid) {
+      //     setError('Please use a valid company email address. Free email providers are not allowed.');
+      //     return;
+      //   }
+      // }
       setStep(2);
     }
   };
@@ -313,6 +262,7 @@ export default function Signup() {
           role: isEmployer ? 'employer' : 'jobseeker',
           firebase_uid: userCredential.user.uid,
           domain_verified: isEmployer ? !websiteDoesNotMatch : undefined,
+          addressComponents: isEmployer ? companyAddressComponents : addressComponents,
         }),
       });
 
@@ -328,6 +278,7 @@ export default function Signup() {
       setLoading(false);
     }
   };
+
 
   const renderAddressFields = (isEmployer = false) => (
     <div className="form-group">
@@ -422,7 +373,7 @@ export default function Signup() {
           {formData.password && formData.confirmPassword && (
             <div>
               <span className="alert" style={{ color: isConfirmPasswordValid ? 'green' : 'red' }}>
-              {isConfirmPasswordValid ? '✓' : '✗'} Passwords must match
+                {isConfirmPasswordValid ? '✓' : '✗'} Passwords must match
               </span>
             </div>
           )}
@@ -455,16 +406,16 @@ export default function Signup() {
                 required
               />
             </div>
-            <div className="field-group">
-              <label htmlFor="eventCode">Event Code (Optional)</label>
-              <input
-                type="text"
-                id="eventCode"
-                name="eventCode"
-                value={formData.eventCode}
-                onChange={handleInputChange}
-              />
-            </div>
+          </div>
+          <div className="field-group">
+            <label htmlFor="eventCode">Event Code (Optional)</label>
+            <input
+              type="text"
+              id="eventCode"
+              name="eventCode"
+              value={formData.eventCode}
+              onChange={handleInputChange}
+            />
           </div>
           <div className="field-group">
             <label htmlFor="couponCode">Coupon Code (Optional)</label>
